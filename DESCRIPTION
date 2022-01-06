@@ -1,0 +1,13 @@
+Package: seqdb
+Type: Package
+Title: This package collects R functions for working with sequence databases like NCBI, ENA, MGnify
+Version: 0.1
+Date: 2022-01-05
+Author: Tamas Stirling
+Maintainer: Tamas Stirling <strling.tamas@gmail.com>
+Description: TBA
+License: TBD
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.2
+Config/testthat/edition: 3
