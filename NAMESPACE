@@ -3,6 +3,7 @@
 export(download_gb)
 export(download_report)
 export(extract_accn)
+export(flag_files)
 export(get_report_url)
 export(get_uid)
 export(mgnify_endpoints)

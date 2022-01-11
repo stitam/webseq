@@ -4,7 +4,19 @@
 \alias{mgnify_list}
 \title{Retrieve a list of instances from MGnify}
 \usage{
-mgnify_list(query, from, from_id, page = NULL)
+mgnify_list(
+  query,
+  from,
+  from_id,
+  page = NULL,
+  sleep = 0.2,
+  verbose = getOption("verbose")
+)
+}
+\arguments{
+\item{sleep}{character;}
+
+\item{verbose}{logical; should verbose messages be printed to console?}
 }
 \description{
 Retrieve a list of instances from MGnify
@@ -13,7 +25,7 @@ Retrieve a list of instances from MGnify
 \dontrun{
 # Query samples collected from biogas plants
 mgnify_list(query = "samples",
-            from = "biomes"
+            from = "biomes",
             from_id = "root:Engineered:Biogas plant",
             page = 1)
 }
