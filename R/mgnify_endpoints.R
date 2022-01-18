@@ -1,7 +1,7 @@
 #' MGnify endpoints
 #' 
 #' This functions queries MGnify for all available endpoints
-#' @param verbose boolean; should verbose messages be printed to console?
+#' @param verbose logical; should verbose messages be printed to console?
 #' @return a tibble of API-s and their respective endpoints
 #' @note The function prints contents of the following url:
 #' \url{https://www.ebi.ac.uk/metagenomics/api/v1/}
@@ -10,7 +10,7 @@
 #' mgnify_endpoints()
 #' }
 #' @export
-mgnify_endpoints <- function(verbose = options("verbose")) {
+mgnify_endpoints <- function(verbose = getOption("verbose")) {
   tmpdir <- tempdir()
   if (!dir.exists(tmpdir)) {
     if (verbose) message("Creating cache directory ", tmpdir, ".")

@@ -4,10 +4,10 @@
 \alias{mgnify_endpoints}
 \title{MGnify endpoints}
 \usage{
-mgnify_endpoints(verbose = options("verbose"))
+mgnify_endpoints(verbose = getOption("verbose"))
 }
 \arguments{
-\item{verbose}{boolean; should verbose messages be printed to console?}
+\item{verbose}{logical; should verbose messages be printed to console?}
 }
 \value{
 a tibble of API-s and their respective endpoints
