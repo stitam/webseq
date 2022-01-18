@@ -7,34 +7,23 @@
 get_uid(term, db = "assembly")
 }
 \arguments{
-\item{term}{character; the search term. Check details for more information.
-\code{term} takes a vector of strings and collapses them with " OR ".}
+\item{term}{character; the search term.}
 
 \item{db}{character; the database to search in. For options see
 \code{rentrez::entrez_dbs()}}
 }
 \value{
-an object of class \code{esearch}.
+a character vector of ID-s.
 }
 \description{
 This function replicates the NCBI website's search utility. The search term
-is matched against the chosen database and the function returns a list of
-internal IDs that can be used e.g. to link NCBI entries with entries in other
-NCBI databases.
-}
-\note{
-This is the first step within the pipeline for downloading GenBank
-files.
+is matched against the chosen database and the function returns a character
+vector of internal IDs that can be used e.g. to link NCBI entries with
+entries in other NCBI databases.
 }
 \examples{
 \dontrun{
-get_uid(c("Autographiviridae", "Podoviridae"), db = "assembly")
+get_uid("GCA_003012895.2")
+get_uid(c("Autographiviridae OR Podoviridae"), db = "assembly")
 }
-}
-\seealso{
-\code{get_report_url()},
-\code{download_report()},
-\code{parse_report()},
-\code{extract_accn()},
-\code{download_gb()}
 }
