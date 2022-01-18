@@ -25,9 +25,12 @@ build_uiddb <- function(assemblies,
                         update_after = 30,
                         verbose = getOption("verbose")) {
   foo <- function(query) {
+    Sys.sleep(runif(1,0.2,0.5))
     assembly_uids <- sapply(query, function(x) get_uid(x, db = "assembly"))
+    Sys.sleep(runif(1,0.2,0.5))
     taxonomy_uids <- link_uids(
       assembly_uids, from = "assembly", to = "taxonomy")
+    Sys.sleep(runif(1,0.2,0.5))
     biosample_uids <- link_uids(
       assembly_uids, from = "assembly", to = "biosample")
     newdb <- data.frame(
@@ -47,7 +50,6 @@ build_uiddb <- function(assemblies,
   }
   sysdate <- Sys.Date()
   for (i in seq_along(assemblies)) {
-    Sys.sleep(runif(1,0.2,0.5))
     if (verbose) message(i, "/", length(assemblies), ": ", appendLF = FALSE)
     if (assemblies[i] %in% uiddb$assembly) {
       index <- which(uiddb$assembly == assemblies[i])
