@@ -54,8 +54,12 @@ flag_files <- function(filenames) {
       }
     }
   }
+  df$assembly <- mapply(function(x,y) {
+    paste(x, y, sep = "_") 
+  }, df$source, df$accession) 
   df <- tibble::as_tibble(df[,c(
     "filename",
+    "assembly", 
     "source",
     "accession",
     "base",
