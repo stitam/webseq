@@ -35,6 +35,6 @@ within a number of NCBI databases.
 \examples{
 \dontrun{
 ids <- c("GCA_003012895.2", "GCF_000695855.3")
-uiddb <- build_uiddb(ids)
+build_uiddb(ids)
 }
 }

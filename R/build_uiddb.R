@@ -16,7 +16,7 @@
 #' @examples
 #' \dontrun{
 #' ids <- c("GCA_003012895.2", "GCF_000695855.3")
-#' uiddb <- build_uiddb(ids)
+#' build_uiddb(ids)
 #' }
 #' @export
 
@@ -47,6 +47,7 @@ build_uiddb <- function(assemblies,
   }
   sysdate <- Sys.Date()
   for (i in seq_along(assemblies)) {
+    Sys.sleep(runif(1,0.2,0.5))
     if (verbose) message(i, "/", length(assemblies), ": ", appendLF = FALSE)
     if (assemblies[i] %in% uiddb$assembly) {
       index <- which(uiddb$assembly == assemblies[i])
