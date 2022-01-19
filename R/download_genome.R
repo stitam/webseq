@@ -30,7 +30,7 @@ download_genome <- function(accessions,
     "assembly_report", "assembly_stats", "cds", "feature_count",
     "feature_table", "genomic.fna", "genomic.gbff", "genomic.gff",
     "genomic.gtf", "protein.faa", "protein.gpff", "translated_cds"))
-  foo <- function(x, type) {
+  foo <- function(x, type, verbose) {
     if (grepl("^GC[A|F]_[0-9]+\\.[0-9]+", x) == FALSE) {
       if (verbose) {
         message(x, ". Failed. Not an assembly accession.")
@@ -38,6 +38,7 @@ download_genome <- function(accessions,
       return(NA)
     }
     if (verbose) message(x, ". ", appendLF = FALSE)
+    Sys.sleep(runif(1,0.2,0.5))
     assembly_uid <- try(get_uid(x, db = "assembly"), silent = TRUE)
     if (inherits(assembly_uid, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
@@ -54,6 +55,7 @@ download_genome <- function(accessions,
       }
       return(NA)
     }
+    Sys.sleep(runif(1,0.2,0.5))
     assembly_meta <- try(ncbi_meta_assembly(assembly_uid), silent = TRUE)
     if (inherits(assembly_meta, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
@@ -87,6 +89,7 @@ download_genome <- function(accessions,
       if (verbose) message("Done. Already downloaded.")
       return(NA)
     }
+    Sys.sleep(runif(1,0.2,0.5))
     out <- try(download.file(urlpath,
                              destfile = filepath,
                              quiet = TRUE), silent = TRUE)
@@ -97,5 +100,5 @@ download_genome <- function(accessions,
     }
     message("Done.")
   }
-  out <- lapply(accessions, function(x) foo(x, typ = type))
+  out <- lapply(accessions, function(x) foo(x, typ = type, verbose = verbose))
 }
