@@ -5,17 +5,13 @@
 \title{Download Genomes from NCBI}
 \usage{
 download_genome(
-  assembly_uid,
+  accessions,
   type = "genomic.gbff",
   dirpath = NULL,
-  from = "refseq",
   verbose = getOption("verbose")
 )
 }
 \arguments{
-\item{assembly_uid}{numeric; a unique identifier. Use \code{get_uid} to
-acquire a unique UID.}
-
 \item{type}{character; the file extension to download. Valid options are
 \code{"assembly_report"}, \code{"assembly_stats"}, \code{"cds"},
 \code{"feature_count"}, \code{"feature_table"}, \code{"genomic.fna"},
@@ -25,31 +21,22 @@ acquire a unique UID.}
 \item{dirpath}{character; the path to the directory where the file should be
 downloaded.}
 
-\item{from}{character; either \code{"refseq"} or \code{"genbank"}.
-If \code{from} is set to \code{"refseq"} then the function will attempt to
-download the file from the refseq repository and use \code{"genbank"} as a
-fallback option.}
+\item{verbose}{logical; should verbose messages be printed to console?}
 
-\item{verbose}{boolean; should verbose messages be printed to console?}
+\item{accession}{character; a character vector of assembly accessions.}
 }
 \description{
-This function directly accesses a genome through the NCBI FTP server.
-}
-\note{
-ToDo: vectorise and add input validation to ensure function fails early
-if there are input errors. Add tests.
+This function directly downloads genome data through the NCBI FTP server.
 }
 \examples{
 \dontrun{
-# Aim: download genbank file for "GCF_003007635.1"
-
+# Download genbank file for GCF_003007635.1.
 # The function will access files within this directory:
 # ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/003/007/635/
+download_genome("GCF_003007635.1", type = "genomic.gbff", verbose = TRUE)
 
-# Step 1 - Get NCBI Assembly UID
-uid <- get_uid("GCF_003007635.1", db = "assembly")
-
-# Step 2 - Download file
-download_genome(uid, type = "genomic.gbff")
+# Download multiple files
+accessions <- c("GCF_000248195.1", "GCF_000695855.3")
+download_genome(accessions, type = "genomic.gbff", verbose = TRUE)
 }
 }
