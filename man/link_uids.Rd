@@ -25,7 +25,7 @@ Assembly database may be linked with metadata in the NCBI BioSample database.
 This function links uids from one database with uids from another.
 }
 \examples{
-\dontrun {
+\dontrun{
 link_uids("4253631", "assembly", "biosample")
 }
 }

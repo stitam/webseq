@@ -18,7 +18,7 @@
 #' @note ToDo: vectorise and add input validation to ensure function fails early
 #' if there are input errors. Add tests.
 #' @examples
-#' \dontrun {
+#' \dontrun{
 #' # Aim: download genbank file for "GCF_003007635.1"
 #'
 #' # The function will access files within this directory:
