@@ -22,10 +22,10 @@ link_uids <- function(uids, from, to) {
   out <- unname(sapply(uids, function(x) {
     res <- NULL
     attempt <- 1
-    while(is.null(hit) && attempt <= 5) {
-      res <- try(rrentrez::entrez_link(id = x, dbfrom = from, db = to),
+    while(is.null(res) && attempt <= 5) {
+      res <- try(rentrez::entrez_link(id = x, dbfrom = from, db = to),
                  silent = TRUE)
-      if (inherits(hit, "try-error")) {
+      if (inherits(res, "try-error")) {
         res <- NULL
         attempt <- attempt + 1
       }
