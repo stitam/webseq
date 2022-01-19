@@ -11,7 +11,7 @@
 #' \code{rentrez::entrez_dbs()} lists all available options.
 #' @return A character vector of linked uids from the new database.
 #' @examples 
-#' \dontrun {
+#' \dontrun{
 #' link_uids("4253631", "assembly", "biosample")
 #' }
 #' @export
@@ -20,7 +20,16 @@ link_uids <- function(uids, from, to) {
   from <- match.arg(from, rentrez::entrez_dbs())
   to <- match.arg(to, rentrez::entrez_dbs())
   out <- unname(sapply(uids, function(x) {
-    res <- rentrez::entrez_link(id = x, dbfrom = from, db = to)
+    res <- NULL
+    attempt <- 1
+    while(is.null(hit) && attempt <= 5) {
+      res <- try(rrentrez::entrez_link(id = x, dbfrom = from, db = to),
+                 silent = TRUE)
+      if (inherits(hit, "try-error")) {
+        res <- NULL
+        attempt <- attempt + 1
+      }
+    }
     if (length(res$links) == 0) return(NA) else {
       new_uid <- unlist(res$links[paste(from, to, sep = "_")])
       return(new_uid)

@@ -17,9 +17,26 @@
 get_uid <- function(term, db = "assembly") {
   db <- match.arg(db, rentrez::entrez_dbs())
   term <- paste(term, collapse = " OR ")
-  hit <- rentrez::entrez_search(db, term = term)
+  hit <- NULL
+  attempt <- 1
+  while(is.null(hit) && attempt <= 5) {
+    hit <- try(rentrez::entrez_search(db, term = term), silent = TRUE)
+    if (inherits(hit, "try-error")) {
+      hit <- NULL
+      attempt <- attempt + 1
+    }
+  }
   if (hit$count > hit$retmax) {
-    hit <- rentrez::entrez_search(db, term = term, retmax = hit$count)
+    hit <- NULL
+    attempt <- 1
+    while(is.null(hit) && attempt <= 5) {
+      hit <- try(rentrez::entrez_search(db, term = term, retmax = hit$count),
+                 silent = TRUE)
+      if (inherits(hit, "try-error")) {
+        hit <- NULL
+        attempt <- attempt + 1
+      }
+    }
   }
   out <- ifelse(length(hit$ids) > 0, hit$ids, NA)
   return(out)
