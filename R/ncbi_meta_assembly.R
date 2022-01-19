@@ -12,9 +12,9 @@ ncbi_meta_assembly <- function(assembly_uid) {
   parsed_xml <- XML::xmlParse(res)
   rootnode <- XML::xmlRoot(parsed_xml)
 
-  assembly_accession <- XML::xpathSApply(
+  assembly <- XML::xpathSApply(
     rootnode, "//AssemblyAccession", XML::xmlValue)
-  assembly_accession <- coerce_xmlvalue(assembly_accession)
+  assembly <- coerce_xmlvalue(assembly)
   asm_name <- XML::xpathSApply(
     rootnode, "//AssemblyName", XML::xmlValue)
   asm_name <- coerce_xmlvalue(asm_name)
@@ -34,19 +34,21 @@ ncbi_meta_assembly <- function(assembly_uid) {
     rootnode, "//Taxid", XML::xmlValue)
   taxid <- coerce_xmlvalue(taxid)
   ftppath <- ifelse(
-    grepl("^GCF", assembly_accession),
+    grepl("^GCF", assembly),
     XML::xpathSApply(rootnode, "//FtpPath_RefSeq", XML::xmlValue),
     XML::xpathSApply(rootnode, "//FtpPath_GenBank", XML::xmlValue))
   ftppath <- coerce_xmlvalue(ftppath)
   out <- tibble::tibble(
-    assembly_accession = assembly_accession,
+    assembly = assembly,
     asm_name = asm_name,
     bioproject = bioproject,
     biosample = biosample,
     organism = organism,
-    assembly_status = assembly_status,
+    status = assembly_status,
+    assembly_uid = assembly_uid,
     taxid = taxid,
-    ftppath = ftppath)
+    ftppath = ftppath,
+    accessed = Sys.Date())
   return(out)
 }
 
