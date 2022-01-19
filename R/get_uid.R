@@ -11,33 +11,35 @@
 #' @examples
 #' \dontrun{
 #' get_uid("GCA_003012895.2")
-#' get_uid(c("Autographiviridae OR Podoviridae"), db = "assembly")
+#' get_uid("Autographiviridae OR Podoviridae", db = "assembly")
 #' }
 #' @export
 get_uid <- function(term, db = "assembly") {
   db <- match.arg(db, rentrez::entrez_dbs())
-  term <- paste(term, collapse = " OR ")
-  hit <- NULL
+  r <- NULL
   attempt <- 1
-  while(is.null(hit) && attempt <= 5) {
+  while(is.null(r) && attempt <= 5) {
     hit <- try(rentrez::entrez_search(db, term = term), silent = TRUE)
     if (inherits(hit, "try-error")) {
-      hit <- NULL
       attempt <- attempt + 1
-    }
+    } else r <- 1
+  }
+  if (inherits(hit, "try-error")) {
+    stop("Query failed after 5 tries.")
   }
   if (hit$count > hit$retmax) {
-    hit <- NULL
+    r <- NULL
     attempt <- 1
-    while(is.null(hit) && attempt <= 5) {
+    while(is.null(r) && attempt <= 5) {
       hit <- try(rentrez::entrez_search(db, term = term, retmax = hit$count),
                  silent = TRUE)
       if (inherits(hit, "try-error")) {
-        hit <- NULL
         attempt <- attempt + 1
-      }
+      } else r <- 1
     }
   }
-  out <- ifelse(length(hit$ids) > 0, hit$ids, NA)
-  return(out)
+  if (inherits(hit, "try-error")) {
+    stop("Query failed after 5 tries.")
+  }
+  if (length(hit$ids) > 0) return(hit$ids) else return(NA)
 }

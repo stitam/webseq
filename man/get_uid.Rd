@@ -24,6 +24,6 @@ entries in other NCBI databases.
 \examples{
 \dontrun{
 get_uid("GCA_003012895.2")
-get_uid(c("Autographiviridae OR Podoviridae"), db = "assembly")
+get_uid("Autographiviridae OR Podoviridae", db = "assembly")
 }
 }
