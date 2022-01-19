@@ -1,4 +1,4 @@
-#' Convert between NCBI UIDs
+#' Link NCBI UID-s
 #' 
 #' Each entry in an NCBI database has its unique internal id. Entries in
 #' different databases may be linked. For example, an assembly in the NCBI

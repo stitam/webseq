@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_uid.R
 \name{get_uid}
 \alias{get_uid}
-\title{Collect internal IDs from NCBI databases}
+\title{Collect UID-s from NCBI databases}
 \usage{
 get_uid(term, db = "assembly")
 }
@@ -18,7 +18,7 @@ a character vector of ID-s.
 \description{
 This function replicates the NCBI website's search utility. The search term
 is matched against the chosen database and the function returns a character
-vector of internal IDs that can be used e.g. to link NCBI entries with
+vector of internal NCBI UID-s that can be used e.g. to link NCBI entries with
 entries in other NCBI databases.
 }
 \examples{

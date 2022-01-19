@@ -2,7 +2,7 @@
 % Please edit documentation in R/link_uids.R
 \name{link_uids}
 \alias{link_uids}
-\title{Convert between NCBI UIDs}
+\title{Link NCBI UID-s}
 \usage{
 link_uids(uids, from, to)
 }
