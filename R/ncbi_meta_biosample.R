@@ -16,16 +16,16 @@
 #' # Sample metadata from assembly accession 
 #' assembly_uid <- get_uid("GCF_000695855.3")
 #' biosample_uid <- link_uids(assembly_uid, from = "assembly", to = "biosample")
-#' ncbi_meta(biosample_uid)
+#' ncbi_meta_biosample(biosample_uid)
 #' }
 #' @export
-ncbi_meta <- function(biosample_uids, verbose = getOption("verbose")) {
+ncbi_meta_biosample <- function(biosample_uids, verbose = getOption("verbose")) {
  foo <- function(x) {
    res <- rentrez::entrez_fetch(
      db = "biosample", id = x, rettype = "full", retmode = "xml")
    parsed_xml <- XML::xmlParse(res)
    rootnode <- XML::xmlRoot(parsed_xml)
-   out <- data.frame(query = x)
+   out <- data.frame(biosample_uid = x)
    attr_node <- rootnode[[1]][["Attributes"]]
    if (!is.null(attr_node)) {
      attr_list <- XML::xmlToList(attr_node)
