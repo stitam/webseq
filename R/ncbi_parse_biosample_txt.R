@@ -22,10 +22,9 @@ ncbi_parse_biosample_txt <- function(file) {
         biosample, regex = "BioSample: +[a-zA-Z]+[0-9]+")
       biosample <- strsplit(biosample, "BioSample: +")[[1]][[2]]
     } else biosample <- NA
-    sra <- x[grep("SRA", x)]
+    sra <- x[grep("SRA: ", x)]
     if (length(sra) == 1) {
-      sra <- stringi::stri_extract(
-        sra, regex = "SRA: +[a-zA-Z]+[0-9]+")
+      sra <- stringi::stri_extract(sra, regex = "SRA: +[a-zA-Z]+[0-9]+")
       sra <- strsplit(sra, "SRA: +")[[1]][[2]]
     } else sra <- NA
     organism <- x[grep("^Organism", x)]
@@ -38,6 +37,7 @@ ncbi_parse_biosample_txt <- function(file) {
     host <- ifelse(length(hit) == 1, strsplit(hit, '"')[[1]][2], NA)
     hit <- x[grep("collection date", x)]
     collection_date <- ifelse(length(hit) == 1, strsplit(hit, '"')[[1]][2], NA)
+    collection_day <- as.Date(collection_date, format = "%Y-%m-%d")
     hit <- x[grep("geographic location", x)]
     geographic_location <- ifelse(length(hit) == 1, strsplit(hit, '"')[[1]][2], NA)
     out <- tibble::tibble(
@@ -47,6 +47,7 @@ ncbi_parse_biosample_txt <- function(file) {
       strain = strain,
       host = host,
       collection_date = collection_date,
+      collection_day = collection_day,
       geographic_location = geographic_location
     )
     return(out)
@@ -71,5 +72,15 @@ ncbi_parse_biosample_txt <- function(file) {
     warning("Number of rows may not match number of biosamples. Check.")
   }
   out <- dplyr::bind_rows(out)
+  na_terms <- c(
+    "missing", "na", "n/a", "none", "not applicable", "not collected", 
+    "not_determined", "unknown", "NA")
+  geo <- tolower(out$geographic_location)
+  geo <- ifelse(geo %in% na_terms == FALSE, geo, NA)
+  geo <- sapply(geo, function(x) {
+    ifelse(!is.na(x), strsplit(x, ": *")[[1]][1], NA)
+  })
+  geo <- gsub(" +", "_", geo)
+  out$country <- geo
   return(out)
 }
