@@ -56,9 +56,11 @@ ncbi_parse_biosample_txt <- function(file) {
       atr[1] <- gsub("#", "", atr[1])
       atr[1] <- tolower(atr[1])
       atr[2] <- strsplit(atr[2], '"')[[1]][2]
-      assign(atr[1], atr[2])
-      attribute_list <- c(attribute_list, get(atr[1]))
-      names(attribute_list)[length(attribute_list)] <- atr[1]
+      if (atr[1] %in% c(names(id_list)) == FALSE) {
+        assign(atr[1], atr[2])
+        attribute_list <- c(attribute_list, get(atr[1]))
+        names(attribute_list)[length(attribute_list)] <- atr[1]
+      }
     }
     attribute_df <- as.data.frame(attribute_list)
     #hit <- x[grep("strain", x)]
