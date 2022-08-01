@@ -40,7 +40,4 @@ vignettes/*.pdf
 
 # Local directories
 
-analyses/
-input/
-output/
-scripts/
+inst/
