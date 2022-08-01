@@ -82,15 +82,5 @@ ncbi_parse_biosample_txt <- function(file) {
     warning("Number of rows may not match number of biosamples. Check.")
   }
   out <- dplyr::bind_rows(out)
-  na_terms <- c(
-    "missing", "na", "n/a", "none", "not applicable", "not collected", 
-    "not_determined", "unknown", "NA")
-  geo <- tolower(out$geographic_location)
-  geo <- ifelse(geo %in% na_terms == FALSE, geo, NA)
-  geo <- sapply(geo, function(x) {
-    ifelse(!is.na(x), strsplit(x, ": *")[[1]][1], NA)
-  })
-  geo <- gsub(" +", "_", geo)
-  out$country <- geo
   return(out)
 }
