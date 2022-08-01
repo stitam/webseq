@@ -1,8 +1,7 @@
-#' Parse NCBI assembly metadata 
+#' Parse NCBI BioSample metadata 
 #' 
-#' This function can be used to parse an xml file from the NCBI assembly
-#' database into a tibble.
-#' @param file character; path to an xml file.
+#' This function parss a txt file from the NCBI BioSample database.
+#' @param file character; path to a txt file.
 #' @returns a tibble.
 #' @examples 
 #' dontrun{
@@ -31,22 +30,6 @@ ncbi_parse_biosample_txt <- function(file) {
       }
     } else id_list <- list()
     id_df <- as.data.frame(id_list)
-    
-    #biosample <- x[grep("^Identifiers: BioSample", x)]
-    #if (length(biosample) == 1) {
-    #  biosample <- stringi::stri_extract(
-    #    biosample, regex = "BioSample: +[a-zA-Z]+[0-9]+")
-    #  biosample <- strsplit(biosample, "BioSample: +")[[1]][[2]]
-    #} else biosample <- NA
-    #sra <- x[grep("SRA: ", x)]
-    #if (length(sra) == 1) {
-    #  sra <- stringi::stri_extract(sra, regex = "SRA: +[a-zA-Z]+[0-9]+")
-    #  sra <- strsplit(sra, "SRA: +")[[1]][[2]]
-    #} else sra <- NA
-    #organism <- x[grep("^Organism", x)]
-    #if (length(organism) == 1) {
-    #  organism <- strsplit(organism, "^Organism: +")[[1]][[2]]
-    #} else orgamism <- NA
     index_attributes <- grep(" +/", x)
     attribute_list <- list()
     for (i in index_attributes) {
@@ -63,25 +46,6 @@ ncbi_parse_biosample_txt <- function(file) {
       }
     }
     attribute_df <- as.data.frame(attribute_list)
-    #hit <- x[grep("strain", x)]
-    #strain <- ifelse(length(hit) == 1, strsplit(hit, '"')[[1]][2], NA)
-    #hit <- x[grep("host", x)]
-    #host <- ifelse(length(hit) == 1, strsplit(hit, '"')[[1]][2], NA)
-    #hit <- x[grep("collection date", x)]
-    #collection_date <- ifelse(length(hit) == 1, strsplit(hit, '"')[[1]][2], NA)
-    #collection_day <- as.Date(collection_date, format = "%Y-%m-%d")
-    #hit <- x[grep("geographic location", x)]
-    #geographic_location <- ifelse(length(hit) == 1, strsplit(hit, '"')[[1]][2], NA)
-    #out <- tibble::tibble(
-    #  biosample = biosample,
-    #  sra = sra,
-    #  organism = organism,
-    #  strain = strain,
-    #  host = host,
-    #  collection_date = collection_date,
-    #  collection_day = collection_day,
-    #  geographic_location = geographic_location
-    #)
     if(nrow(id_df > 0) & nrow(attribute_df) == 0) {
       out <- id_df
     }
