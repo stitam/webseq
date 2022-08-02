@@ -1,7 +1,9 @@
 #' Parse NCBI BioSample metadata 
 #' 
-#' This function parss a txt file from the NCBI BioSample database.
+#' This function parses a txt file from the NCBI BioSample database.
 #' @param file character; path to a txt file.
+#' @param resolve_na logical; replace strings that match NA terms with NA.
+#' @param verbose logical; should verbose output be printed to console?
 #' @returns a tibble.
 #' @examples 
 #' dontrun{
@@ -12,7 +14,9 @@
 #' ncbi_parse_biosample_txt("biosample_summary.txt")
 #' }
 #' @export
-ncbi_parse_biosample_txt <- function(file) {
+ncbi_parse_biosample_txt <- function(file,
+                                     resolve_na = TRUE,
+                                     verbose = getOption("verbose")) {
   foo <- function(x) {
     x <- strsplit(x, "\n")[[1]]
     ids <- x[grep("^Identifiers", x)]
@@ -62,6 +66,7 @@ ncbi_parse_biosample_txt <- function(file) {
     }
     return(out)
   }
+  if (verbose) message("Parsing file.")
   lines <- readLines(file)
   index <- c(0, which(lines == ''))
   if (length(index) == 1) {
@@ -82,5 +87,16 @@ ncbi_parse_biosample_txt <- function(file) {
     warning("Number of rows may not match number of biosamples. Check.")
   }
   out <- dplyr::bind_rows(out)
+  if (resolve_na) {
+    if (verbose) message("Resolving NA terms.")
+    na_terms <- c(
+      "missing", "na", "n/a", "none", "not applicable", "not collected", 
+      "not determined", "not provided", "null", "restricted access",
+      "unknown")
+    out <- tibble::as_tibble(data.frame(lapply(out, function(x) {
+      ifelse(tolower(x) %in% na_terms == FALSE, x, NA)
+    })))
+  }
+  if (verbose) message("Done.")
   return(out)
 }
