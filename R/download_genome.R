@@ -66,6 +66,10 @@ download_genome <- function(accessions,
       return(NA)
     }
     ftppath <- assembly_meta$ftppath
+    if (is.na(assembly_meta$ftppath)) {
+      if (verbose) message("Failed. FTP path not found.")
+      return(NA)
+    }
     prefix <- strsplit(ftppath, "/")[[1]]
     prefix <- prefix[length(prefix)]
     suffix <- switch(type,
