@@ -4,7 +4,7 @@
 \alias{mgnify_endpoints}
 \title{MGnify endpoints}
 \usage{
-mgnify_endpoints(verbose = getOption("verbose"))
+mgnify_endpoints()
 }
 \arguments{
 \item{verbose}{logical; should verbose messages be printed to console?}
