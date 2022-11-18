@@ -14,3 +14,18 @@ mgnify_endpoints <- function() {
   endpoints <- c(apis, others)
   return(endpoints)
 }
+
+#' Try an URL with default parameters
+#' 
+#' This is a convenience wrapper for trying URLs
+#' @param verb character; Name of the verb to use.
+#' @param qurl character; Query URL.
+#' @importFrom httr RETRY
+#' @noRd
+try_url <- function(verb, qurl, ...){
+  try(httr::RETRY(verb,
+                  qurl,
+                  terminate_on = 404,
+                  quiet = TRUE,
+                  ...), silent = TRUE)
+}

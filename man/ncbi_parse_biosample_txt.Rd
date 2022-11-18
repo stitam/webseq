@@ -2,19 +2,26 @@
 % Please edit documentation in R/ncbi_parse_biosample_txt.R
 \name{ncbi_parse_biosample_txt}
 \alias{ncbi_parse_biosample_txt}
-\title{Parse NCBI assembly metadata}
+\title{Parse NCBI BioSample metadata}
 \usage{
-ncbi_parse_biosample_txt(file)
+ncbi_parse_biosample_txt(
+  file,
+  resolve_na = TRUE,
+  verbose = getOption("verbose")
+)
 }
 \arguments{
-\item{file}{character; path to an xml file.}
+\item{file}{character; path to a txt file.}
+
+\item{resolve_na}{logical; replace strings that match NA terms with NA.}
+
+\item{verbose}{logical; should verbose output be printed to console?}
 }
 \value{
 a tibble.
 }
 \description{
-This function can be used to parse an xml file from the NCBI assembly
-database into a tibble.
+This function parses a txt file from the NCBI BioSample database.
 }
 \examples{
 dontrun{
