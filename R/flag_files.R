@@ -4,7 +4,7 @@
 #' from GenBank assemblies or GCF for RefSeq assemblies) or their version number
 #' (v1, v2, etc.). This function helps remove redundant files by flagging which
 #' files should be kept for further analysis.
-#' @param filanames character; a character vector of filenames. Currently the
+#' @param filenames character; a character vector of filenames. Currently the
 #' function only supports GCA/GCF identifiers. Look at the examples for more
 #' details.
 #' @return The function returns a data frame where each file is listed in the

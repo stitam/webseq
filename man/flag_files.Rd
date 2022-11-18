@@ -7,7 +7,7 @@
 flag_files(filenames)
 }
 \arguments{
-\item{filanames}{character; a character vector of filenames. Currently the
+\item{filenames}{character; a character vector of filenames. Currently the
 function only supports GCA/GCF identifiers. Look at the examples for more
 details.}
 }
