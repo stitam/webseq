@@ -34,13 +34,17 @@ ncbi_parse_assembly_xml <- function(file) {
     taxid <- XML::xpathSApply(
       rootnode, "//Taxid", XML::xmlValue)
     taxid <- coerce_xmlvalue(taxid)
+    coverage <- XML::xpathSApply(
+      rootnode, "//Coverage", XML::xmlValue)
+    coverage <- coerce_xmlvalue(coverage)
     out <- tibble::tibble(
       assembly = assembly,
       asm_name = asm_name,
       bioproject = bioproject,
       biosample = biosample,
       status = assembly_status,
-      taxid = taxid)
+      taxid = taxid,
+      coverage = coverage)
     return(out)
   }
   lines <- readLines(file)
