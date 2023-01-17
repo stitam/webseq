@@ -8,6 +8,8 @@
 #' @param from character; the database the queried uids come from.
 #' \code{rentrez::entrez_dbs()} lists all available options.
 #' @param to character; the database in which the function should look for links.
+#' @param cache_file character; the name of the cache file without the file
+#' extension. If \code{NULL}, results are not cached.
 #' @param verbose logical; should verbos messages be printed to the console?
 #' \code{rentrez::entrez_dbs()} lists all available options.
 #' @return A tibble
@@ -17,7 +19,11 @@
 #' link_uids(c("1226742659", "1883410844"), "protein", "nuccore")
 #' }
 #' @export
-link_uids <- function(query, from, to, verbose = getOption("verbose")) {
+link_uids <- function(query,
+                      from,
+                      to,
+                      cache_file = NULL,
+                      verbose = getOption("verbose")) {
   query <- as.numeric(query)
   from <- match.arg(from, rentrez::entrez_dbs())
   to <- match.arg(to, rentrez::entrez_dbs())
@@ -51,7 +57,31 @@ link_uids <- function(query, from, to, verbose = getOption("verbose")) {
     }
     return(tbl)
   }
-  out <- lapply(query, foo)
+  if (is.null(cache_file)) {
+    out <- lapply(query, foo)
+  } else {
+    if (!dir.exists("cache")) dir.create("cache")
+    cfpath <- paste0("cache/", cache_file, ".rds")
+    if (file.exists(cfpath)) {
+      query_results <- readRDS(file = cfpath)
+    } else {
+      query_results <- list()
+    }
+    out <- lapply(query, function(x) {
+      if (x %in% names(query_results)) {
+        if (verbose) seqdb_message("query", x, appendLF = FALSE)
+        if (verbose) message("Already retrieved.")
+        return(query_results[[as.character(x)]])
+      } else {
+        new <- foo(x)
+        if (!is.na(x)) {
+          query_results[[as.character(x)]] <<- new
+          saveRDS(query_results, file = cfpath)
+        }
+        return(new)
+      }
+    })
+  }
   out <- dplyr::bind_rows(out)
   return(out)
 }

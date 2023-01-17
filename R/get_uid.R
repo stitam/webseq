@@ -7,6 +7,8 @@
 #' @param term character; one or more search terms.
 #' @param db character; the database to search in. For options see
 #' \code{rentrez::entrez_dbs()}
+#' @param cache_file character; the name of the cache file without the file
+#' extension. If \code{NULL}, results are not cached.
 #' @param verbose logical; should verbos messages be printed to the console?
 #' @return A tibble.
 #' @examples
@@ -16,7 +18,10 @@
 #' get_uid(c("WP_093980916.1", "WP_181249115.1"), db = "protein")
 #' }
 #' @export
-get_uid <- function(term, db = "assembly", verbose = getOption("verbose")) {
+get_uid <- function(term,
+                    db = "assembly",
+                    cache_file = NULL,
+                    verbose = getOption("verbose")) {
   db <- match.arg(db, rentrez::entrez_dbs())
   foo <- function(x) {
     if (verbose) seqdb_message("query", x, appendLF = FALSE)
@@ -55,7 +60,31 @@ get_uid <- function(term, db = "assembly", verbose = getOption("verbose")) {
       return(tibble::tibble(term = x, db = db, uid = NA))
     }
   }
-  res <- lapply(term, foo)
+  if (is.null(cache_file)) {
+    res <- lapply(term, foo)
+  } else {
+    if (!dir.exists("cache")) dir.create("cache")
+    cfpath <- paste0("cache/", cache_file, ".rds")
+    if (file.exists(cfpath)) {
+      query_results <- readRDS(file = cfpath)
+    } else {
+      query_results <- list()
+    }
+    res <- lapply(term, function(x) {
+      if (x %in% names(query_results)) {
+        if (verbose) seqdb_message("query", x, appendLF = FALSE)
+        if (verbose) message("Already retrieved.")
+        return(query_results[[x]])
+      } else {
+        new <- foo(x)
+        if (!is.na(x)) {
+          query_results[[x]] <<- new
+          saveRDS(query_results, file = cfpath)
+        }
+        return(new)
+      }
+    })
+  }
   res <- dplyr::bind_rows(res)
   return(res)
 }
