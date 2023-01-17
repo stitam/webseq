@@ -29,3 +29,25 @@ try_url <- function(verb, qurl, ...){
                   quiet = TRUE,
                   ...), silent = TRUE)
 }
+
+seqdb_message <- function(action = c("na",
+                                     "query",
+                                     "query_all",
+                                     "not_found",
+                                     "not_available",
+                                     "service_down"),
+                            appendLF = TRUE,
+                            ...) {
+  action <- match.arg(action)
+  string <- switch(
+    action,
+    na = "Query is NA. Returning NA.",
+    query = paste0("Querying ", ..., ". "),
+    query_all = "Querying. ",
+    not_found = "Not found. Returning NA.",
+    not_available = "Not available. Returning NA.",
+    service_down = "Service not available. Returning NA."
+  )
+  message(string, appendLF = FALSE)
+  if (appendLF) message("")
+}

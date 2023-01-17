@@ -8,6 +8,7 @@
 #' @param from character; the database the queried uids come from.
 #' \code{rentrez::entrez_dbs()} lists all available options.
 #' @param to character; the database in which the function should look for links.
+#' @param verbose logical; should verbos messages be printed to the console?
 #' \code{rentrez::entrez_dbs()} lists all available options.
 #' @return A tibble
 #' @examples 
@@ -16,11 +17,12 @@
 #' link_uids(c("1226742659", "1883410844"), "protein", "nuccore")
 #' }
 #' @export
-link_uids <- function(query, from, to) {
+link_uids <- function(query, from, to, verbose = getOption("verbose")) {
   query <- as.numeric(query)
   from <- match.arg(from, rentrez::entrez_dbs())
   to <- match.arg(to, rentrez::entrez_dbs())
   foo <- function(x) {
+    if (verbose) seqdb_message("query", x, appendLF = FALSE)
     res <- NULL
     attempt <- 1
     while(is.null(res) && attempt <= 5) {
@@ -33,12 +35,14 @@ link_uids <- function(query, from, to) {
       }
     }
     if (length(res$links) == 0) {
+      if (verbose) message("Not found. Returning NA.")
       tbl <- tibble::tibble(
         query = x,
         query_db = from,
         result = NA,
         result_db = to)
     } else {
+      if (verbose) message("OK.")
       tbl <- tibble::tibble(
         query = x,
         query_db = from,
