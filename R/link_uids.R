@@ -24,7 +24,9 @@ link_uids <- function(query,
                       to,
                       cache_file = NULL,
                       verbose = getOption("verbose")) {
-  query <- as.numeric(query)
+  if (any(is.na(as.numeric(query)))) {
+    stop("Query must be a valid UID. Valid UIDs can be converted to 'numeric'.")
+  }
   from <- match.arg(from, rentrez::entrez_dbs())
   to <- match.arg(to, rentrez::entrez_dbs())
   foo <- function(x) {
