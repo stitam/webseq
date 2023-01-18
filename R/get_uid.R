@@ -24,6 +24,10 @@ get_uid <- function(term,
                     verbose = getOption("verbose")) {
   db <- match.arg(db, rentrez::entrez_dbs())
   foo <- function(x) {
+    if (is.na(x)) {
+      if (verbose) seqdb_message("na")
+      return(tibble::tibble(term = x, db = db, uid = NA))
+    }
     if (verbose) seqdb_message("query", x, appendLF = FALSE)
     r <- NULL
     attempt <- 1
