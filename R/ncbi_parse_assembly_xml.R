@@ -28,6 +28,9 @@ ncbi_parse_assembly_xml <- function(file) {
     biosample <- XML::xpathSApply(
       rootnode, "//BioSampleAccn", XML::xmlValue)
     biosample <- coerce_xmlvalue(biosample)
+    wgs_project <- XML::xpathSApply(
+      rootnode, "//WGS", XML::xmlValue)
+    wgs_project <- coerce_xmlvalue(wgs_project)
     assembly_status <- XML::xpathSApply(
       rootnode, "//AssemblyStatus", XML::xmlValue)
     assembly_status <- coerce_xmlvalue(assembly_status)
@@ -42,6 +45,7 @@ ncbi_parse_assembly_xml <- function(file) {
       asm_name = asm_name,
       bioproject = bioproject,
       biosample = biosample,
+      wgs_project = wgs_project,
       status = assembly_status,
       taxid = taxid,
       coverage = coverage)
