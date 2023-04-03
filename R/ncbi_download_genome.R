@@ -8,24 +8,24 @@
 #' \code{"genomic.gbff"}, \code{"genomic.gff"}, \code{"genomic.gtf"},
 #' \code{"protein.faa"}, \code{"protein.gpff"}, \code{"translated_cds"}.
 #' @param dirpath character; the path to the directory where the file should be
-#' downloaded.
+#' downloaded. If \code{NULL}, download file to the working directory.
 #' @param verbose logical; should verbose messages be printed to console?
 #' @examples
 #' \dontrun{
 #' # Download genbank file for GCF_003007635.1.
 #' # The function will access files within this directory:
 #' # ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/003/007/635/
-#' download_genome("GCF_003007635.1", type = "genomic.gbff", verbose = TRUE)
+#' ncbi_download_genome("GCF_003007635.1", type = "genomic.gbff", verbose = TRUE)
 #' 
 #' # Download multiple files
 #' accessions <- c("GCF_000248195.1", "GCF_000695855.3")
-#' download_genome(accessions, type = "genomic.gbff", verbose = TRUE)
+#' ncbi_download_genome(accessions, type = "genomic.gbff", verbose = TRUE)
 #' }
 #' @export
-download_genome <- function(accessions,
-                            type = "genomic.gbff",
-                            dirpath = NULL,
-                            verbose = getOption("verbose")) {
+ncbi_download_genome <- function(accessions,
+                                 type = "genomic.gbff",
+                                 dirpath = NULL,
+                                 verbose = getOption("verbose")) {
   type <- match.arg(type, c(
     "assembly_report", "assembly_stats", "cds", "feature_count",
     "feature_table", "genomic.fna", "genomic.gbff", "genomic.gff",
@@ -39,7 +39,7 @@ download_genome <- function(accessions,
     }
     if (verbose) message(x, ". ", appendLF = FALSE)
     Sys.sleep(runif(1,0.2,0.5))
-    assembly_uid <- try(get_uid(x, db = "assembly"), silent = TRUE)
+    assembly_uid <- try(ncbi_get_uid(x, db = "assembly"), silent = TRUE)
     if (inherits(assembly_uid, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
       return(NA)
@@ -48,7 +48,7 @@ download_genome <- function(accessions,
       if (verbose) message("Failed. Assembly accession not found.")
       return(NA)
     }
-    if (length(assembly_uid) > 1) {
+    if (length(assembly_uid$uid) > 1) {
       if (verbose) {
         message("Failed. Multiple assembly uid-s found: ",
                 paste(assembly_uid, collapse = ", "), ".") 
@@ -56,7 +56,7 @@ download_genome <- function(accessions,
       return(NA)
     }
     Sys.sleep(runif(1,0.2,0.5))
-    assembly_meta <- try(ncbi_meta_assembly(assembly_uid), silent = TRUE)
+    assembly_meta <- try(ncbi_meta_assembly(assembly_uid$uid), silent = TRUE)
     if (inherits(assembly_meta, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
       return(NA)
