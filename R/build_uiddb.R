@@ -26,7 +26,7 @@ build_uiddb <- function(assemblies,
                         verbose = getOption("verbose")) {
   foo <- function(query) {
     Sys.sleep(runif(1,0.2,0.5))
-    assembly_uids <- sapply(query, function(x) get_uid(x, db = "assembly"))
+    assembly_uids <- sapply(query, function(x) ncbi_get_uid(x, db = "assembly"))
     Sys.sleep(runif(1,0.2,0.5))
     taxonomy_uids <- link_uids(
       assembly_uids, from = "assembly", to = "taxonomy")

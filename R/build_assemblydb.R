@@ -31,7 +31,7 @@ build_assemblydb <- function(assemblies,
       }
       return(NA)
     }
-    assembly_uid <- try(get_uid(x, db = "assembly"), silent = TRUE)
+    assembly_uid <- try(ncbi_get_uid(x, db = "assembly"), silent = TRUE)
     if (inherits(assembly_uid, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
       return(NA)
@@ -64,7 +64,7 @@ build_assemblydb <- function(assemblies,
     Sys.sleep(runif(1,0.2,0.5))
     if (!is.na(assembly_meta$biosample)){
       biosample_uid <- try(
-        get_uid(assembly_meta$biosample, db = "biosample"), silent = TRUE)
+        ncbi_get_uid(assembly_meta$biosample, db = "biosample"), silent = TRUE)
     }
     if (inherits(biosample_uid, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
