@@ -18,7 +18,7 @@
 #'If set to 0, all accessions will be queried in a single request. 
 #'@param verbose logical; Should verbose messages be printed to the console?
 #'@examples
-#'\dontrun {
+#'\dontrun{
 #'ena_query("LC136852")
 #'ena_query(c("LC136852", "LC136853"))
 #'}

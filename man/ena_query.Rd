@@ -55,7 +55,7 @@ If set to 0, all accessions will be queried in a single request.}
 Retrieve sequences from ENA
 }
 \examples{
-\dontrun {
+\dontrun{
 ena_query("LC136852")
 ena_query(c("LC136852", "LC136853"))
 }
