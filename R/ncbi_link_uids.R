@@ -15,15 +15,15 @@
 #' @return A tibble
 #' @examples 
 #' \dontrun{
-#' link_uids("4253631", "assembly", "biosample")
-#' link_uids(c("1226742659", "1883410844"), "protein", "nuccore")
+#' ncbi_link_uids("4253631", "assembly", "biosample")
+#' ncbi_link_uids(c("1226742659", "1883410844"), "protein", "nuccore")
 #' }
 #' @export
-link_uids <- function(query,
-                      from,
-                      to,
-                      cache_file = NULL,
-                      verbose = getOption("verbose")) {
+ncbi_link_uids <- function(query,
+                           from,
+                           to,
+                           cache_file = NULL,
+                           verbose = getOption("verbose")) {
   if (any(is.na(as.numeric(query)))) {
     stop("Query must be a valid UID. Valid UIDs can be converted to 'numeric'.")
   }

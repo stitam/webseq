@@ -28,10 +28,10 @@ build_uiddb <- function(assemblies,
     Sys.sleep(runif(1,0.2,0.5))
     assembly_uids <- sapply(query, function(x) ncbi_get_uid(x, db = "assembly"))
     Sys.sleep(runif(1,0.2,0.5))
-    taxonomy_uids <- link_uids(
+    taxonomy_uids <- ncbi_link_uids(
       assembly_uids, from = "assembly", to = "taxonomy")
     Sys.sleep(runif(1,0.2,0.5))
-    biosample_uids <- link_uids(
+    biosample_uids <- ncbi_link_uids(
       assembly_uids, from = "assembly", to = "biosample")
     newdb <- data.frame(
       assembly = query,
