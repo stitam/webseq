@@ -19,7 +19,7 @@ ncbi_download_genome(
 \code{"protein.faa"}, \code{"protein.gpff"}, \code{"translated_cds"}.}
 
 \item{dirpath}{character; the path to the directory where the file should be
-downloaded.}
+downloaded. If \code{NULL}, download file to the working directory.}
 
 \item{verbose}{logical; should verbose messages be printed to console?}
 
