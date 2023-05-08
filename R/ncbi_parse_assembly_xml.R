@@ -4,8 +4,8 @@
 #' database into a tibble.
 #' @param file character; path to an xml file.
 #' @returns a tibble.
-#' @examples 
-#' dontrun{
+#' @examples
+#' \dontrun{
 #' # search for Acinetobacter baumannii within the NCBI Assembly database
 #' # https://www.ncbi.nlm.nih.gov/assembly/?term=acinetobacter%20baumannii
 #' # upper right corner -> send to -> file -> format = xml -> create file

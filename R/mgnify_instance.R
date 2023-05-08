@@ -1,6 +1,6 @@
 #' @export
 mgnify_instance <- function(query, from) {
-  query <- URLencode(query)
+  query <- utils::URLencode(query)
   from <- match.arg(from, mgnify_endpoints()$api)
   url <- paste("https://www.ebi.ac.uk/metagenomics/api/v1",
                from,

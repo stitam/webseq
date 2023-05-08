@@ -7,7 +7,7 @@
 #' \url{https://www.ebi.ac.uk/metagenomics/api/v1/}
 #' @examples
 #' \dontrun{
-#' mgnify_endpoints()
+#' mgnify_endpoints(verbose = TRUE)
 #' }
 #' @export
 mgnify_endpoints <- function(verbose = getOption("verbose")) {

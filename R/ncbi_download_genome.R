@@ -22,7 +22,7 @@
 #' ncbi_download_genome(accessions, type = "genomic.gbff", verbose = TRUE)
 #' }
 #' @export
-ncbi_download_genome <- function(accessions,
+ncbi_download_genome <- function(accession,
                                  type = "genomic.gbff",
                                  dirpath = NULL,
                                  verbose = getOption("verbose")) {
@@ -38,7 +38,7 @@ ncbi_download_genome <- function(accessions,
       return(NA)
     }
     if (verbose) message(x, ". ", appendLF = FALSE)
-    Sys.sleep(runif(1,0.2,0.5))
+    Sys.sleep(stats::runif(1,0.2,0.5))
     assembly_uid <- try(ncbi_get_uid(x, db = "assembly"), silent = TRUE)
     if (inherits(assembly_uid, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
@@ -55,7 +55,7 @@ ncbi_download_genome <- function(accessions,
       }
       return(NA)
     }
-    Sys.sleep(runif(1,0.2,0.5))
+    Sys.sleep(stats::runif(1,0.2,0.5))
     assembly_meta <- try(ncbi_meta_assembly(assembly_uid$uid), silent = TRUE)
     if (inherits(assembly_meta, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
@@ -93,10 +93,10 @@ ncbi_download_genome <- function(accessions,
       if (verbose) message("Done. Already downloaded.")
       return(NA)
     }
-    Sys.sleep(runif(1,0.2,0.5))
-    out <- try(download.file(urlpath,
-                             destfile = filepath,
-                             quiet = TRUE), silent = TRUE)
+    Sys.sleep(stats::runif(1,0.2,0.5))
+    out <- try(utils::download.file(urlpath,
+                                    destfile = filepath,
+                                    quiet = TRUE), silent = TRUE)
     if (inherits(out, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
       file.remove(filepath)
@@ -104,5 +104,5 @@ ncbi_download_genome <- function(accessions,
     }
     message("Done.")
   }
-  out <- lapply(accessions, function(x) foo(x, typ = type, verbose = verbose))
+  out <- lapply(accession, function(x) foo(x, typ = type, verbose = verbose))
 }

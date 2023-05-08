@@ -17,7 +17,7 @@ This function can be used to parse an xml file from the NCBI assembly
 database into a tibble.
 }
 \examples{
-dontrun{
+\dontrun{
 # search for Acinetobacter baumannii within the NCBI Assembly database
 # https://www.ncbi.nlm.nih.gov/assembly/?term=acinetobacter\%20baumannii
 # upper right corner -> send to -> file -> format = xml -> create file

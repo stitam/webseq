@@ -47,7 +47,7 @@ build_assemblydb <- function(assemblies,
       }
       return(NA)
     }
-    Sys.sleep(runif(1,0.2,0.5))
+    Sys.sleep(stats::runif(1,0.2,0.5))
     assembly_meta <- try(ncbi_meta_assembly(assembly_uid), silent = TRUE)
     if (inherits(assembly_meta, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
@@ -61,7 +61,7 @@ build_assemblydb <- function(assemblies,
       if (verbose) message("Failed. Assembly metadata not appropriate.")
       return(NA)
     }
-    Sys.sleep(runif(1,0.2,0.5))
+    Sys.sleep(stats::runif(1,0.2,0.5))
     if (!is.na(assembly_meta$biosample)){
       biosample_uid <- try(
         ncbi_get_uid(assembly_meta$biosample, db = "biosample"), silent = TRUE)

@@ -13,7 +13,7 @@
 #' @param verbose logical; should verbos messages be printed to the console?
 #' \code{rentrez::entrez_dbs()} lists all available options.
 #' @return A tibble
-#' @examples 
+#' @examples
 #' \dontrun{
 #' ncbi_link_uids("4253631", "assembly", "biosample")
 #' ncbi_link_uids(c("1226742659", "1883410844"), "protein", "nuccore")

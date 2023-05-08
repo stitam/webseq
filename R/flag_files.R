@@ -12,7 +12,7 @@
 #' is listed in the last column.
 #' @details The function first prioritises GCF over GCA and then the highest
 #' version number.
-#' @examples 
+#' @examples
 #' # keep GCF
 #' filenames <- c("GCA_003012895.2_ASM301289v2_genomic.fna",
 #'                "GCF_003012895.2_ASM301289v2_genomic.fna")

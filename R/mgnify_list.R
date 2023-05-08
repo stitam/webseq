@@ -1,7 +1,7 @@
 #' Retrieve a list of instances from MGnify
 #' @param sleep character; 
 #' @param verbose logical; should verbose messages be printed to console?
-#' @examples 
+#' @examples
 #' \dontrun{
 #' # Query samples collected from biogas plants
 #' mgnify_list(query = "samples",
@@ -19,7 +19,7 @@ mgnify_list <- function(query,
   endpoints <- mgnify_endpoints(verbose = verbose)
   query <- match.arg(query, endpoints$api)
   from <- match.arg(from, endpoints$api)
-  from_id <- URLencode(from_id)
+  from_id <- utils::URLencode(from_id)
   url <- paste(
     "https://www.ebi.ac.uk/metagenomics/api/v1", from, from_id, query, sep = "/"
     )

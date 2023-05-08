@@ -5,13 +5,15 @@
 \title{Download Genomes from NCBI}
 \usage{
 ncbi_download_genome(
-  accessions,
+  accession,
   type = "genomic.gbff",
   dirpath = NULL,
   verbose = getOption("verbose")
 )
 }
 \arguments{
+\item{accession}{character; a character vector of assembly accessions.}
+
 \item{type}{character; the file extension to download. Valid options are
 \code{"assembly_report"}, \code{"assembly_stats"}, \code{"cds"},
 \code{"feature_count"}, \code{"feature_table"}, \code{"genomic.fna"},
@@ -22,8 +24,6 @@ ncbi_download_genome(
 downloaded. If \code{NULL}, download file to the working directory.}
 
 \item{verbose}{logical; should verbose messages be printed to console?}
-
-\item{accession}{character; a character vector of assembly accessions.}
 }
 \description{
 This function directly downloads genome data through the NCBI FTP server.

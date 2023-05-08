@@ -5,8 +5,8 @@
 #' @param resolve_na logical; replace strings that match NA terms with NA.
 #' @param verbose logical; should verbose output be printed to console?
 #' @returns a tibble.
-#' @examples 
-#' dontrun{
+#' @examples
+#' \dontrun{
 #' # search for Acinetobacter baumannii within the NCBI BioSample database
 #' # https://www.ncbi.nlm.nih.gov/biosample/?term=acinetobacter+baumannii
 #' # upper right corner -> send to -> file -> format = full (text) -> create file

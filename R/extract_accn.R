@@ -41,7 +41,7 @@ extract_accn <- function(report) {
       contig = x$`Assembly definition`$`RefSeq-Accn`
     )
     accn <- dplyr::bind_rows(accn_genbank, accn_refseq)
-    accn <- accn[complete.cases(accn),]
+    accn <- accn[stats::complete.cases(accn),]
     return(accn)
   }
   out <- try(foo(report), silent = TRUE)

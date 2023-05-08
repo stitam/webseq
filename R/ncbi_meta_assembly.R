@@ -1,7 +1,7 @@
 #' Retrieve NCBI Assembly metadata
 #' 
 #' @param assembly_uid numeric
-#' @examples 
+#' @examples
 #' \dontrun{
 #' ncbi_meta_assembly(419738)
 #' }

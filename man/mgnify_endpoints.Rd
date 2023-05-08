@@ -4,7 +4,7 @@
 \alias{mgnify_endpoints}
 \title{MGnify endpoints}
 \usage{
-mgnify_endpoints()
+mgnify_endpoints(verbose = getOption("verbose"))
 }
 \arguments{
 \item{verbose}{logical; should verbose messages be printed to console?}
@@ -21,6 +21,6 @@ The function prints contents of the following url:
 }
 \examples{
 \dontrun{
-mgnify_endpoints()
+mgnify_endpoints(verbose = TRUE)
 }
 }
