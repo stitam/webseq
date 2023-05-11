@@ -19,6 +19,8 @@ ncbi_parse_biosample_txt <- function(file,
                                      verbose = getOption("verbose")) {
   foo <- function(x) {
     x <- strsplit(x, "\n")[[1]]
+    title <- strsplit(x[1], ": +")[[1]]
+    title <- paste(title[2:length(title)], collapse = ": ")
     ids <- x[grep("^Identifiers", x)]
     if (length(ids) == 1) {
       ids <- gsub("^Identifiers: *", "", ids)
@@ -59,6 +61,7 @@ ncbi_parse_biosample_txt <- function(file,
     if(nrow(id_df > 0) & nrow(attribute_df) > 0) {
       out <- dplyr::bind_cols(id_df, attribute_df)
     }
+    out <- dplyr::bind_cols(data.frame(title = title), out)
     out <- tibble::as_tibble(out)
     if (nrow(out) > 1) {
       warning("More than one rows returned for a biosample:")
