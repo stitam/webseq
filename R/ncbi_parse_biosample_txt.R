@@ -19,8 +19,10 @@ ncbi_parse_biosample_txt <- function(file,
                                      verbose = getOption("verbose")) {
   foo <- function(x) {
     x <- strsplit(x, "\n")[[1]]
+    # extract title
     title <- strsplit(x[1], ": +")[[1]]
     title <- paste(title[2:length(title)], collapse = ": ")
+    # extract identifiers
     ids <- x[grep("^Identifiers", x)]
     if (length(ids) == 1) {
       ids <- gsub("^Identifiers: *", "", ids)
@@ -36,6 +38,13 @@ ncbi_parse_biosample_txt <- function(file,
       }
     } else id_list <- list()
     id_df <- as.data.frame(id_list)
+    # extract organism
+    org <- x[grep("^Organism", x)]
+    if (length(org) > 0) {
+      org <- gsub("^Organism: *", "", org)
+      org_df <- data.frame(organism = org)
+    }
+    # extract attributes
     index_attributes <- grep(" +/", x)
     attribute_list <- list()
     for (i in index_attributes) {
@@ -44,6 +53,7 @@ ncbi_parse_biosample_txt <- function(file,
       atr[1] <- gsub(" ", "_", atr[1])
       atr[1] <- gsub("#", "", atr[1])
       atr[1] <- tolower(atr[1])
+      atr[1] <- paste0("attr_", atr[1])
       atr[2] <- strsplit(atr[2], '"')[[1]][2]
       if (atr[1] %in% c(names(id_list)) == FALSE) {
         assign(atr[1], atr[2])
@@ -51,17 +61,36 @@ ncbi_parse_biosample_txt <- function(file,
         names(attribute_list)[length(attribute_list)] <- atr[1]
       }
     }
-    attribute_df <- as.data.frame(attribute_list)
-    if(nrow(id_df > 0) & nrow(attribute_df) == 0) {
-      out <- id_df
+    if (length(attribute_list) > 0) {
+      attribute_df <- as.data.frame(attribute_list)
+    } else {
+      attribute_df <- data.frame()
     }
-    if(nrow(id_df == 0) & nrow(attribute_df) > 0) {
-      out <- attribute_df
+    # extract description
+    index_desc <- grep("^Description", x)
+    if (length(index_desc) > 0) {
+      index_accn <- grep("^Accession", x)
+      desc <- paste(
+        x[(index_desc + 1):(index_accn - 1)],
+        collapse = " "
+      )
+      desc_df <- data.frame(description = desc)
+    } else {
+      desc_df <- data.frame()
     }
-    if(nrow(id_df > 0) & nrow(attribute_df) > 0) {
-      out <- dplyr::bind_cols(id_df, attribute_df)
+    out <- data.frame(title = title)
+    if (nrow(id_df) > 0) {
+      out <- dplyr::bind_cols(out, id_df)
     }
-    out <- dplyr::bind_cols(data.frame(title = title), out)
+    if (nrow(org_df) > 0) {
+      out <- dplyr::bind_cols(out, org_df)
+    }
+    if (nrow(attribute_df) > 0) {
+      out <- dplyr::bind_cols(out, attribute_df)
+    }
+    if (nrow(desc_df) > 0) {
+      out <- dplyr::bind_cols(out, desc_df)
+    }
     out <- tibble::as_tibble(out)
     if (nrow(out) > 1) {
       warning("More than one rows returned for a biosample:")
