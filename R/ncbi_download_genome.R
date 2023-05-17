@@ -65,6 +65,11 @@ ncbi_download_genome <- function(accession,
       if (verbose) message("Failed. Assembly metadata not appropriate.")
       return(NA)
     }
+    if (assembly_meta$assembly != x) {
+      msg <- paste0(
+        "Warning! Query: ", x, ". Found: ", assembly_meta$assembly, ". ")
+      if (verbose) message(msg, appendLF = FALSE) else warning(msg)
+    }
     ftppath <- assembly_meta$ftppath
     if (is.na(assembly_meta$ftppath)) {
       if (verbose) message("Failed. FTP path not found.")
