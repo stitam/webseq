@@ -1,14 +1,13 @@
-test_that("ncbi_meta() works with BioSample ID-s", {
-  biosample_uid <- ncbi_get_uid("SAMN02714232", db = "biosample")
-  res <- ncbi_meta(biosample_uid)
+test_that("get_meta() works with Assembly UID-s", {
+  assembly_uid <- get_uid("GCF_000695855.3", db = "assembly")
+  res <- get_meta(assembly_uid$uid, db = "assembly")
   
   expect_s3_class(res, c("tbl_df", "tbl", "data.frame"))
 })
 
-test_that("ncbi_meta() works with BioSample UID-s", {
-  assembly_uid <- ncbi_get_uid("GCF_000695855.3")
-  biosample_uid <- ncbi_link_uids(assembly_uid, from = "assembly", to = "biosample")
-  res <- ncbi_meta(biosample_uid)
+test_that("get_meta() works with BioSample UID-s", {
+  biosample_uid <- get_uid("SAMN02714232", db = "biosample")
+  res <- get_meta(biosample_uid$uid, db = "biosample")
   
   expect_s3_class(res, c("tbl_df", "tbl", "data.frame"))
 })
