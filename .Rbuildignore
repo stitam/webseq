@@ -1,2 +1,15 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+
+# Git
+.gitignore
+.github
+
+# README files
+README.Rmd
+README.md
+
+# Local directories
+
+cache/
+inst/

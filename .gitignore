@@ -40,4 +40,5 @@ vignettes/*.pdf
 
 # Local directories
 
+cache/
 inst/
