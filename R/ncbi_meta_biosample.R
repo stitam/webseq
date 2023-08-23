@@ -18,7 +18,6 @@
 #' biosample_uid <- ncbi_link_uids(assembly_uid, from = "assembly", to = "biosample")
 #' ncbi_meta_biosample(biosample_uid)
 #' }
-#' @export
 ncbi_meta_biosample <- function(biosample_uids, verbose = getOption("verbose")) {
  foo <- function(x) {
    res <- rentrez::entrez_fetch(
