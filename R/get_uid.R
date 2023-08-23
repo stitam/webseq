@@ -13,15 +13,15 @@
 #' @return A tibble.
 #' @examples
 #' \dontrun{
-#' ncbi_get_uid("GCA_003012895.2")
-#' ncbi_get_uid("Autographiviridae OR Podoviridae", db = "assembly")
-#' ncbi_get_uid(c("WP_093980916.1", "WP_181249115.1"), db = "protein")
+#' get_uid("GCA_003012895.2")
+#' get_uid("Autographiviridae OR Podoviridae", db = "assembly")
+#' get_uid(c("WP_093980916.1", "WP_181249115.1"), db = "protein")
 #' }
 #' @export
-ncbi_get_uid <- function(term,
-                         db = "assembly",
-                         cache_file = NULL,
-                         verbose = getOption("verbose")) {
+get_uid <- function(term,
+                    db = "assembly",
+                    cache_file = NULL,
+                    verbose = getOption("verbose")) {
   db <- match.arg(db, rentrez::entrez_dbs())
   foo <- function(x) {
     if (is.na(x)) {
