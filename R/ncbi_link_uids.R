@@ -30,7 +30,7 @@ ncbi_link_uids <- function(query,
   from <- match.arg(from, rentrez::entrez_dbs())
   to <- match.arg(to, rentrez::entrez_dbs())
   foo <- function(x) {
-    if (verbose) seqdb_message("query", x, appendLF = FALSE)
+    if (verbose) webseq_message("query", x, appendLF = FALSE)
     res <- NULL
     attempt <- 1
     while(is.null(res) && attempt <= 5) {
@@ -71,7 +71,7 @@ ncbi_link_uids <- function(query,
     }
     out <- lapply(query, function(x) {
       if (x %in% names(query_results)) {
-        if (verbose) seqdb_message("query", x, appendLF = FALSE)
+        if (verbose) webseq_message("query", x, appendLF = FALSE)
         if (verbose) message("Already retrieved.")
         return(query_results[[as.character(x)]])
       } else {

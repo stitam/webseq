@@ -2,7 +2,7 @@
 title: "NCBI"
 output: rmarkdown::html_vignette
 description: >
-  This vignette describes how seqdb can interact with the NCBI databases.
+  This vignette describes how webseq can interact with the NCBI databases.
 vignette: >
   %\VignetteIndexEntry{NCBI}
   %\VignetteEngine{knitr::rmarkdown}
@@ -58,7 +58,7 @@ biosample_meta <- ncbi_meta_biosample(biosample_uid$uid)
 
 ## Parse metadata files
 
-Accessing metadata for one assembly at a time can take quite a while if you have a large number fo queries. However, if you want to access metadata for all hits of a search term, you can follow a hybrid approach: download the metadata manually and parse it with seqdb.
+Accessing metadata for one assembly at a time can take quite a while if you have a large number fo queries. However, if you want to access metadata for all hits of a search term, you can follow a hybrid approach: download the metadata manually and parse it with webseq.
 
 Let's download assembly metadata for all Thiobacillus denitrificans genomes!
 

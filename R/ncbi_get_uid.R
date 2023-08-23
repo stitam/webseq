@@ -25,10 +25,10 @@ ncbi_get_uid <- function(term,
   db <- match.arg(db, rentrez::entrez_dbs())
   foo <- function(x) {
     if (is.na(x)) {
-      if (verbose) seqdb_message("na")
+      if (verbose) webseq_message("na")
       return(tibble::tibble(term = x, db = db, uid = NA))
     }
-    if (verbose) seqdb_message("query", x, appendLF = FALSE)
+    if (verbose) webseq_message("query", x, appendLF = FALSE)
     r <- NULL
     attempt <- 1
     while(is.null(r) && attempt <= 5) {
@@ -38,7 +38,7 @@ ncbi_get_uid <- function(term,
       } else r <- 1
     }
     if (inherits(hit, "try-error")) {
-      if (verbose) seqdb_message("service_down")
+      if (verbose) webseq_message("service_down")
       return(tibble::tibble(term = x, db = db, uid = NA))
     }
     if (hit$count > hit$retmax) {
@@ -53,7 +53,7 @@ ncbi_get_uid <- function(term,
       }
     }
     if (inherits(hit, "try-error")) {
-      if (verbose) seqdb_message("service_down")
+      if (verbose) webseq_message("service_down")
       return(tibble::tibble(term = x, db = db, uid = NA))
     }
     if (length(hit$ids) > 0) {
@@ -76,7 +76,7 @@ ncbi_get_uid <- function(term,
     }
     res <- lapply(term, function(x) {
       if (x %in% names(query_results)) {
-        if (verbose) seqdb_message("query", x, appendLF = FALSE)
+        if (verbose) webseq_message("query", x, appendLF = FALSE)
         if (verbose) message("Already retrieved.")
         return(query_results[[x]])
       } else {

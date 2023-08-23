@@ -1,4 +1,4 @@
-Package: seqdb
+Package: webseq
 Type: Package
 Title: This package collects R functions for working with sequence databases like NCBI, ENA, MGnify
 Version: 0.1

@@ -30,7 +30,7 @@ try_url <- function(verb, qurl, ...){
                   ...), silent = TRUE)
 }
 
-seqdb_message <- function(action = c("na",
+webseq_message <- function(action = c("na",
                                      "query",
                                      "query_all",
                                      "not_found",
