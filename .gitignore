@@ -37,8 +37,4 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
-
-# Local directories
-
-cache/
-inst/
+inst/doc

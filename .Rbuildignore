@@ -6,10 +6,9 @@
 .github
 
 # README files
-README.Rmd
+README.html
 README.md
+README.Rmd
 
-# Local directories
-
-cache/
-inst/
+# knitr and R markdown default cache directories
+/cache/

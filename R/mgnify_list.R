@@ -1,5 +1,14 @@
 #' Retrieve a list of instances from MGnify
-#' @param sleep character; 
+#' 
+#' This function retrieves a list of identifiers to look up with other
+#' functions.
+#' @param query character; what to look for.
+#' @param from character; API. See \code{"mgnify_endpoints()"}.
+#' @param from_id character; more precise filtering for the API.
+#' @param page numeric; the API's response is paginated this tells the API which
+#' page to return. If \code{NULL}, the function will return all pages.
+#' @param sleep character; number of seconds to sleep before requesting the next
+#' page.
 #' @param verbose logical; should verbose messages be printed to console?
 #' @examples
 #' \dontrun{

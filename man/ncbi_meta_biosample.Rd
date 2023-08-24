@@ -17,11 +17,11 @@ This function collects metadata for entries in NCBI BioSample database.
 \examples{
 \dontrun{
 # Sample metadata from BioSample ID
-biosample_uid <- ncbi_get_uid("SAMN02714232", db = "biosample")
+biosample_uid <- get_uid("SAMN02714232", db = "biosample")
 ncbi_meta(biosample_uid)
 
 # Sample metadata from assembly accession 
-assembly_uid <- ncbi_get_uid("GCF_000695855.3")
+assembly_uid <- get_uid("GCF_000695855.3")
 biosample_uid <- ncbi_link_uids(assembly_uid, from = "assembly", to = "biosample")
 ncbi_meta_biosample(biosample_uid)
 }

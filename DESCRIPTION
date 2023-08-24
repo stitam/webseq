@@ -1,13 +1,32 @@
 Package: webseq
 Type: Package
-Title: This package collects R functions for working with sequence databases like NCBI, ENA, MGnify
+Title: Access data from biological sequence databases like NCBI, ENA, MGnify
+Description: This package interacts with online biological sequence databases.
+    It provides functions to search for sequences, convert identifiers and
+    download sequences and associated metadata.
 Version: 0.1
 Date: 2022-01-05
 Author: Tamas Stirling
 Maintainer: Tamas Stirling <strling.tamas@gmail.com>
-Description: TBA
-License: TBD
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Imports:
+    curl,
+    dplyr,
+    genbankr,
+    httr,
+    jsonlite,
+    plyr,
+    rentrez,
+    stringi,
+    stringr,
+    tibble,
+    XML
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat
 RoxygenNote: 7.2.3
+VignetteBuilder: knitr
 Config/testthat/edition: 3

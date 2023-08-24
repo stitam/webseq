@@ -9,6 +9,10 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
+```{r}
+library(webseq)
+```
+
 ## Download genome assemblies
 
 Download genbank file for GCF_003007635.1.
@@ -18,13 +22,13 @@ https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/003/007/635/
 
 Let's download GCF_003007635.1_ASM300763v1_genomic.gbff.gz!
 
-```{r}
+```{r, eval = FALSE}
 ncbi_download_genome("GCF_003007635.1", type = "genomic.gbff")
 ```
 
 If we try to download it again, the function will indicate that the file is already downloaded.
 
-```{r}
+```{r, eval = FALSE}
 ncbi_download_genome("GCF_003007635.1", type = "genomic.gbff")
 ```
 
@@ -35,25 +39,29 @@ Let's download some metadata for this assembly!
 First, get the Assembly UID of the assembly, which is the internal identifier of the assembly within the NCBI Assembly database.
 
 ```{r}
-assembly_uid <- ncbi_get_uid("GCF_003007635.1", db = "assembly")
+assembly_uid <- get_uid("GCF_003007635.1", db = "assembly")
+assembly_uid
 ```
 
 Next, collect some assembly metadata.
 
 ```{r}
-assembly_meta <- ncbi_meta_assembly(assembly_uid$uid)
+assembly_meta <- get_meta(assembly_uid$uid, db = "assembly")
+assembly_meta
 ```
 
 Using this metadata we can find the BioSample ID associated with the assembly. Let's use this ID to get the BioSample UID of the sample within the NCBI BioSample database.
 
 ```{r}
-biosample_uid <- ncbi_get_uid(assembly_meta$biosample, db = "biosample")
+biosample_uid <- get_uid(assembly_meta$biosample, db = "biosample")
+biosample_uid
 ```
 
 And then get the metadata itself
 
 ```{r}
-biosample_meta <- ncbi_meta_biosample(biosample_uid$uid)
+biosample_meta <- get_meta(biosample_uid$uid, db = "biosample")
+biosample_meta
 ```
 
 ## Parse metadata files
@@ -69,7 +77,7 @@ upper right corner -> send to -> file -> format = xml -> create file
 
 Download the file and then parse it.
 
-```{r}
+```{r, eval = FALSE}
 ncbi_parse_assembly_xml("assembly_summary.xml")
 ```
 
@@ -82,6 +90,6 @@ upper right corner -> send to -> file -> format = full (text) -> create file
 
 Download the file and then parse it.
 
-```{r}
+```{r, eval = FALSE}
 ncbi_parse_biosample_txt("biosample_summary.txt")
 ```
