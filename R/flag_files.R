@@ -47,7 +47,7 @@ flag_files <- function(filenames) {
       if (nrow(cr) == 1) {
         df$keep[i] = TRUE 
       } else {
-        cr <- cr[order(cr$source, cr$version, decreasing = c(TRUE, TRUE)),]
+        cr <- cr[order(cr$source, cr$version, decreasing = TRUE),]
         cr$keep[1] <- TRUE
         cr$keep[2:nrow(cr)] <- FALSE
         df$keep[cr$row] <- cr$keep
