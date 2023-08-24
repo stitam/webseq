@@ -14,12 +14,23 @@ mgnify_list(
 )
 }
 \arguments{
-\item{sleep}{character;}
+\item{query}{character; what to look for.}
+
+\item{from}{character; API. See \code{"mgnify_endpoints()"}.}
+
+\item{from_id}{character; more precise filtering for the API.}
+
+\item{page}{numeric; the API's response is paginated this tells the API which
+page to return. If \code{NULL}, the function will return all pages.}
+
+\item{sleep}{character; number of seconds to sleep before requesting the next
+page.}
 
 \item{verbose}{logical; should verbose messages be printed to console?}
 }
 \description{
-Retrieve a list of instances from MGnify
+This function retrieves a list of identifiers to look up with other
+functions.
 }
 \examples{
 \dontrun{
