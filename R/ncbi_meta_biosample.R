@@ -15,7 +15,8 @@
 #' 
 #' # Sample metadata from assembly accession 
 #' assembly_uid <- get_uid("GCF_000695855.3")
-#' biosample_uid <- ncbi_link_uids(assembly_uid, from = "assembly", to = "biosample")
+#' biosample_uid <- ncbi_link_uids(
+#'   assembly_uid, from = "assembly", to = "biosample")
 #' ncbi_meta_biosample(biosample_uid)
 #' }
 ncbi_meta_biosample_xml <- function(
@@ -68,65 +69,94 @@ ncbi_meta_biosample_xml <- function(
  return(out)
 }
 
-
 # entrez fetch > xml2::as_list(xml2::read_xml()) > [[1]] > lapply
 ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
-  if (all(c("id", "accession") %in% names(attributes(x)))) {
-    biosample_uid <- attributes(x)$id
-    biosample <- attributes(x)$accession
-  } else {
-    stop()
+  # attributes(x)$names contains all fields! use for validation
+  # have a separate function for each field
+  main_attrs <- attributes(x)
+  expected_names <- c(
+    "names", "last_update", "publication_date",
+    "access", "submission_date", "id", "accession"
+  )
+  if (any(!expected_names %in% names(main_attrs))) {
+    msg <- paste0("Could not extract Attributes for BioSample ", biosample, ".")
+    stop(msg)
   }
-  print(biosample)
-  print(biosample_uid)
-  print(verbose)
   out <- dplyr::bind_cols(
+    # primary key
     data.frame(
-      biosample = biosample,
-      biosample_uid = biosample_uid,
+      biosample = main_attrs$accession,
+      biosample_uid = main_attrs$id
+    ),
+    # ids
+    get_ids(x, biosample, verbose),
+    # description
+    data.frame(
       title = title(x, biosample, verbose),
       sample_name = sample_name(x, biosample, verbose),
       organism = organism(x, biosample, verbose),
       taxid = taxid(x, biosample, verbose)
     ),
+    # attributes
     get_attributes(x, biosample, verbose),
     data.frame(
       bioproject = bioproject(x, biosample, verbose),
+      access = main_attrs$access,
       status = status(x, biosample, verbose),
-      submission_date = submission_date(x, biosample, verbose),
-      publication_date = publication_date(x, biosample, verbose),
-      last_update = last_update(x, biosample, verbose),
+      submission_date = main_attrs$submission_date,
+      publication_date = main_attrs$publication_date,
+      last_update = main_attrs$last_update,
       status_date = status_date(x, biosample, verbose)
-    
-    # identify the biosample, name, strain, etc
-    #description
-    #ATTRIBUTES, harmonized name + value
-    # other metadata
-    #owner
-    #contact_name_first
-    #contact_name_last
-    #contact_email
     )
   )
   return(out)
 }
 
-# 
-# a <- c("SAMN02714232", "SAMN02714232")
-# b <- get_uid(a, "biosample")
+# data(examples)
+# b <- get_uid(examples$biosample, "biosample")
 # c <- rentrez::entrez_fetch(db = "biosample", id = b$uid, rettype = "full", retmode = "xml")
 # d <- xml2::as_list(xml2::read_xml(c))[[1]]
 # names(d) <- sapply(d, function(x) attributes(x)$accession)
 
+get_ids <- function(
+    x,
+    biosample,
+    verbose = getOption("verbose")) {
+  out <- NA
+  res <- x$Ids
+  if (!is.null(res)) {
+    out <- data.frame(
+      db = unname(sapply(res, function(A) {
+        # check if this exists?
+        attributes(A)$db
+      })),
+      id = unname(sapply(res, unlist))
+    )
+    out <- dplyr::distinct(out)
+    out <- tidyr::spread(out, db, id)
+    names(out) <- gsub(" +", "_", tolower(names(out)))
+  }
+  if (length(out) == 1 && is.na(out) && verbose) {
+    msg <- paste0(
+      "Could not extract Ids for BioSample ", biosample, "."
+    )
+    message(msg)
+  }
+  return(out)
+}
+
 get_attributes <- function(x, biosample, verbose = getOption("verbose")) {
   out <- NA
-  res <- try(x$Attributes, silent = TRUE)
-  if (!inherits(res, "try-error")) {
-    out <- lapply(res, unlist)
-    names(out) <- unname(sapply(res, function(A) {
-      paste0("attr_", attributes(A)$harmonized_name)
-    }))
-    # there should be a consistency check here to ensure all entries are unique
+  res <- x$Attributes
+  if (!is.null(res)) {
+    out <- data.frame(
+      attr = unname(sapply(res, function(A) {
+        paste0("attr_", attributes(A)$harmonized_name)
+      })),
+      value = unname(sapply(res, unlist))
+    )
+    out <- dplyr::distinct(out)
+    out <- tidyr::spread(out, attr, value)
   }
   if (length(out) == 1 && is.na(out) && verbose) {
     msg <- paste0(
@@ -136,6 +166,41 @@ get_attributes <- function(x, biosample, verbose = getOption("verbose")) {
   }
   return(out)
 }
+
+# ITT TARTOK
+get_owner <- function(
+    x,
+    biosample,
+    verbose = getOption("verbose")) {
+  out <- NA
+  res <- x$Owner
+  if (!is.null(res)) {
+    out <- data.frame(
+      db = unname(sapply(res, function(A) {
+        # check if this exists?
+        attributes(A)$db
+      })),
+      id = unname(sapply(res, unlist))
+    )
+    out <- dplyr::distinct(out)
+    out <- tidyr::spread(out, db, id)
+  }
+  if (length(out) == 1 && is.na(out) && verbose) {
+    msg <- paste0(
+      "Could not extract Ids for BioSample ", biosample, "."
+    )
+    message(msg)
+  }
+  return(out)
+}
+
+
+
+get_links <- function() {}
+get_status <- function() {}
+get_description <- function() {}
+get_models <- function() {}
+get_package <- function() {}
 
 organism <- function(
     x,
@@ -169,32 +234,6 @@ organism <- function(
   return(out)
 }
 
-sample_name <- function(
-    x,
-    biosample,
-    verbose = getOption("verbose")
-  ) {
-  out <- NA
-  res_name <- try(attributes(d[[1]]$Ids[[2]])$db_label, silent = TRUE)
-  if (!inherits(res_name, "try-error") && 
-      !is.null(res_name) && 
-      length(res_name) == 1 &&
-      res_name == "Sample name") {
-    res_value <- try(unique(unlist(d[[1]]$Ids[[2]])), silent = TRUE)
-    if (!inherits(res_value, "try-error") &&
-        length(res_value) == 1) {
-      out <- res_value
-    }
-  }
-  if (is.na(out) & verbose) {
-    msg <- paste0(
-      "Could not extract Sample name for BioSample ", biosample, "."
-    )
-    message(msg)
-  }
-  return(out)
-}
-
 bioproject <- function(
     x,
     biosample, 
@@ -217,42 +256,6 @@ bioproject <- function(
   if (is.na(out) & verbose) {
     msg <- paste0(
       "Could not extract BioProject for BioSample ", biosample, "."
-    )
-    message(msg)
-  }
-  return(out)
-}
-
-last_update <- function(
-    x,
-    biosample,
-    verbose = getOption("verbose")
-  ) {
-  out <- NA
-  if ("last_update" %in% names(attributes(x))) {
-    out <- attributes(x)$last_update
-  }
-  if (is.na(out) & verbose) {
-    msg <- paste0(
-      "Could not extract last_update for BioSample ", biosample, "."
-    )
-    message(msg)
-  }
-  return(out)
-}
-
-publication_date <- function(
-    x,
-    biosample,
-    verbose = getOption("verbose")
-  ) {
-  out <- NA
-  if ("publication_date" %in% names(attributes(x))) {
-    out <- attributes(x)$publication_date
-  }
-  if (is.na(out) & verbose) {
-    msg <- paste0(
-      "Could not extract publication_date for BioSample ", biosample, "."
     )
     message(msg)
   }
@@ -291,24 +294,6 @@ status_date <- function(
   if (is.na(out) & verbose) {
     msg <- paste0(
       "Could not extract status_date  for BioSample ", biosample, "."
-    )
-    message(msg)
-  }
-  return(out)
-}
-
-submission_date <- function(
-    x,
-    biosample,
-    verbose = getOption("verbose")
-  ) {
-  out <- NA
-  if ("submission_date" %in% names(attributes(x))) {
-    out <- attributes(x)$submission_date
-  }
-  if (is.na(out) & verbose) {
-    msg <- paste0(
-      "Could not extract submission_date for BioSample ", biosample, "."
     )
     message(msg)
   }
