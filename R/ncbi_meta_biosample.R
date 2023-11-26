@@ -93,12 +93,12 @@ ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
     # description
     data.frame(
       title = title(x, biosample, verbose),
-      sample_name = sample_name(x, biosample, verbose),
       organism = organism(x, biosample, verbose),
       taxid = taxid(x, biosample, verbose)
     ),
     # attributes
     get_attributes(x, biosample, verbose),
+    get_owner(x, biosample, verbose),
     data.frame(
       bioproject = bioproject(x, biosample, verbose),
       access = main_attrs$access,
@@ -167,7 +167,6 @@ get_attributes <- function(x, biosample, verbose = getOption("verbose")) {
   return(out)
 }
 
-# ITT TARTOK
 get_owner <- function(
     x,
     biosample,
@@ -176,18 +175,31 @@ get_owner <- function(
   res <- x$Owner
   if (!is.null(res)) {
     out <- data.frame(
-      db = unname(sapply(res, function(A) {
-        # check if this exists?
-        attributes(A)$db
-      })),
-      id = unname(sapply(res, unlist))
+      owner_name = unlist(res$Name),
+      contact_name_first = if("Contacts" %in% names(res)) {
+        unlist(res$Contacts$Contact$Name$First)
+      } else {
+        NA
+      },
+      contact_name_last = if("Contacts" %in% names(res)) {
+        unlist(res$Contacts$Contact$Name$Last)
+      } else {
+        NA
+      },
+      contact_email = if (
+        "Contacts" %in% names(res) &&
+        "email" %in% names(attributes(res$Contacts$Contact))
+      ) {
+        attributes(res$Contacts$Contact)$email
+      } else {
+        NA
+      }
     )
     out <- dplyr::distinct(out)
-    out <- tidyr::spread(out, db, id)
   }
   if (length(out) == 1 && is.na(out) && verbose) {
     msg <- paste0(
-      "Could not extract Ids for BioSample ", biosample, "."
+      "Could not extract Owner info for BioSample ", biosample, "."
     )
     message(msg)
   }
@@ -299,6 +311,50 @@ status_date <- function(
   }
   return(out)
 }
+
+
+
+get_description <- function() {}
+get_models <- function() {}
+get_package <- function() {}
+
+organism <- function(
+    x,
+    biosample,
+    verbose = getOption("verbose")
+  ) {
+  out <- NA
+  res1 <- try(unique(unlist(x$Description$Organism$OrganismName)), silent = TRUE)
+  res2 <- try(attributes(x$Description$Organism)$taxonomy_name, silent = TRUE)
+  if (!inherits(res1, "try-error") && 
+      length(res1) == 1 &&
+      inherits(res2, "try-error")) {
+    out <- res1
+  } else if (!inherits(res2, "try-error") && 
+      length(res2) == 1 &&
+      inherits(res1, "try-error")) {
+    out <- res2
+  } else if (!inherits(res1, "try-error") &&
+             !inherits(res2, "try-error") &&
+             length(res1) == 1 &&
+             length(res2) == 1 &&
+             res1 == res2) {
+    out <- res1
+  }
+  if (is.na(out) & verbose) {
+    msg <- paste0(
+      "Could not extract Organism for BioSample ", biosample, "."
+    )
+    message(msg)
+  }
+  return(out)
+}
+
+
+
+
+
+
 
 taxid <- function(
     x,
