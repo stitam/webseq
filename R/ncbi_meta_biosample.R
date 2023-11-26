@@ -96,6 +96,8 @@ ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
       organism = extract_organism(x, biosample, verbose),
       taxid = extract_taxid(x, biosample, verbose)
     ),
+    # package,
+    extract_package(x, biosample, verbose),
     # attributes
     extract_attributes(x, biosample, verbose),
     extract_owner(x, biosample, verbose),
@@ -210,11 +212,6 @@ extract_owner <- function(
   return(out)
 }
 
-
-
-extract_links <- function() {}
-extract_status <- function() {}
-
 extract_description <- function(
     x,
     biosample,
@@ -233,8 +230,27 @@ extract_description <- function(
   return(out)
 }
 
-extract_models <- function() {}
-extract_package <- function() {}
+# test <- get_uid("pathogen cl 1 0[filter]", "biosample")
+extract_package <- function(
+    x,
+    biosample,
+    verbose = getOption("verbose")
+  ) {
+  out <- NA
+  if (!is.null(x$Package)) {
+    out <- data.frame(
+      package_name = attributes(x$Package)$display_name,
+      package_searchterm = unlist(x$Package)
+    )
+  }
+  if (length(out) == 1 && is.na(out) && verbose) {
+    msg <- paste0(
+      "Could not extract Package for BioSample ", biosample, "."
+    )
+    message(msg)
+  }
+  return(out)
+}
 
 extract_organism <- function(
     x,
