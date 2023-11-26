@@ -89,24 +89,24 @@ ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
       biosample_uid = main_attrs$id
     ),
     # ids
-    get_ids(x, biosample, verbose),
+    extract_ids(x, biosample, verbose),
     # description
     data.frame(
-      title = title(x, biosample, verbose),
-      organism = organism(x, biosample, verbose),
-      taxid = taxid(x, biosample, verbose)
+      title = extract_title(x, biosample, verbose),
+      organism = extract_organism(x, biosample, verbose),
+      taxid = extract_taxid(x, biosample, verbose)
     ),
     # attributes
-    get_attributes(x, biosample, verbose),
-    get_owner(x, biosample, verbose),
+    extract_attributes(x, biosample, verbose),
+    extract_owner(x, biosample, verbose),
     data.frame(
-      bioproject = bioproject(x, biosample, verbose),
+      bioproject = extract_bioproject(x, biosample, verbose),
       access = main_attrs$access,
-      status = status(x, biosample, verbose),
+      status = extract_status(x, biosample, verbose),
       submission_date = main_attrs$submission_date,
       publication_date = main_attrs$publication_date,
       last_update = main_attrs$last_update,
-      status_date = status_date(x, biosample, verbose)
+      status_date = extract_status_date(x, biosample, verbose)
     )
   )
   return(out)
@@ -118,7 +118,7 @@ ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
 # d <- xml2::as_list(xml2::read_xml(c))[[1]]
 # names(d) <- sapply(d, function(x) attributes(x)$accession)
 
-get_ids <- function(
+extract_ids <- function(
     x,
     biosample,
     verbose = getOption("verbose")) {
@@ -145,7 +145,7 @@ get_ids <- function(
   return(out)
 }
 
-get_attributes <- function(x, biosample, verbose = getOption("verbose")) {
+extract_attributes <- function(x, biosample, verbose = getOption("verbose")) {
   out <- NA
   res <- x$Attributes
   if (!is.null(res)) {
@@ -167,7 +167,7 @@ get_attributes <- function(x, biosample, verbose = getOption("verbose")) {
   return(out)
 }
 
-get_owner <- function(
+extract_owner <- function(
     x,
     biosample,
     verbose = getOption("verbose")) {
@@ -208,13 +208,13 @@ get_owner <- function(
 
 
 
-get_links <- function() {}
-get_status <- function() {}
-get_description <- function() {}
-get_models <- function() {}
-get_package <- function() {}
+extract_links <- function() {}
+extract_status <- function() {}
+extract_description <- function() {}
+extract_models <- function() {}
+extract_package <- function() {}
 
-organism <- function(
+extract_organism <- function(
     x,
     biosample,
     verbose = getOption("verbose")
@@ -246,7 +246,7 @@ organism <- function(
   return(out)
 }
 
-bioproject <- function(
+extract_bioproject <- function(
     x,
     biosample, 
     verbose = getOption("verbose")
@@ -274,7 +274,7 @@ bioproject <- function(
   return(out)
 }
 
-status <- function(
+extract_status <- function(
     x,
     biosample,
     verbose = getOption("verbose")
@@ -293,7 +293,7 @@ status <- function(
   return(out)
 }
 
-status_date <- function(
+extract_status_date <- function(
     x,
     biosample,
     verbose = getOption("verbose")
@@ -312,51 +312,7 @@ status_date <- function(
   return(out)
 }
 
-
-
-get_description <- function() {}
-get_models <- function() {}
-get_package <- function() {}
-
-organism <- function(
-    x,
-    biosample,
-    verbose = getOption("verbose")
-  ) {
-  out <- NA
-  res1 <- try(unique(unlist(x$Description$Organism$OrganismName)), silent = TRUE)
-  res2 <- try(attributes(x$Description$Organism)$taxonomy_name, silent = TRUE)
-  if (!inherits(res1, "try-error") && 
-      length(res1) == 1 &&
-      inherits(res2, "try-error")) {
-    out <- res1
-  } else if (!inherits(res2, "try-error") && 
-      length(res2) == 1 &&
-      inherits(res1, "try-error")) {
-    out <- res2
-  } else if (!inherits(res1, "try-error") &&
-             !inherits(res2, "try-error") &&
-             length(res1) == 1 &&
-             length(res2) == 1 &&
-             res1 == res2) {
-    out <- res1
-  }
-  if (is.na(out) & verbose) {
-    msg <- paste0(
-      "Could not extract Organism for BioSample ", biosample, "."
-    )
-    message(msg)
-  }
-  return(out)
-}
-
-
-
-
-
-
-
-taxid <- function(
+extract_taxid <- function(
     x,
     biosample,
     verbose = getOption("verbose")
@@ -375,7 +331,7 @@ taxid <- function(
   return(out)
 }
 
-title <- function(
+extract_title <- function(
     x,
     biosample,
     verbose = getOption("verbose")
