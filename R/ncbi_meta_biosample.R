@@ -85,7 +85,6 @@ ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
   out <- dplyr::bind_cols(
     # primary key
     data.frame(
-      biosample = main_attrs$accession,
       biosample_uid = main_attrs$id
     ),
     # ids
