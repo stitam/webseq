@@ -90,7 +90,7 @@ ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
     ),
     # ids
     extract_ids(x, biosample, verbose),
-    # description
+    # title and organism
     data.frame(
       title = extract_title(x, biosample, verbose),
       organism = extract_organism(x, biosample, verbose),
@@ -99,6 +99,10 @@ ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
     # attributes
     extract_attributes(x, biosample, verbose),
     extract_owner(x, biosample, verbose),
+    # description
+    data.frame(
+      description = extract_description(x, biosample, verbose)
+    ),
     data.frame(
       bioproject = extract_bioproject(x, biosample, verbose),
       access = main_attrs$access,
@@ -107,7 +111,7 @@ ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
       publication_date = main_attrs$publication_date,
       last_update = main_attrs$last_update,
       status_date = extract_status_date(x, biosample, verbose)
-    )
+    ),
   )
   return(out)
 }
@@ -210,7 +214,25 @@ extract_owner <- function(
 
 extract_links <- function() {}
 extract_status <- function() {}
-extract_description <- function() {}
+
+extract_description <- function(
+    x,
+    biosample,
+    verbose = getOption("verbose")
+  ) {
+  out <- NA
+  if (!is.null(x$Description$Comment$Paragraph)) {
+    out <- unlist(x$Description$Comment$Paragraph)
+  }
+  if (is.na(out) & verbose) {
+    msg <- paste0(
+      "Could not extract Description for BioSample ", biosample, "."
+    )
+    message(msg)
+  }
+  return(out)
+}
+
 extract_models <- function() {}
 extract_package <- function() {}
 
