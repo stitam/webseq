@@ -1,78 +1,56 @@
-#' Collect NCBI BioSample metadata
+#' Parse NCBI BioSample metadata
 #' 
-#' This function collects metadata for entries in NCBI BioSample database.
-#' @importFrom rentrez entrez_fetch
-#' @importFrom XML xmlParse xmlRoot xmlToList
-#' @importFrom dplyr bind_cols bind_rows
-#' @importFrom tibble as_tibble 
-#' @param biosample_uids character; a character vector of BioSample UID-s.
+#' BioSample metadata from NCBI can be retrieved in multiple file formats. This
+#' function parses metadata retrieved in XML format.
+#' @param biosample_xml character; either a character vector containing an xml
+#' that was retrieved through \code{rentrez::entrez_fetch()} or a path to an xml
+#' file that was downloaded from NCBI BioSample.
 #' @param verbose logical; Should verbose messages be printed to console?
 #' @examples
 #' \dontrun{
-#' # Sample metadata from BioSample ID
-#' biosample_uid <- get_uid("SAMN02714232", db = "biosample")
-#' ncbi_meta(biosample_uid)
+#' data(examples)
 #' 
-#' # Sample metadata from assembly accession 
-#' assembly_uid <- get_uid("GCF_000695855.3")
-#' biosample_uid <- ncbi_link_uids(
-#'   assembly_uid, from = "assembly", to = "biosample")
-#' ncbi_meta_biosample(biosample_uid)
+#' # Option 1 - fully programmatic access
+#' 
+#' # Get internal BioSample UID for BioSample ID
+#' biosample_uid <- get_uid(examples$biosample, db = "biosample")
+#' # Get metadata in XML format
+#' meta_xml <- rentrez::entrez_fetch(
+#'   db = "biosample",
+#'   id = biosample_uid$uid,
+#'   rettype = "full",
+#'   retmode = "xml"
+#' )
+#' # Parse XML
+#' ncbi_meta_biosample_xml(meta_xml)
+#' 
+#' # Option 2 - download XML file from NCBI and parse
+#' 
+#' # Manually download the XML file
+#' # https://www.ncbi.nlm.nih.gov/biosample/?term=SAMN02714232
+#' # upper right corner -> send to -> file -> format = full (xml) -> create file
+#' # Parse XML
+#' ncbi_meta_biomsample_xml("biosample_result.xml")
 #' }
 ncbi_meta_biosample_xml <- function(
-    biosample_uids,
+    biosample_xml,
     verbose = getOption("verbose")
     ) {
- foo <- function(x) {
-   res <- rentrez::entrez_fetch(
-     db = "biosample", id = x, rettype = "full", retmode = "xml")
-   parsed_xml <- XML::xmlParse(res)
-   rootnode <- XML::xmlRoot(parsed_xml)
-   out <- data.frame(biosample_uid = x)
-   attr_node <- rootnode[[1]][["Attributes"]]
-   if (!is.null(attr_node)) {
-     attr_list <- XML::xmlToList(attr_node)
-     for (i in 1:length(attr_list)) {
-       attrib <- data.frame(attr_list[[i]][["text"]]) 
-       names(attrib) <- attr_list[[i]][[".attrs"]]["display_name"]
-       names(attrib) <- tolower(names(attrib))
-       names(attrib) <- gsub(" +", "_", names(attrib))
-       out <- dplyr::bind_cols(out, attrib)
-     }  
-   }
-   owner_node <- rootnode[[1]][["Owner"]]
-   if (!is.null(owner_node)) {
-     owner_list <- XML::xmlToList(owner_node)
-     if (!is.null(owner_list$Contacts$Contact$.attrs)) {
-       if ("email" %in% names(owner_list$Contacts$Contact$.attrs)) {
-         out$owner_name <- ifelse(!is.null(owner_list$Name),
-                                  owner_list$Name,
-                                  NA)
-         out$owner_firstname <- ifelse(
-           !is.null(owner_list$Contacts$Contact$Name$First),
-           owner_list$Contacts$Contact$Name$First,
-           NA)
-         out$owner_lastname <- ifelse(
-           !is.null(owner_list$Contacts$Contact$Name$Last),
-           owner_list$Contacts$Contact$Name$Last,
-           NA)
-         index <- which(names(owner_list$Contacts$Contact$.attrs) == "email")
-         out$owner_email <- owner_list$Contacts$Contact$.attrs[index]
-       }
-     }
-   }
-   return(out)
- }
- out <- lapply(biosample_uids, foo)
- out <- dplyr::bind_rows(out)
- out <- tibble::as_tibble(out)
- return(out)
+  parsed_xml <- xml2::as_list(xml2::read_xml(biosample_xml))[[1]]
+  names(parsed_xml) <- sapply(parsed_xml, function(x) attributes(x)$accession)
+  out <- lapply(parsed_xml, ncbi_meta_biosample_xml_entry)
+  out <- dplyr::bind_rows(out)
+  out <- out[, c(
+    "biosample_uid",
+    "biosample",
+    names(out)[3:ncol(out)][order(names(out)[3:ncol(out)])]
+  )]
+  out <- tibble::as_tibble(out)
+  return(out)
 }
 
-# entrez fetch > xml2::as_list(xml2::read_xml()) > [[1]] > lapply
 ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
   # attributes(x)$names contains all fields! use for validation
-  # have a separate function for each field
   main_attrs <- attributes(x)
   expected_names <- c(
     "names", "last_update", "publication_date",
@@ -116,12 +94,6 @@ ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
   )
   return(out)
 }
-
-# data(examples)
-# b <- get_uid(examples$biosample, "biosample")
-# c <- rentrez::entrez_fetch(db = "biosample", id = b$uid, rettype = "full", retmode = "xml")
-# d <- xml2::as_list(xml2::read_xml(c))[[1]]
-# names(d) <- sapply(d, function(x) attributes(x)$accession)
 
 extract_ids <- function(
     x,
