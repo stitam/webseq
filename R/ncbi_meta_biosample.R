@@ -6,32 +6,6 @@
 #' that was retrieved through \code{rentrez::entrez_fetch()} or a path to an xml
 #' file that was downloaded from NCBI BioSample.
 #' @param verbose logical; Should verbose messages be printed to console?
-#' @examples
-#' \dontrun{
-#' data(examples)
-#' 
-#' # Option 1 - fully programmatic access
-#' 
-#' # Get internal BioSample UID for BioSample ID
-#' biosample_uid <- get_uid(examples$biosample, db = "biosample")
-#' # Get metadata in XML format
-#' meta_xml <- rentrez::entrez_fetch(
-#'   db = "biosample",
-#'   id = biosample_uid$uid,
-#'   rettype = "full",
-#'   retmode = "xml"
-#' )
-#' # Parse XML
-#' ncbi_meta_biosample_xml(meta_xml)
-#' 
-#' # Option 2 - download XML file from NCBI and parse
-#' 
-#' # Manually download the XML file
-#' # https://www.ncbi.nlm.nih.gov/biosample/?term=SAMN02714232
-#' # upper right corner -> send to -> file -> format = full (xml) -> create file
-#' # Parse XML
-#' ncbi_meta_biomsample_xml("biosample_result.xml")
-#' }
 ncbi_meta_biosample_xml <- function(
     biosample_xml,
     verbose = getOption("verbose")
