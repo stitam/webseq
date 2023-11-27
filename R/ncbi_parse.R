@@ -16,6 +16,14 @@
 #' @examples
 #' \dontrun{
 #' data(examples)
+#' #' 
+#' # NCBI Assembly, download XML file from NCBI and parse
+#' 
+#' # Manually download the XML file
+#' # https://www.ncbi.nlm.nih.gov/assembly/GCF_000299415.1
+#' # upper right corner -> send to -> file -> format = xml -> create file
+#' # Parse XML
+#' ncbi_parse(meta = "assembly_summary.xml", db = "assembly", format = "xml")
 #' 
 #' # NCBI BioSample, fully programmatic access
 #' 
@@ -37,7 +45,7 @@
 #' # https://www.ncbi.nlm.nih.gov/biosample/?term=SAMN02714232
 #' # upper right corner -> send to -> file -> format = full (xml) -> create file
 #' # Parse XML
-#' ncbi_parse(meta = "biosample_result.xml", db = "biosample", format = "xml")
+#' ncbi_parse(meta = "biosample_result.xml", db = "biosample", format = "xml")#' 
 #' }
 #' @export
 ncbi_parse <- function(
@@ -46,8 +54,12 @@ ncbi_parse <- function(
   format = "xml",
   verbose = getOption("verbose")
 ) {
+  db <- match.arg(db, choices = c("assembly", "biosample"))
+  format <- match.arg(format, choices = c("xml"))
   f <- get(paste("ncbi_parse", db, format, sep = "_"))
-  if (db == "biosample" & format == "xml") {
+  if (db == "assembly" && format == "xml") {
+    out <- f(meta, verbose)
+  } else if (db == "biosample" && format == "xml") {
     out <- f(meta, verbose)
   } else {
     out <- tibble::tibble()

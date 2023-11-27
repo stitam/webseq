@@ -3,6 +3,7 @@
 #' This function can be used to parse an xml file from the NCBI assembly
 #' database into a tibble.
 #' @param file character; path to an xml file.
+#' @param verbose logical; Should verbose messages be printed to console?
 #' @returns a tibble.
 #' @examples
 #' \dontrun{
@@ -13,7 +14,7 @@
 #' ncbi_parse_assembly_xml("assembly_summary.xml")
 #' }
 #' @export
-ncbi_parse_assembly_xml <- function(file) {
+ncbi_parse_assembly_xml <- function(file, verbose = getOption("verbose")) {
   foo <- function(x) {
     rootnode <- XML::xmlRoot(x)
     assembly <- XML::xpathSApply(
