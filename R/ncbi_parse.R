@@ -1,8 +1,10 @@
 #' Parse NCBI sequence metadata
 #' 
 #' This function can be used to parse various non-sequence data sets from NCBI
-#' into a tibble. The function currently supports parsing NCBI BioSample data
-#' from XML format.
+#' into a tibble. These data sets usually accompany the biological sequences and
+#' contain additional information e.g. identifiers, information about the
+#' sample, the sequencing platform, etc. The function currently supports parsing
+#' NCBI BioSample data from XML format.
 #' @param meta character; either a character vector containing a data set that
 #' was retrieved through \code{rentrez::entrez_fetch()} or a path to an file
 #' that was downloaded from NCBI.
@@ -27,7 +29,7 @@
 #'   retmode = "xml"
 #' )
 #' # Parse XML
-#' ncbi_meta(meta = meta_xml, db = "biosample", format = "xml")
+#' ncbi_parse(meta = meta_xml, db = "biosample", format = "xml")
 #' 
 #' # NCBI BioSample, download XML file from NCBI and parse
 #' 
@@ -35,16 +37,16 @@
 #' # https://www.ncbi.nlm.nih.gov/biosample/?term=SAMN02714232
 #' # upper right corner -> send to -> file -> format = full (xml) -> create file
 #' # Parse XML
-#' ncbi_meta(meta = "biosample_result.xml", db = "biosample", format = "xml")
+#' ncbi_parse(meta = "biosample_result.xml", db = "biosample", format = "xml")
 #' }
 #' @export
-ncbi_meta <- function(
+ncbi_parse <- function(
   meta,
   db,
   format = "xml",
   verbose = getOption("verbose")
 ) {
-  f <- get(paste("ncbi_meta", db, format, sep = "_"))
+  f <- get(paste("ncbi_parse", db, format, sep = "_"))
   if (db == "biosample" & format == "xml") {
     out <- f(meta, verbose)
   } else {

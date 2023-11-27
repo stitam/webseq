@@ -6,13 +6,13 @@
 #' that was retrieved through \code{rentrez::entrez_fetch()} or a path to an xml
 #' file that was downloaded from NCBI BioSample.
 #' @param verbose logical; Should verbose messages be printed to console?
-ncbi_meta_biosample_xml <- function(
+ncbi_parse_biosample_xml <- function(
     biosample_xml,
     verbose = getOption("verbose")
     ) {
   parsed_xml <- xml2::as_list(xml2::read_xml(biosample_xml))[[1]]
   names(parsed_xml) <- sapply(parsed_xml, function(x) attributes(x)$accession)
-  out <- lapply(parsed_xml, ncbi_meta_biosample_xml_entry)
+  out <- lapply(parsed_xml, ncbi_parse_biosample_xml_entry)
   out <- dplyr::bind_rows(out)
   out <- out[, c(
     "biosample_uid",
@@ -23,7 +23,7 @@ ncbi_meta_biosample_xml <- function(
   return(out)
 }
 
-ncbi_meta_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
+ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
   # attributes(x)$names contains all fields! use for validation
   main_attrs <- attributes(x)
   expected_names <- c(
