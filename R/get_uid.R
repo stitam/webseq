@@ -26,7 +26,7 @@ get_uid <- function(term,
   foo <- function(x) {
     if (is.na(x)) {
       if (verbose) webseq_message("na")
-      return(tibble::tibble(term = x, db = db, uid = NA))
+      return(tibble::tibble(term = x, db = db, uid = NA_integer_))
     }
     if (verbose) webseq_message("query", x, appendLF = FALSE)
     r <- NULL
@@ -39,7 +39,7 @@ get_uid <- function(term,
     }
     if (inherits(hit, "try-error")) {
       if (verbose) webseq_message("service_down")
-      return(tibble::tibble(term = x, db = db, uid = NA))
+      return(tibble::tibble(term = x, db = db, uid = NA_integer_))
     }
     if (hit$count > hit$retmax) {
       r <- NULL
@@ -54,14 +54,14 @@ get_uid <- function(term,
     }
     if (inherits(hit, "try-error")) {
       if (verbose) webseq_message("service_down")
-      return(tibble::tibble(term = x, db = db, uid = NA))
+      return(tibble::tibble(term = x, db = db, uid = NA_integer_))
     }
     if (length(hit$ids) > 0) {
       if (verbose) message("OK.")
-      return(tibble::tibble(term = x, db = db, uid = hit$ids))
+      return(tibble::tibble(term = x, db = db, uid = as.integer(hit$ids)))
     } else {
       if (verbose) message("Not found. Returning NA.")
-      return(tibble::tibble(term = x, db = db, uid = NA))
+      return(tibble::tibble(term = x, db = db, uid = NA_integer_))
     }
   }
   if (is.null(cache_file)) {

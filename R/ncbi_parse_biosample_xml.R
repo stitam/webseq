@@ -10,7 +10,10 @@ ncbi_parse_biosample_xml <- function(
     biosample_xml,
     verbose = getOption("verbose")
     ) {
-  parsed_xml <- xml2::as_list(xml2::read_xml(biosample_xml))[[1]]
+  parsed_xml <- lapply(biosample_xml, function(x) {
+    xml2::as_list(xml2::read_xml(x))[[1]]
+  })
+  parsed_xml <- unlist(parsed_xml, recursive = FALSE)
   names(parsed_xml) <- sapply(parsed_xml, function(x) attributes(x)$accession)
   out <- lapply(parsed_xml, ncbi_parse_biosample_xml_entry)
   out <- dplyr::bind_rows(out)

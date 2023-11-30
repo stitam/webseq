@@ -30,12 +30,7 @@
 #' # Get internal BioSample UID for BioSample ID
 #' biosample_uid <- get_uid(examples$biosample, db = "biosample")
 #' # Get metadata in XML format
-#' meta_xml <- rentrez::entrez_fetch(
-#'   db = "biosample",
-#'   id = biosample_uid$uid,
-#'   rettype = "full",
-#'   retmode = "xml"
-#' )
+#' meta <- ncbi_get_meta(uids$uid, db = "biosample")
 #' # Parse XML
 #' ncbi_parse(meta = meta_xml, db = "biosample", format = "xml")
 #' 

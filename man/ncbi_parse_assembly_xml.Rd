@@ -4,10 +4,12 @@
 \alias{ncbi_parse_assembly_xml}
 \title{Parse NCBI assembly metadata}
 \usage{
-ncbi_parse_assembly_xml(file)
+ncbi_parse_assembly_xml(file, verbose = getOption("verbose"))
 }
 \arguments{
 \item{file}{character; path to an xml file.}
+
+\item{verbose}{logical; Should verbose messages be printed to console?}
 }
 \value{
 a tibble.

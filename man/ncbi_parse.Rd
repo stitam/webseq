@@ -29,18 +29,21 @@ NCBI BioSample data from XML format.
 \examples{
 \dontrun{
 data(examples)
+#' 
+# NCBI Assembly, download XML file from NCBI and parse
+
+# Manually download the XML file
+# https://www.ncbi.nlm.nih.gov/assembly/GCF_000299415.1
+# upper right corner -> send to -> file -> format = xml -> create file
+# Parse XML
+ncbi_parse(meta = "assembly_summary.xml", db = "assembly", format = "xml")
 
 # NCBI BioSample, fully programmatic access
 
 # Get internal BioSample UID for BioSample ID
 biosample_uid <- get_uid(examples$biosample, db = "biosample")
 # Get metadata in XML format
-meta_xml <- rentrez::entrez_fetch(
-  db = "biosample",
-  id = biosample_uid$uid,
-  rettype = "full",
-  retmode = "xml"
-)
+meta <- ncbi_get_meta(uids$uid, db = "biosample")
 # Parse XML
 ncbi_parse(meta = meta_xml, db = "biosample", format = "xml")
 
@@ -50,6 +53,6 @@ ncbi_parse(meta = meta_xml, db = "biosample", format = "xml")
 # https://www.ncbi.nlm.nih.gov/biosample/?term=SAMN02714232
 # upper right corner -> send to -> file -> format = full (xml) -> create file
 # Parse XML
-ncbi_parse(meta = "biosample_result.xml", db = "biosample", format = "xml")
+ncbi_parse(meta = "biosample_result.xml", db = "biosample", format = "xml")#' 
 }
 }
