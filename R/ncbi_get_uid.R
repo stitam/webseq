@@ -127,18 +127,18 @@ ncbi_get_uid <- function(
     } else {
       if (verbose) message("Term not found. Returning NA.")
       return(list(
-        uids = tibble::tibble(term = termlist[[x]], db = db, uid = NA_integer_)),
+        uids = tibble::tibble(term = termlist[[x]], db = db, uid = NA_integer_),
         web_history = NULL
-      )
+      ))
     }
   }
   res <- lapply(seq_along(termlist), foo)
   uids <- lapply(res, function(x) x$uids) |> dplyr::bind_rows()
   webenvs <- unlist(lapply(res, function(x) {
-    if (!"web_history" %in% names(x)) {
-      return(NULL)
-    } else {
+    if ("web_history" %in% names(x)) {
       return(x$web_history$WebEnv)
+    } else {
+      return(NULL)
     }
   }))
   out <- list(
