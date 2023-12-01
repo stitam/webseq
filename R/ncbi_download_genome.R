@@ -39,7 +39,7 @@ ncbi_download_genome <- function(accession,
     }
     if (verbose) message(x, ". ", appendLF = FALSE)
     Sys.sleep(stats::runif(1,0.2,0.5))
-    assembly_uid <- try(get_uid(x, db = "assembly"), silent = TRUE)
+    assembly_uid <- try(ncbi_get_uid(x, db = "assembly"), silent = TRUE)
     if (inherits(assembly_uid, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
       return(NA)

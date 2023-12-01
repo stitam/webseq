@@ -23,16 +23,22 @@
 #' error message. In this case, try reducing the \code{batch_size} value.
 #' @examples
 #' \dontrun{
-#' get_uid("GCA_003012895.2", db = "assembly")
-#' get_uid("Autographiviridae OR Podoviridae", db = "biosample")
-#' get_uid(c("WP_093980916.1", "WP_181249115.1"), db = "protein", verbose = TRUE)
+#' ncbi_get_uid("GCA_003012895.2", db = "assembly")
+#' ncbi_get_uid("Autographiviridae OR Podoviridae", db = "biosample")
+#' ncbi_get_uid(
+#'   c("WP_093980916.1", "WP_181249115.1"),
+#'   db = "protein", 
+#'   verbose = TRUE
+#' )
 #' }
 #' @export
-get_uid <- function(term,
-                    db,
-                    batch_size = 100,
-                    use_history = TRUE,
-                    verbose = getOption("verbose")) {
+ncbi_get_uid <- function(
+    term,
+    db,
+    batch_size = 100,
+    use_history = TRUE,
+    verbose = getOption("verbose")
+    ) {
   db <- match.arg(db, rentrez::entrez_dbs())
   if (all(is.na(term))) {
     stop("No valid search terms.")

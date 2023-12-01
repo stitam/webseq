@@ -39,7 +39,7 @@ Let's download some metadata for this assembly!
 First, get the Assembly UID of the assembly, which is the internal identifier of the assembly within the NCBI Assembly database.
 
 ```{r}
-assembly_uid <- get_uid("GCF_003007635.1", db = "assembly")
+assembly_uid <- ncbi_get_uid("GCF_003007635.1", db = "assembly")
 assembly_uid
 ```
 
@@ -53,7 +53,7 @@ assembly_meta
 Using this metadata we can find the BioSample ID associated with the assembly. Let's use this ID to get the BioSample UID of the sample within the NCBI BioSample database.
 
 ```{r}
-biosample_uid <- get_uid(assembly_meta$biosample, db = "biosample")
+biosample_uid <- ncbi_get_uid(assembly_meta$biosample, db = "biosample")
 biosample_uid
 ```
 
