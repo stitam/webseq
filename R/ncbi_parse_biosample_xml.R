@@ -178,7 +178,7 @@ extract_description <- function(
   return(out)
 }
 
-# test <- get_uid("pathogen cl 1 0[filter]", "biosample")
+# test <- ncbi_get_uid("pathogen cl 1 0[filter]", "biosample")
 extract_package <- function(
     x,
     biosample,

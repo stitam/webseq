@@ -28,7 +28,7 @@
 #' # NCBI BioSample, fully programmatic access
 #' 
 #' # Get internal BioSample UID for BioSample ID
-#' biosample_uid <- get_uid(examples$biosample, db = "biosample")
+#' biosample_uid <- ncbi_get_uid(examples$biosample, db = "biosample")
 #' # Get metadata in XML format
 #' meta <- ncbi_get_meta(uids$uid, db = "biosample")
 #' # Parse XML

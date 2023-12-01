@@ -13,7 +13,7 @@
 #' @examples
 #' \dontrun{
 #' data(examples)
-#' uids <- get_uid(examples$biosample, db = "biosample")
+#' uids <- ncbi_get_uid(examples$biosample, db = "biosample")
 #' meta <- ncbi_get_meta(uids$uid, db = "biosample")
 #' }
 #' @export

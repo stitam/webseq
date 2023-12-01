@@ -1,6 +1,6 @@
 test_that("ncbi_parse() works with BioSamples", {
   data(examples)
-  biosample_uid <- get_uid(examples$biosample, db = "biosample")
+  biosample_uid <- ncbi_get_uid(examples$biosample, db = "biosample")
   meta_xml <- rentrez::entrez_fetch(
     db = "biosample",
     id = biosample_uid$uid,
