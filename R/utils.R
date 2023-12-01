@@ -34,3 +34,26 @@ webseq_message <- function(action = c("na",
   message(string, appendLF = FALSE)
   if (appendLF) message("")
 }
+
+#' Function to wait between every web-service query
+#'
+#' @param time numeric; Wait time in seconds.
+#' @param type character; Will be an API queried or a website scraped?
+#' @noRd
+#'
+webseq_sleep <- function(time = NULL, type = c('API', 'scrape')) {
+  type <- match.arg(type)
+  if (is.null(time)) {
+    if (type == 'API') {
+      time <- 0.2
+    }
+    if (type == 'scrape') {
+      time <- 0.3
+    }
+  } else {
+    if (!is.numeric(time)) {
+      stop('Set time is not numeric.')
+    }
+  }
+  Sys.sleep(time)
+}
