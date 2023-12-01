@@ -6,6 +6,9 @@
 #' @param id integer; an integer vector of database specific NCBI UIDs.
 #' @param db character; the database to search in. For options see
 #' \code{rentrez::entrez_dbs()}.
+#' @param batch_size integer; the number of search terms to query at once. If the
+#' number of search terms is larger than \code{batch_size}, the search terms
+#' are split into batches and queried separately.
 #' @param verbose logical; Should verbose messages be printed to console?
 #' @examples
 #' \dontrun{

@@ -2,12 +2,14 @@
 % Please edit documentation in R/get_uid.R
 \name{get_uid}
 \alias{get_uid}
-\title{Collect UID-s from NCBI databases}
+\title{TODO UPDATE DOCUMENTATION WRITE TESTS ADD ISSUE FOR CACHING COMMIT
+Get UID-s from NCBI databases}
 \usage{
 get_uid(
   term,
-  db = "assembly",
-  cache_file = NULL,
+  db,
+  batch_size = 100,
+  use_history = TRUE,
   verbose = getOption("verbose")
 )
 }
@@ -17,24 +19,36 @@ get_uid(
 \item{db}{character; the database to search in. For options see
 \code{rentrez::entrez_dbs()}}
 
-\item{cache_file}{character; the name of the cache file without the file
-extension. If \code{NULL}, results are not cached.}
+\item{batch_size}{integer; the number of search terms to query at once. If the
+number of search terms is larger than \code{batch_size}, the search terms
+are split into batches and queried separately.}
 
-\item{verbose}{logical; should verbos messages be printed to the console?}
+\item{verbose}{logical; should verbose messages be printed to the console?}
 }
 \value{
-A tibble.
+The function returns a list with two elements:
+\itemize{
+ \item \code{uids}: a tibble with the search terms and their corresponding
+ UIDs.
+ \item \code{history}: if \code{web_history = TRUE}, a character vector with
+ the web history IDs of the individual batches, otherwise \code{NULL}.
+ }
 }
 \description{
-This function replicates the NCBI website's search utility. One or more
-search terms are matched against the chosen database and the function returns
-a tibble of internal NCBI UID-s that can be used e.g. to link NCBI entries
-with entries in other NCBI databases.
+This function replicates the NCBI website's search utility. It searches one
+or more search terms are matched in the chosen database and returns internal 
+NCBI UID-s for individual hits. These can be used e.g. to link NCBI entries
+with entries in other NCBI databases or to retrieve the data itself.
+}
+\details{
+The default value for \code{batch_size} should work in most cases.
+However, if the search terms are very long, the function may fail with an
+error message. In this case, try reducing the \code{batch_size} value.
 }
 \examples{
 \dontrun{
-get_uid("GCA_003012895.2")
-get_uid("Autographiviridae OR Podoviridae", db = "assembly")
-get_uid(c("WP_093980916.1", "WP_181249115.1"), db = "protein")
+get_uid("GCA_003012895.2", db = "assembly")
+get_uid("Autographiviridae OR Podoviridae", db = "biosample")
+get_uid(c("WP_093980916.1", "WP_181249115.1"), db = "protein", verbose = TRUE)
 }
 }
