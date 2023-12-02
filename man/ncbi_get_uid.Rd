@@ -22,6 +22,9 @@ ncbi_get_uid(
 number of search terms is larger than \code{batch_size}, the search terms
 are split into batches and queried separately.}
 
+\item{use_history}{logical; should the function use web history for faster
+API queries? This is recommended for large queries.}
+
 \item{verbose}{logical; should verbose messages be printed to the console?}
 }
 \value{

@@ -4,11 +4,16 @@
 \alias{ncbi_get_meta}
 \title{Get sequence metadata from NCBI}
 \usage{
-ncbi_get_meta(id, db, batch_size = 250, verbose = getOption("verbose"))
+ncbi_get_meta(
+  term,
+  db,
+  batch_size = 100,
+  use_history = TRUE,
+  parse = TRUE,
+  verbose = getOption("verbose")
+)
 }
 \arguments{
-\item{id}{integer; an integer vector of database specific NCBI UIDs.}
-
 \item{db}{character; the database to search in. For options see
 \code{rentrez::entrez_dbs()}.}
 
@@ -16,12 +21,30 @@ ncbi_get_meta(id, db, batch_size = 250, verbose = getOption("verbose"))
 number of search terms is larger than \code{batch_size}, the search terms
 are split into batches and queried separately.}
 
+\item{use_history}{logical; should the function use web history for faster
+API queries? This is recommended for large queries.}
+
+\item{parse}{logical; Should the function attempt to parse the output into a
+tibble? If unsuccessful, the function will return the unparsed output.}
+
 \item{verbose}{logical; Should verbose messages be printed to console?}
+
+\item{id}{integer; an integer vector of database specific NCBI UIDs.}
+}
+\value{
+The function returns a list with two elements:
+\itemize{
+\item \code{meta}: if \code{parse = TRUE} then either a tibble with the 
+metadata or if parsing is unsuccessful, the unparsed metadata. If
+\code{parse = FALSE} the unparsed metadata.
+\item \code{history}: if \code{web_history = TRUE}, a character vector with
+the web history IDs of the individual batches, otherwise \code{NULL}.
+}
 }
 \description{
-This function is a wrapper for \code{rentrez::entrez_fetch()} that retrieves
-metadata from a given NCBI sequence database. The function currently works
-with the following databases: \code{"assembly"}, \code{"biosample"}.
+This function retrieves metadata from a given NCBI sequence database. The
+function currently works with the following databases: \code{"assembly"},
+\code{"biosample"}.
 }
 \examples{
 \dontrun{

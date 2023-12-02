@@ -10,6 +10,8 @@
 #' @param batch_size integer; the number of search terms to query at once. If the
 #' number of search terms is larger than \code{batch_size}, the search terms
 #' are split into batches and queried separately.
+#' @param use_history logical; should the function use web history for faster
+#' API queries? This is recommended for large queries.
 #' @param verbose logical; should verbose messages be printed to the console?
 #' @return The function returns a list with two elements:
 #' \itemize{
