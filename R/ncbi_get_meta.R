@@ -1,8 +1,8 @@
 #' Get sequence metadata from NCBI
 #' 
-#' This function is a wrapper for \code{rentrez::entrez_fetch()} that retrieves
-#' metadata from a given NCBI sequence database. The function currently works
-#' with the following databases: \code{"assembly"}, \code{"biosample"}.
+#' This function retrieves metadata from a given NCBI sequence database. The
+#' function currently works with the following databases: \code{"assembly"},
+#' \code{"biosample"}.
 #' @param id integer; an integer vector of database specific NCBI UIDs.
 #' @param db character; the database to search in. For options see
 #' \code{rentrez::entrez_dbs()}.
@@ -18,23 +18,18 @@
 #' }
 #' @export
 ncbi_get_meta <- function(
-    id,
+    term,
     db,
-    batch_size = 250,
+    batch_size = 100,
+    use_history = TRUE,
     verbose = getOption("verbose")
   ) {
-  if (!"integer" %in% class(id)) {
-    stop("id must be an integer vector.")
-  }
-  idlist <- list()
-  if (length(id) > batch_size) {
-    nbatch <- ceiling(length(id)/batch_size)
-    for (i in 1:nbatch) {
-      idlist[[i]] <- id[((i-1)*batch_size + 1):min(i*batch_size, length(id))]
-    }
-  } else {
-    idlist[[1]] <- id
-  }
+  uids <- ncbi_get_uid(
+    term = term,
+    db = db,
+    batch_size = batch_size,
+    verbose = verbose
+  )
   if (db == "assembly") {
     rettype <- "docsum"
     retmode <- "xml"
@@ -43,14 +38,38 @@ ncbi_get_meta <- function(
     rettype <- "full"
     retmode <- "xml"
   }
-  out <- lapply(idlist, function(x) {
-    rentrez::entrez_fetch(
-      db = db,
-      id = x,
-      rettype = rettype,
-      retmode = retmode
-    ) 
-  })
+  if (use_history) {
+    out <- lapply(uids$web_history, function(x) {
+      WH <- list("WebEnv" = x,"QueryKey" = "1")
+      class(WH) <- c("web_history", "list")
+      rentrez::entrez_fetch(
+        db = db,
+        web_history = WH,
+        rettype = rettype,
+        retmode = retmode
+      ) 
+    })
+  } else {
+    idlist <- list()
+    if (length(uids$uid) > batch_size) {
+      nbatch <- ceiling(length(uids$uid)/batch_size)
+      for (i in 1:nbatch) {
+        index_min <- (i-1)*batch_size + 1
+        index_max <- min(i*batch_size, length(uids$uid))
+        idlist[[i]] <- uids$uid[index_min:index_max]
+      }
+    } else {
+      idlist[[1]] <- id
+    }
+    out <- lapply(idlist, function(x) {
+      rentrez::entrez_fetch(
+        db = db,
+        id = x,
+        rettype = rettype,
+        retmode = retmode
+      )
+    })
+  }
   class(out) <- c(paste("ncbi", db, "meta", sep = "_"), class(out))
   return(out)
 }

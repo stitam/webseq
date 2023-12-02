@@ -31,7 +31,6 @@
 #'   verbose = TRUE
 #' )
 #' }
-#' @export
 ncbi_get_uid <- function(
     term,
     db,
