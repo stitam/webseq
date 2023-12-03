@@ -293,6 +293,11 @@ extract_links <- function(
       return(data.frame())
     } else {
       linklist <- lapply(res, function(A) {
+        if (!"target" %in% names(attributes(A))) {
+          # EXAMPLE: SAMN36356470
+          # TODO: Find a solution to take a note of failed parsings
+          return(data.frame())
+        }
         longlink <- data.frame(
           target = attributes(A)$target,
           label = if("label" %in% names(attributes(A))) {
