@@ -128,7 +128,13 @@ extract_attributes <- function(x, biosample, verbose = getOption("verbose")) {
       value = unname(sapply(res, unlist))
     )
     out <- dplyr::distinct(out)
-    out <- tidyr::spread(out, attr, value)
+    out <- tidyr::pivot_wider(
+      out,
+      names_from = attr,
+      values_from = value,
+      # EXAMPLE SAMN36698370
+      values_fn = function(x) paste(sort(unique(x)), collapse = "|")
+    )
     return(out)
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
@@ -210,7 +216,7 @@ extract_description <- function(
         }
       }
     } else {
-      out <- NA
+      out <- NA_character_
     }
     return(out)
   }
