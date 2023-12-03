@@ -7,7 +7,8 @@ examples <- list(
     "SAMN02714232", # contact email
     "SAMD00057211", # different ids, duplicated attributes
     "SAMN32745369",
-    "SAMEA114639742"
+    "SAMEA114639742",
+    "SAMN38450475"
   )
 )
 
