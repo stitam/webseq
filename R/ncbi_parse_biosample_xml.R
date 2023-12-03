@@ -64,8 +64,8 @@ ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
     data.frame(
       description = extract_description(x, main_attrs$accession, verbose)
     ),
+    extract_links(x, main_attrs$accession, verbose),
     data.frame(
-      bioproject = extract_bioproject(x, main_attrs$accession, verbose),
       access = main_attrs$access,
       status = extract_status(x, main_attrs$accession, verbose),
       submission_date = main_attrs$submission_date,
@@ -148,15 +148,25 @@ extract_owner <- function(
     res <- x$Owner
     out <- data.frame(
       owner_name = unlist(res$Name),
+      owner_abbreviation = if ("abbreviation" %in% names(attributes(res$Name))) {
+        attributes(res$Name)$abbreviation
+      } else {
+        NA_character_
+      },
+      owner_url = if ("url" %in% names(attributes(res$Name))) {
+        attributes(res$Name)$url
+      } else {
+        NA_character_
+      },
       contact_name_first = if("Contacts" %in% names(res)) {
         unlist(res$Contacts$Contact$Name$First)
       } else {
-        NA
+        NA_character_
       },
       contact_name_last = if("Contacts" %in% names(res)) {
         unlist(res$Contacts$Contact$Name$Last)
       } else {
-        NA
+        NA_character_
       },
       contact_email = if (
         "Contacts" %in% names(res) &&
@@ -164,7 +174,7 @@ extract_owner <- function(
       ) {
         attributes(res$Contacts$Contact)$email
       } else {
-        NA
+        NA_character_
       }
     )
     out <- dplyr::distinct(out)
@@ -185,7 +195,11 @@ extract_description <- function(
   ) {
   foo <- function (x, biosample, verbose) {
     out <- NULL
-    out <- unlist(x$Description$Comment$Paragraph)
+    if ("Comment" %in% names(x$Description)) {
+      out <- unlist(x$Description$Comment$Paragraph)
+    } else {
+      out <- NA
+    }
     return(out)
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
@@ -255,34 +269,40 @@ extract_organism <- function(
   return(out)
 }
 
-extract_bioproject <- function(
+extract_links <- function(
     x,
-    biosample, 
+    biosample,
     verbose = getOption("verbose")
   ) {
   foo <- function (x, biosample, verbose) {
     out <- NULL
-    res <- attributes(x[["Links"]][["Link"]])
+    res <- x[["Links"]]
     if (is.null(res)) {
-      return(NA)
-    }
-    if ("type" %in% names(res) && 
-        length(res$type) == 1 && 
-        res$type == "entrez") {
-      if ("target" %in% names(res) && 
-          length(res$target) == 1 && 
-          res$target == "bioproject") {
-        if ("label" %in% names(res) &&
-            length(res$label) == 1) {
-          out <- res$label
-        }
-      }
+      return(data.frame())
+    } else {
+      linklist <- lapply(res, function(A) {
+        longlink <- data.frame(
+          target = attributes(A)$target,
+          label = if("label" %in% names(attributes(A))) {
+            attributes(A)$label
+          } else {
+            unlist(A)
+          }
+        )
+        widelink <- tidyr::pivot_wider(
+          data = longlink,
+          names_from = target,
+          values_from = label
+        )
+        return(widelink)
+      })
+      out <- dplyr::bind_cols(linklist)
     }
     return(out)
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0("Could not extract BioProject for BioSample ", biosample, ".")
+    msg <- paste0("Could not extract BioSample links for BioSample ", biosample, ".")
     stop(msg)
   }
   return(out)

@@ -8,7 +8,8 @@ examples <- list(
     "SAMD00057211", # different ids, duplicated attributes
     "SAMN32745369",
     "SAMEA114639742",
-    "SAMN38450475"
+    "SAMN38450475",
+    "SAMD00041425"
   )
 )
 
