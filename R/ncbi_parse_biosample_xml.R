@@ -196,7 +196,19 @@ extract_description <- function(
   foo <- function (x, biosample, verbose) {
     out <- NULL
     if ("Comment" %in% names(x$Description)) {
-      out <- unlist(x$Description$Comment$Paragraph)
+      if ("Paragraph" %in% names(x$Description$Comment)) {
+        out <- unlist(x$Description$Comment$Paragraph)
+      }
+      if ("Table" %in% names(x$Description$Comment)) {
+        if (is.null(out)) {
+          out <- "WEBSEQ WARNING: DESCRIPTION CONTAINS A TABLE. CHECK MANUALLY."
+        } else {
+          out <- paste0(
+            out, 
+            "WEBSEQ WARNING: DESCRIPTION ALSO CONTAINS A TABLE. CHECK MANUALLY."
+          )
+        }
+      }
     } else {
       out <- NA
     }

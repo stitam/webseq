@@ -9,7 +9,8 @@ examples <- list(
     "SAMN32745369",
     "SAMEA114639742",
     "SAMN38450475",
-    "SAMD00041425"
+    "SAMD00041425",
+    "SAMN37751259"
   )
 )
 
