@@ -128,13 +128,16 @@ extract_attributes <- function(x, biosample, verbose = getOption("verbose")) {
       value = unname(sapply(res, unlist))
     )
     out <- dplyr::distinct(out)
-    out <- tidyr::pivot_wider(
-      out,
-      names_from = attr,
-      values_from = value,
-      # EXAMPLE SAMN36698370
-      values_fn = function(x) paste(sort(unique(x)), collapse = "|")
-    )
+    # EXAMPLE FOR NO ATTRIBUTES: "SAMN00678218"
+    if (nrow(out) > 0) {
+      out <- tidyr::pivot_wider(
+        out,
+        names_from = attr,
+        values_from = value,
+        # EXAMPLE SAMN36698370
+        values_fn = function(x) paste(sort(unique(x)), collapse = "|")
+      )
+    }
     return(out)
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
@@ -258,24 +261,33 @@ extract_organism <- function(
     verbose = getOption("verbose")
   ) {
   foo <- function (x, biosample, verbose) {
-    out <- NULL
-    res1 <- try(
-      unique(unlist(x$Description$Organism$OrganismName)), silent = TRUE)
-    res2 <- try(attributes(x$Description$Organism)$taxonomy_name, silent = TRUE)
-    if (!inherits(res1, "try-error") && 
-        length(res1) == 1 &&
-        inherits(res2, "try-error")) {
-      out <- res1
-    } else if (!inherits(res2, "try-error") && 
-               length(res2) == 1 &&
-               inherits(res1, "try-error")) {
-      out <- res2
-    } else if (!inherits(res1, "try-error") &&
-               !inherits(res2, "try-error") &&
-               length(res1) == 1 &&
-               length(res2) == 1 &&
-               res1 == res2) {
-      out <- res1
+    out <- data.frame(remove = NA)
+    if ("Description" %in% names(x)) {
+      if ("Organism" %in% names(x$Description)) {
+        if ("OrganismName" %in% names(x$Description$Organism)) {
+          out <- dplyr::bind_cols(
+            out, 
+            data.frame(
+              organism_name = unlist(x$Description$Organism$OrganismName)
+            )
+          )
+        }
+        if (length(attributes(x$Description$Organism)) > 0) {
+          out <- dplyr::bind_cols(
+            out, 
+            as.data.frame(attributes(x$Description$Organism))
+          )
+        }
+        if (ncol(out) == 1) {
+          out <- NULL
+        } else {
+          out <- out |> dplyr::select(-remove)
+        }
+      } else {
+        out <- NULL
+      }
+    } else {
+      out <- NULL
     }
     return(out)
   }
