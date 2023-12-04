@@ -167,13 +167,37 @@ extract_owner <- function(
       } else {
         NA_character_
       },
-      contact_name_first = if("Contacts" %in% names(res)) {
-        unlist(res$Contacts$Contact$Name$First)
+      contact_name_first = if("Contact" %in% names(res)) {
+        if ("Contact" %in% names(res$Contacts)) {
+          if ("Name" %in% names(res$Contacts$Contact)) {
+            if ("First" %in% names(res$Contacts$Contact$Name)) {
+              unlist(res$Contacts$Contact$Name$First)
+            } else {
+              NA_character_
+            }
+          } else {
+            NA_character_
+          }
+        } else {
+          NA_character_
+        }
       } else {
         NA_character_
       },
       contact_name_last = if("Contacts" %in% names(res)) {
-        unlist(res$Contacts$Contact$Name$Last)
+        if ("Contact" %in% names(res$Contacts)) {
+          if ("Name" %in% names(res$Contacts$Contact)) {
+            if ("Last" %in% names(res$Contacts$Contact$Name)) {
+              unlist(res$Contacts$Contact$Name$Last)
+            } else {
+              NA_character_
+            }
+          } else {
+            NA_character_
+          }
+        } else {
+          NA_character_
+        }
       } else {
         NA_character_
       },
