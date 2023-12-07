@@ -72,7 +72,7 @@ ncbi_get_meta <- function(
         idlist[[i]] <- uids$uid[index_min:index_max]
       }
     } else {
-      idlist[[1]] <- id
+      idlist[[1]] <- uids$uid
     }
     res <- lapply(idlist, function(x) {
       rentrez::entrez_fetch(
@@ -84,6 +84,9 @@ ncbi_get_meta <- function(
     })
   }
   if (parse) {
+    if (verbose) {
+      message("Attempting to parse retrieved metadata.")
+    }
     res_parsed <- lapply(res, function(x) {
       # TODO this should print error message that identifies the biosample
       # if parsing fails. Put this in the function, do not use "try" here.

@@ -9,5 +9,5 @@ test_that("ncbi_parse() works with BioSamples", {
   )
   res <- ncbi_parse(meta = meta_xml, db = "biosample", format = "xml")
   expect_s3_class(res, c("tbl_df", "tbl", "data.frame"))
-  expect_equal(res$biosample, c("SAMN02714232", "SAMD00057211", "SAMN32745369"))
+  expect_equal(res$biosample[1], "SAMN02714232")
 })

@@ -42,38 +42,39 @@ ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
     )
     stop(msg)
   }
-  out <- dplyr::bind_cols(
-    # primary key
-    data.frame(
-      biosample_uid = main_attrs$id
-    ),
-    # ids
-    extract_ids(x, main_attrs$accession, verbose),
-    # title and organism
-    data.frame(
-      title = extract_title(x, main_attrs$accession, verbose),
-      organism = extract_organism(x, main_attrs$accession, verbose),
-      taxid = extract_taxid(x, main_attrs$accession, verbose)
-    ),
-    # package,
-    extract_package(x, main_attrs$accession, verbose),
-    # attributes
-    extract_attributes(x, main_attrs$accession, verbose),
-    extract_owner(x, main_attrs$accession, verbose),
-    # description
-    data.frame(
-      description = extract_description(x, main_attrs$accession, verbose)
-    ),
-    extract_links(x, main_attrs$accession, verbose),
-    data.frame(
-      access = main_attrs$access,
-      status = extract_status(x, main_attrs$accession, verbose),
-      submission_date = main_attrs$submission_date,
-      publication_date = main_attrs$publication_date,
-      last_update = main_attrs$last_update,
-      status_date = extract_status_date(x, main_attrs$accession, verbose)
-    )
+  out <- tibble::tibble(biosample_uid = main_attrs$id)
+  new_elements <- c(
+    "ids",
+    "title",
+    "organism",
+    "package",
+    "attributes",
+    "owner", 
+    "description",
+    "links"
   )
+  for (i in new_elements) {
+    f <- get(paste0("extract_", i))
+    newdf <- f(x, main_attrs$accession, verbose)
+    if (ncol(newdf) > 0) {
+      out <- dplyr::bind_cols(out, newdf)
+    } else {
+      warning(paste0("No ", i, " for BioSample ", main_attrs$accession, "."))
+    }
+  }
+  newdf <- data.frame(
+    access = main_attrs$access,
+    status = extract_status(x, main_attrs$accession, verbose),
+    submission_date = main_attrs$submission_date,
+    publication_date = main_attrs$publication_date,
+    last_update = main_attrs$last_update,
+    status_date = extract_status_date(x, main_attrs$accession, verbose)
+  )
+  if (ncol(newdf) > 0) {
+    out <- dplyr::bind_cols(out, newdf)
+  } else {
+    warning(paste0("No status for BioSample ", main_attrs$accession, "."))
+  }
   if (nrow(out) > 1) {
     msg <- paste0(
       "Multiple parsed rows for BioSample ", main_attrs$accession, "."
@@ -125,7 +126,17 @@ extract_attributes <- function(x, biosample, verbose = getOption("verbose")) {
         }
         paste0("attr_", attr_name)
       })),
-      value = unname(sapply(res, unlist))
+      value = unname(sapply(res, function(x) {
+        if (length(x) == 0) {
+          return(NA)
+        }
+        if (length(x) == 1) {
+          return(unlist(x))
+        }
+        if (length(x) > 1) {
+          return(paste(unlist(x), collapse = "|"))
+        }
+      }))
     )
     out <- dplyr::distinct(out)
     # EXAMPLE FOR NO ATTRIBUTES: "SAMN00678218"
@@ -156,7 +167,7 @@ extract_owner <- function(
     out <- NULL
     res <- x$Owner
     out <- data.frame(
-      owner_name = unlist(res$Name),
+      owner_name = ifelse(!is.null(unlist(res$Name)), unlist(res$Name), NA),
       owner_abbreviation = if ("abbreviation" %in% names(attributes(res$Name))) {
         attributes(res$Name)$abbreviation
       } else {
@@ -245,6 +256,9 @@ extract_description <- function(
     } else {
       out <- NA_character_
     }
+    if (!is.null(out)) {
+      out <- tibble::tibble(description = out)
+    }
     return(out)
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
@@ -297,10 +311,23 @@ extract_organism <- function(
           )
         }
         if (length(attributes(x$Description$Organism)) > 0) {
-          out <- dplyr::bind_cols(
-            out, 
-            as.data.frame(attributes(x$Description$Organism))
-          )
+          if ("names" %in% names(attributes(x$Description$Organism))) {
+            if (attributes(x$Description$Organism)$names != "OrganismName") {
+              stop("Unexpected Organism attribute name.")
+            } else {
+              index <- which(
+                names(attributes(x$Description$Organism)) != "names"
+              )
+            }
+          } else {
+            index <- seq_along(length(attributes(x$Description$Organism)))
+          }
+          if (length(index) > 0) {
+            out <- dplyr::bind_cols(
+              out, 
+              as.data.frame(attributes(x$Description$Organism)[index])
+            )
+          }
         }
         if (ncol(out) == 1) {
           out <- NULL
@@ -411,29 +438,6 @@ extract_status_date <- function(
   return(out)
 }
 
-extract_taxid <- function(
-    x,
-    biosample,
-    verbose = getOption("verbose")
-  ) {
-  foo <- function (x, biosample, verbose) {
-    out <- NULL
-    res <- try(attributes(x$Description$Organism), silent = TRUE)
-    if (!inherits(res, "try-error") && "taxonomy_id" %in% names(res)) {
-      out <- res$taxonomy_id
-    }
-    return(out)
-  }
-  out <- try(foo(x, biosample, verbose), silent = TRUE)
-  if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0(
-      "Could not extract taxonomy_id for BioSample ", biosample, "."
-    )
-    stop(msg)
-  }
-  return(out)
-}
-
 extract_title <- function(
     x,
     biosample,
@@ -444,7 +448,7 @@ extract_title <- function(
     res <- try(unique(unlist(x$Description$Title)), silent = TRUE)
     if (!inherits(res, "try-error")) {
       if (length(res) == 1) {
-        out <- res
+        out <- tibble::tibble(title = res)
       }
     }
     return(out)
