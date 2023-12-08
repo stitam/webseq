@@ -12,3 +12,6 @@ README.Rmd
 
 # knitr and R markdown default cache directories
 /cache/
+
+# scripts that are not part of the package
+scripts/
