@@ -7,24 +7,31 @@
 ncbi_parse(meta, db, format = "xml", verbose = getOption("verbose"))
 }
 \arguments{
-\item{meta}{character; either a character vector containing a data set that
-was retrieved through \code{rentrez::entrez_fetch()} or a path to an file
-that was downloaded from NCBI.}
+\item{meta}{character; either an unparsed metadata object returned by
+\code{ncbi_get_meta()} or the path to a file that was downloaded from NCBI.}
 
-\item{db}{character; the NCBI database from which the data was retrieved.
-Currently only \code{"biosample"} is supported.}
+\item{db}{character; the NCBI database from which the data was retrieved.}
 
 \item{format}{character; the format of the data set. Currently only
 \code{"xml"} is supported.}
 
 \item{verbose}{logical; Should verbose messages be printed to console?}
 }
+\value{
+a tibble.
+}
 \description{
-This function can be used to parse various non-sequence data sets from NCBI
-into a tibble. These data sets usually accompany the biological sequences and
-contain additional information e.g. identifiers, information about the
-sample, the sequencing platform, etc. The function currently supports parsing
-NCBI BioSample data from XML format.
+This function can be used to parse various retrieved non-sequence data sets
+from NCBI into a tibble. These data sets usually accompany the biological
+sequences and contain additional information e.g. identifiers, information
+about the sample, the sequencing platform, etc.
+}
+\details{
+This function is integrated into \code{ncbi_get_meta()} and is 
+called automatically if \code{parse = TRUE} (default). However, it can also
+be used  separately e.g. when you want to examine the unparsed metadata
+object before parsing, or when you already downloaded the metadata manually
+and you just want to parse it into a tabular format.
 }
 \examples{
 \dontrun{
@@ -38,14 +45,12 @@ data(examples)
 # Parse XML
 ncbi_parse(meta = "assembly_summary.xml", db = "assembly", format = "xml")
 
-# NCBI BioSample, fully programmatic access
+# NCBI BioSample, fully programmatic access, separate retrieval and parsing
 
-# Get internal BioSample UID for BioSample ID
-biosample_uid <- ncbi_get_uid(examples$biosample, db = "biosample")
-# Get metadata in XML format
-meta <- ncbi_get_meta(uids$uid, db = "biosample")
-# Parse XML
-ncbi_parse(meta = meta_xml, db = "biosample", format = "xml")
+# Get metadata but do not parse
+meta <- ncbi_get_meta(examples$biosample, db = "biosample", parse = FALSE)
+# Parse metadata separately
+ncbi_parse(meta = meta, db = "biosample", format = "xml")
 
 # NCBI BioSample, download XML file from NCBI and parse
 

@@ -7,11 +7,10 @@
 ncbi_parse_biosample_xml(biosample_xml, verbose = getOption("verbose"))
 }
 \arguments{
-\item{biosample_xml}{character; either a character vector containing an xml
-that was retrieved through \code{rentrez::entrez_fetch()} or a path to an xml
-file that was downloaded from NCBI BioSample.}
-
 \item{verbose}{logical; Should verbose messages be printed to console?}
+
+\item{meta}{character; either an unparsed metadata object returned by
+\code{ncbi_get_meta()} or the path to a file that was downloaded from NCBI.}
 }
 \description{
 BioSample metadata from NCBI can be retrieved in multiple file formats. This

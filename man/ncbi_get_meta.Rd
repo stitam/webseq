@@ -14,22 +14,22 @@ ncbi_get_meta(
 )
 }
 \arguments{
-\item{db}{character; the database to search in. For options see
-\code{rentrez::entrez_dbs()}.}
+\item{term}{character; one or more search terms.}
 
-\item{batch_size}{integer; the number of search terms to query at once. If the
-number of search terms is larger than \code{batch_size}, the search terms
+\item{db}{character; the database to search in. For options see
+\code{rentrez::entrez_dbs()}. Not all databases are supported.}
+
+\item{batch_size}{integer; the number of search terms to query at once. If
+the number of search terms is larger than \code{batch_size}, the search terms
 are split into batches and queried separately.}
 
 \item{use_history}{logical; should the function use web history for faster
-API queries? This is recommended for large queries.}
+API queries?}
 
 \item{parse}{logical; Should the function attempt to parse the output into a
 tibble? If unsuccessful, the function will return the unparsed output.}
 
 \item{verbose}{logical; Should verbose messages be printed to console?}
-
-\item{id}{integer; an integer vector of database specific NCBI UIDs.}
 }
 \value{
 The function returns a list with two elements:
@@ -42,14 +42,11 @@ the web history IDs of the individual batches, otherwise \code{NULL}.
 }
 }
 \description{
-This function retrieves metadata from a given NCBI sequence database. The
-function currently works with the following databases: \code{"assembly"},
-\code{"biosample"}.
+This function retrieves metadata from a given NCBI sequence database.
 }
 \examples{
 \dontrun{
 data(examples)
-uids <- ncbi_get_uid(examples$biosample, db = "biosample")
-meta <- ncbi_get_meta(uids$uid, db = "biosample")
+meta <- ncbi_get_meta(examples$biosample, db = "biosample")
 }
 }

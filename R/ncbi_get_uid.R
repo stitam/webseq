@@ -1,17 +1,17 @@
 #' Get UID-s from NCBI databases
 #'
 #' This function replicates the NCBI website's search utility. It searches one
-#' or more search terms are matched in the chosen database and returns internal 
-#' NCBI UID-s for individual hits. These can be used e.g. to link NCBI entries
-#' with entries in other NCBI databases or to retrieve the data itself.
+#' or more search terms in the chosen database and returns internal NCBI UID-s 
+#' for individual hits. These can be used e.g. to link NCBI entries with entries
+#' in other NCBI databases or to retrieve the data itself.
 #' @param term character; one or more search terms.
 #' @param db character; the database to search in. For options see
 #' \code{rentrez::entrez_dbs()}
-#' @param batch_size integer; the number of search terms to query at once. If the
-#' number of search terms is larger than \code{batch_size}, the search terms
+#' @param batch_size integer; the number of search terms to query at once. If
+#' the number of search terms is larger than \code{batch_size}, the search terms
 #' are split into batches and queried separately.
 #' @param use_history logical; should the function use web history for faster
-#' API queries? This is recommended for large queries.
+#' API queries? 
 #' @param verbose logical; should verbose messages be printed to the console?
 #' @return The function returns a list with two elements:
 #' \itemize{
@@ -27,11 +27,7 @@
 #' \dontrun{
 #' ncbi_get_uid("GCA_003012895.2", db = "assembly")
 #' ncbi_get_uid("Autographiviridae OR Podoviridae", db = "biosample")
-#' ncbi_get_uid(
-#'   c("WP_093980916.1", "WP_181249115.1"),
-#'   db = "protein", 
-#'   verbose = TRUE
-#' )
+#' ncbi_get_uid(c("WP_093980916.1", "WP_181249115.1"), db = "protein")
 #' }
 ncbi_get_uid <- function(
     term,
