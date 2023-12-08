@@ -7,7 +7,7 @@ Description: This package interacts with online biological sequence databases.
 Version: 0.1
 Date: 2022-01-05
 Author: Tamas Stirling
-Maintainer: Tamas Stirling <strling.tamas@gmail.com>
+Maintainer: Tamas Stirling <stirling.tamas@gmail.com>
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -22,7 +22,9 @@ Imports:
     stringi,
     stringr,
     tibble,
-    XML
+    tidyr,
+    XML,
+    xml2
 Suggests:
     knitr,
     rmarkdown,
