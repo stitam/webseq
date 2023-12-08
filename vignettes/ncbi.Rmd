@@ -36,30 +36,20 @@ ncbi_download_genome("GCF_003007635.1", type = "genomic.gbff")
 
 Let's download some metadata for this assembly!
 
-First, get the Assembly UID of the assembly, which is the internal identifier of the assembly within the NCBI Assembly database.
-
-```{r}
-assembly_uid <- ncbi_get_uid("GCF_003007635.1", db = "assembly")
-assembly_uid
-```
-
-Next, collect some assembly metadata.
-
-```{r}
-assembly_meta <- get_meta(assembly_uid$uid, db = "assembly")
-assembly_meta
+```{r, eval = FALSE}
+assembly_meta <- ncbi_get_meta("GCF_003007635.1", db = "assembly")
 ```
 
 Using this metadata we can find the BioSample ID associated with the assembly. Let's use this ID to get the BioSample UID of the sample within the NCBI BioSample database.
 
-```{r}
+```{r, eval = FALSE}
 biosample_uid <- ncbi_get_uid(assembly_meta$biosample, db = "biosample")
 biosample_uid
 ```
 
 And then get the metadata itself
 
-```{r}
+```{r, eval = FALSE}
 biosample_meta <- get_meta(biosample_uid$uid, db = "biosample")
 biosample_meta
 ```
