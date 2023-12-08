@@ -2,7 +2,7 @@
 #' 
 #' BioSample metadata from NCBI can be retrieved in multiple file formats. This
 #' function parses metadata retrieved in XML format.
-#' @param meta character; either an unparsed metadata object returned by
+#' @param biosample_xml character; unparsed XML metadata either returned by
 #'  \code{ncbi_get_meta()} or the path to a file that was downloaded from NCBI.
 #' @param verbose logical; Should verbose messages be printed to console?
 ncbi_parse_biosample_xml <- function(
@@ -97,7 +97,7 @@ extract_ids <- function(
       id = unname(sapply(res, unlist))
     )
     out <- dplyr::distinct(out)
-    out <- tidyr::spread(out, db, id)
+    out <- tidyr::spread(out, "db", "id")
     names(out) <- gsub(" +", "_", tolower(names(out)))
     return(out)
   }
@@ -142,8 +142,8 @@ extract_attributes <- function(x, biosample, verbose = getOption("verbose")) {
     if (nrow(out) > 0) {
       out <- tidyr::pivot_wider(
         out,
-        names_from = attr,
-        values_from = value,
+        names_from = "attr",
+        values_from = "value",
         # EXAMPLE SAMN36698370
         values_fn = function(x) paste(sort(unique(x)), collapse = "|")
       )
@@ -376,8 +376,8 @@ extract_links <- function(
         )
         widelink <- tidyr::pivot_wider(
           data = longlink,
-          names_from = target,
-          values_from = label
+          names_from = "target",
+          values_from = "label"
         )
         return(widelink)
       })

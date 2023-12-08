@@ -7,10 +7,10 @@
 ncbi_parse_biosample_xml(biosample_xml, verbose = getOption("verbose"))
 }
 \arguments{
-\item{verbose}{logical; Should verbose messages be printed to console?}
-
-\item{meta}{character; either an unparsed metadata object returned by
+\item{biosample_xml}{character; unparsed XML metadata either returned by
 \code{ncbi_get_meta()} or the path to a file that was downloaded from NCBI.}
+
+\item{verbose}{logical; Should verbose messages be printed to console?}
 }
 \description{
 BioSample metadata from NCBI can be retrieved in multiple file formats. This
