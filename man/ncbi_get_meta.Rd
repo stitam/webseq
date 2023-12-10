@@ -17,7 +17,7 @@ ncbi_get_meta(
 \item{term}{character; one or more search terms.}
 
 \item{db}{character; the database to search in. For options see
-\code{rentrez::entrez_dbs()}. Not all databases are supported.}
+\code{ncbi_supported_dbs()}. Not all databases are supported.}
 
 \item{batch_size}{integer; the number of search terms to query at once. If
 the number of search terms is larger than \code{batch_size}, the search terms

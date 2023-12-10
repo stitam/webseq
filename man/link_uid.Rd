@@ -10,7 +10,7 @@ link_uid(query, from, to, cache_file = NULL, verbose = getOption("verbose"))
 \item{query}{character; a vector of uids.}
 
 \item{from}{character; the database the queried uids come from.
-\code{rentrez::entrez_dbs()} lists all available options.}
+\code{ncbi_supported_dbs()} lists all available options.}
 
 \item{to}{character; the database in which the function should look for links.}
 
@@ -18,7 +18,7 @@ link_uid(query, from, to, cache_file = NULL, verbose = getOption("verbose"))
 extension. If \code{NULL}, results are not cached.}
 
 \item{verbose}{logical; should verbos messages be printed to the console?
-\code{rentrez::entrez_dbs()} lists all available options.}
+\code{ncbi_supported_dbs()} lists all available options.}
 }
 \value{
 A tibble

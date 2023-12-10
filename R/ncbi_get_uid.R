@@ -6,7 +6,7 @@
 #' in other NCBI databases or to retrieve the data itself.
 #' @param term character; one or more search terms.
 #' @param db character; the database to search in. For options see
-#' \code{rentrez::entrez_dbs()}
+#' \code{ncbi_supported_dbs()}
 #' @param batch_size integer; the number of search terms to query at once. If
 #' the number of search terms is larger than \code{batch_size}, the search terms
 #' are split into batches and queried separately.
@@ -36,7 +36,7 @@ ncbi_get_uid <- function(
     use_history = TRUE,
     verbose = getOption("verbose")
     ) {
-  db <- match.arg(db, rentrez::entrez_dbs())
+  db <- match.arg(db, choices = ncbi_supported_dbs())
   if (all(is.na(term))) {
     stop("No valid search terms.")
   } else if (any(is.na(term))){
