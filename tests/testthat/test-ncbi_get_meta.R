@@ -8,7 +8,7 @@ test_that("ncbi_get_meta() works with Microthrix parvicella", {
 test_that("ncbi_get_meta() works with all supported dbs", {
   data(examples)
   
-  expect_true(all(names(examples) %in% ncbi_supported_dbs()))
+  expect_true(all(names(examples) %in% ncbi_dbs()))
   
   for (i in names(examples)) {
     res <- suppressWarnings(ncbi_get_meta(examples[[i]], db = i, parse = FALSE))

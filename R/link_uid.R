@@ -6,12 +6,12 @@
 #' This function links uids from one database with uids from another.
 #' @param query character; a vector of uids.
 #' @param from character; the database the queried uids come from.
-#' \code{ncbi_supported_dbs()} lists all available options.
+#' \code{ncbi_dbs()} lists all available options.
 #' @param to character; the database in which the function should look for links.
 #' @param cache_file character; the name of the cache file without the file
 #' extension. If \code{NULL}, results are not cached.
 #' @param verbose logical; should verbos messages be printed to the console?
-#' \code{ncbi_supported_dbs()} lists all available options.
+#' \code{ncbi_dbs()} lists all available options.
 #' @return A tibble
 #' @examples
 #' \dontrun{
@@ -27,8 +27,8 @@ link_uid <- function(query,
   if (any(is.na(as.numeric(query)))) {
     stop("Query must be a valid UID. Valid UIDs can be converted to 'numeric'.")
   }
-  from <- match.arg(from, ncbi_supported_dbs())
-  to <- match.arg(to, ncbi_supported_dbs())
+  from <- match.arg(from, ncbi_dbs())
+  to <- match.arg(to, ncbi_dbs())
   foo <- function(x) {
     if (verbose) webseq_message("query", x, appendLF = FALSE)
     res <- NULL
