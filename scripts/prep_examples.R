@@ -3,6 +3,7 @@ examples <- list(
     "GCF_000002435.2",
     "GCF_000299415.1"
   ),
+  bioproject = "PRJEB54063",
   biosample = c(
     "SAMN02714232", # contact email
     "SAMD00057211", # different ids, duplicated attributes
@@ -17,7 +18,10 @@ examples <- list(
     "SAMN00778252",
     "SAMEA3317914",
     "SAMEA14036741"
-  )
+  ),
+  gene = "948356",
+  protein = "AAA27507.1",
+  sra = "DRX061127"
 )
 
 save(examples, file = "data/examples.rda")

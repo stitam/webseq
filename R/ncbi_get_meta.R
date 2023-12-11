@@ -3,7 +3,7 @@
 #' This function retrieves metadata from a given NCBI sequence database.
 #' @param term character; one or more search terms.
 #' @param db character; the database to search in. For options see
-#' \code{rentrez::entrez_dbs()}. Not all databases are supported.
+#' \code{ncbi_supported_dbs()}. Not all databases are supported.
 #' @param batch_size integer; the number of search terms to query at once. If
 #' the number of search terms is larger than \code{batch_size}, the search terms
 #' are split into batches and queried separately.
@@ -34,6 +34,7 @@ ncbi_get_meta <- function(
     parse = TRUE,
     verbose = getOption("verbose")
   ) {
+  db <- match.arg(db, choices = ncbi_supported_dbs())
   uids <- ncbi_get_uid(
     term = term,
     db = db,
@@ -41,15 +42,17 @@ ncbi_get_meta <- function(
     use_history = use_history,
     verbose = verbose
   )
-  if (db == "assembly") {
-    rettype <- "docsum"
-    retmode <- "xml"
-  } else if (db == "biosample") {
-    rettype <- "full"
-    retmode <- "xml"
-  } else {
-    stop("Database is not yet supported.")
-  }
+  rettype <- switch(
+    db,
+    assembly = "docsum",
+    bioproject = "xml",
+    biosample = "full",
+    gene = "null",
+    nuccore = "native",
+    protein = "native",
+    sra = "full"
+  )
+  retmode <- "xml"
   if (use_history) {
     res <- lapply(uids$web_history, function(x) {
       WH <- list("WebEnv" = x,"QueryKey" = "1")
@@ -101,6 +104,6 @@ ncbi_get_meta <- function(
     meta = res_parsed,
     web_history = if (use_history) uids$web_history else NULL
   )
-  class(out) <- c(paste("ncbi", db, "meta", sep = "_"), class(out))
+  class(out) <- c("ncbi_meta", class(out))
   return(out)
 }
