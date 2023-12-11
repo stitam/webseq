@@ -104,6 +104,6 @@ ncbi_get_meta <- function(
     meta = res_parsed,
     web_history = if (use_history) uids$web_history else NULL
   )
-  class(out) <- c(paste("ncbi", db, "meta", sep = "_"), class(out))
+  class(out) <- c("ncbi_meta", class(out))
   return(out)
 }
