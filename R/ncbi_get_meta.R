@@ -3,7 +3,7 @@
 #' This function retrieves metadata from a given NCBI sequence database.
 #' @param term character; one or more search terms.
 #' @param db character; the database to search in. For options see
-#' \code{ncbi_supported_dbs()}. Not all databases are supported.
+#' \code{ncbi_dbs()}. Not all databases are supported.
 #' @param batch_size integer; the number of search terms to query at once. If
 #' the number of search terms is larger than \code{batch_size}, the search terms
 #' are split into batches and queried separately.
@@ -34,7 +34,7 @@ ncbi_get_meta <- function(
     parse = TRUE,
     verbose = getOption("verbose")
   ) {
-  db <- match.arg(db, choices = ncbi_supported_dbs())
+  db <- match.arg(db, choices = ncbi_dbs())
   uids <- ncbi_get_uid(
     term = term,
     db = db,
