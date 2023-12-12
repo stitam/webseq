@@ -57,3 +57,62 @@ webseq_sleep <- function(time = NULL, type = c('API', 'scrape')) {
   }
   Sys.sleep(time)
 }
+
+#' Wrap web-service queries
+#' 
+#' @param function_name character; Name of the function to wrap.
+#' @param package character; Name of the package in which the function is.
+#' @param verbose logical; Should verbose messages be printed to console?
+#' @param ... arguments to pass to the function.
+#' @noRd
+wrap <- function(
+  function_name, 
+  package, 
+  verbose = getOption("verbose"), 
+  ...
+  ) {
+  f <- get(function_name, envir = asNamespace(package))
+  r <- NULL
+  attempt <- 1
+  while(is.null(r) && attempt <= 5) {
+    webseq_sleep(type = "API")
+    hit <- try(
+      f(...),
+      silent = TRUE
+    )
+    if (inherits(hit, "try-error")) {
+      attempt <- attempt + 1
+    } else r <- 1
+  }
+  if (inherits(hit, "try-error")) {
+    if (verbose) webseq_message("service_down")
+    return(NA)
+  } else {
+    if (verbose) {
+      message(package, "::", function_name, " query successful.")
+    }
+    return(hit)
+  }
+}
+
+#' Split a vector of IDs into batches
+#' 
+#' @param ids character; Vector of IDs.
+#' @param batch_size integer; Number of IDs per batch.
+#' @param verbose logical; Should verbose messages be printed to console?
+#' @noRd
+get_idlist <- function(ids, batch_size, verbose = getOption("verbose")) {
+  idlist <- list()
+  if (length(ids) > batch_size) {
+    nbatch <- ceiling(length(ids)/batch_size)
+    if (verbose) message("Splitting ids into ", nbatch, " batches.")
+    for (i in 1:nbatch) {
+      index_min <- (i-1)*batch_size + 1
+      index_max <- min(i*batch_size, length(query))
+      idlist[[i]] <- ids[index_min:index_max]
+    }
+  } else {
+    idlist[[1]] <- ids
+  }
+  return(idlist)
+}
