@@ -17,8 +17,7 @@
 #' \item \code{meta}: if \code{parse = TRUE} then either a tibble with the 
 #' metadata or if parsing is unsuccessful, the unparsed metadata. If
 #' \code{parse = FALSE} the unparsed metadata.
-#' \item \code{history}: if \code{web_history = TRUE}, a character vector with
-#' the web history IDs of the individual batches, otherwise \code{NULL}.
+#' \item \code{history}: a tibble of web histories.
 #' }
 #' @examples
 #' \dontrun{
@@ -35,7 +34,7 @@ ncbi_get_meta <- function(
     verbose = getOption("verbose")
   ) {
   db <- match.arg(db, choices = ncbi_dbs())
-  uids <- ncbi_get_uid(
+  uid <- ncbi_get_uid(
     term = term,
     db = db,
     batch_size = batch_size,
@@ -54,34 +53,32 @@ ncbi_get_meta <- function(
   )
   retmode <- "xml"
   if (use_history) {
-    res <- lapply(uids$web_history, function(x) {
-      WH <- list("WebEnv" = x,"QueryKey" = "1")
-      class(WH) <- c("web_history", "list")
-      rentrez::entrez_fetch(
+    res <- lapply(1:nrow(uid$web_history), function(x) {
+      WH <- list(
+      "WebEnv" = uid$web_history$WebEnv[x],
+      "QueryKey" = uid$web_history$QueryKey[x]
+      )
+      wrap(
+        "entrez_fetch",
+        package = "rentrez",
         db = db,
         web_history = WH,
         rettype = rettype,
-        retmode = retmode
+        retmode = retmode,
+        verbose = verbose
       ) 
     })
   } else {
-    idlist <- list()
-    if (length(uids$uid) > batch_size) {
-      nbatch <- ceiling(length(uids$uid)/batch_size)
-      for (i in 1:nbatch) {
-        index_min <- (i-1)*batch_size + 1
-        index_max <- min(i*batch_size, length(uids$uid))
-        idlist[[i]] <- uids$uid[index_min:index_max]
-      }
-    } else {
-      idlist[[1]] <- uids$uid
-    }
+    idlist <- get_idlist(uid$uid, batch_size, verbose)
     res <- lapply(idlist, function(x) {
-      rentrez::entrez_fetch(
+      wrap(
+        "entrez_fetch",
+        package = "rentrez",
         db = db,
         id = x,
         rettype = rettype,
-        retmode = retmode
+        retmode = retmode,
+        verbose = verbose
       )
     })
   }
@@ -100,10 +97,20 @@ ncbi_get_meta <- function(
   } else {
     res_parsed <- res
   }
-  out <- list(
-    meta = res_parsed,
-    web_history = if (use_history) uids$web_history else NULL
-  )
+  if (use_history) {
+    out <- list(
+      meta = res_parsed,
+      db = db,
+      web_history = uid$web_history
+    )
+  } else {
+    out <- list(
+      meta = res_parsed,
+      db = db,
+      web_history = NULL
+    )
+  }
   class(out) <- c("ncbi_meta", class(out))
+  validate_webseq_class(out)
   return(out)
 }

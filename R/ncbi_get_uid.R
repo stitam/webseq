@@ -2,23 +2,24 @@
 #'
 #' This function replicates the NCBI website's search utility. It searches one
 #' or more search terms in the chosen database and returns internal NCBI UID-s 
-#' for individual hits. These can be used e.g. to link NCBI entries with entries
-#' in other NCBI databases or to retrieve the data itself.
+#' for the hits. These can be used e.g. to link NCBI entries with entries in 
+#' other NCBI databases or to retrieve the data itself.
 #' @param term character; one or more search terms.
 #' @param db character; the database to search in. For options see
-#' \code{ncbi_dbs()}
+#' \code{ncbi_dbs()}.
 #' @param batch_size integer; the number of search terms to query at once. If
 #' the number of search terms is larger than \code{batch_size}, the search terms
-#' are split into batches and queried separately.
+#' are split into batches and queried separately. Not used when using web
+#' history.
 #' @param use_history logical; should the function use web history for faster
 #' API queries? 
 #' @param verbose logical; should verbose messages be printed to the console?
-#' @return The function returns a list with two elements:
+#' @return An object of class \code{"ncbi_uid"} which is a list with three
+#' elements:
 #' \itemize{
-#'  \item \code{uids}: a tibble with the search terms and their corresponding
-#'  UIDs.
-#'  \item \code{history}: if \code{web_history = TRUE}, a character vector with
-#'  the web history IDs of the individual batches, otherwise \code{NULL}.
+#'  \item \code{uid}: a vector of UIDs.
+#'  \item \code{db}: the database used for the query.
+#'  \item \code{web_history}: a tibble of web histories.
 #'  }
 #' @details The default value for \code{batch_size} should work in most cases.
 #' However, if the search terms are very long, the function may fail with an
@@ -59,88 +60,63 @@ ncbi_get_uid <- function(
   })
   foo <- function(x) {
     if (verbose) message("Querying UIDs for batch ", x, ". ", appendLF = FALSE)
-    r <- NULL
-    attempt <- 1
-    while(is.null(r) && attempt <= 5) {
-      webseq_sleep(type = "API")
-      if (use_history) {
-        hit <- try(
-          rentrez::entrez_search(db, term = termlist[[x]], use_history = TRUE),
-          silent = TRUE
-        )
-      } else {
-        hit <- try(
-          rentrez::entrez_search(db, term = termlist[[x]], use_history = FALSE),
-          silent = TRUE
-        )
-      }
-      if (inherits(hit, "try-error")) {
-        attempt <- attempt + 1
-      } else r <- 1
-    }
-    if (inherits(hit, "try-error")) {
-      if (verbose) webseq_message("service_down")
-      return(list(
-        uids = tibble::tibble(term = termlist[[x]], db = db, uid = NA_integer_),
-        web_history = NULL
-      ))
-    }
+    hit <- wrap(
+      "entrez_search",
+      package = "rentrez",
+      verbose = verbose,
+      db = db,
+      term = termlist[[x]],
+      use_history = use_history
+    )
     if (hit$count > hit$retmax) {
-      r <- NULL
-      attempt <- 1
-      while(is.null(r) && attempt <= 5) {
-        webseq_sleep(type = "API")
-        if (use_history) {
-          hit <- try(
-            rentrez::entrez_search(
-              db, term = termlist[[x]], use_history = TRUE, retmax = hit$count),
-            silent = TRUE
-          )
-        } else {
-          hit <- try(
-            rentrez::entrez_search(
-              db, term = termlist[[x]], use_history = FALSE, retmax = hit$count),
-            silent = TRUE
-          )
-        }
-        if (inherits(hit, "try-error")) {
-          attempt <- attempt + 1
-        } else r <- 1
-      }
+      hit <- wrap(
+        "entrez_search",
+        package = "rentrez",
+        verbose = verbose,
+        db = db,
+        term = termlist[[x]],
+        use_history = use_history,
+        retmax = hit$count
+      )
     }
-    if (inherits(hit, "try-error")) {
-      if (verbose) webseq_message("service_down")
+    if (length(hit) == 1 && is.na(hit)) {
       return(list(
-        uids = tibble::tibble(term = termlist[[x]], db = db, uid = NA_integer_),
-        web_history = NULL
+        uid = NA_integer_,
+        db = db,
+        web_history = tibble::tibble()
       ))
-    }
-    if (length(hit$ids) > 0) {
-      if (verbose) message("OK.")
+    } else if (length(hit$ids) == 0) {
+      if (verbose) message("Term not found. Returning NA.")
       return(list(
-        uids = tibble::tibble(term = termlist[[x]], db = db, uid = as.integer(hit$ids)),
+        uid = NA_integer_,
+        db = db,
+        web_history = tibble::tibble()
+      ))
+    } else if (length(hit$ids) > 0) {
+      return(list(
+        uid = as.integer(hit$ids),
+        db = db,
         web_history = hit$web_history
       ))
     } else {
-      if (verbose) message("Term not found. Returning NA.")
+      if (verbose) message("Unknown exception.")
       return(list(
-        uids = tibble::tibble(term = termlist[[x]], db = db, uid = NA_integer_),
-        web_history = NULL
+        uid = NA_integer_,
+        db = db,
+        web_history = tibble::tibble()
       ))
     }
   }
   res <- lapply(seq_along(termlist), foo)
-  uids <- lapply(res, function(x) x$uids) |> dplyr::bind_rows()
-  webenvs <- unlist(lapply(res, function(x) {
-    if ("web_history" %in% names(x)) {
-      return(x$web_history$WebEnv)
-    } else {
-      return(NULL)
-    }
-  }))
+  uid <- lapply(res, function(x) x$uid)
+  web_histories <- lapply(res, function(x) x$web_history)
+  web_histories <- dplyr::bind_rows(web_histories)
   out <- list(
-    uids = uids,
-    web_history = webenvs
+    uid = unlist(uid),
+    db = db,
+    web_history = web_histories
   )
+  class(out) <- c("ncbi_uid", class(out))
+  validate_webseq_class(out)
   return(out)
 }

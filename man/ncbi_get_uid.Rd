@@ -16,11 +16,12 @@ ncbi_get_uid(
 \item{term}{character; one or more search terms.}
 
 \item{db}{character; the database to search in. For options see
-\code{ncbi_dbs()}}
+\code{ncbi_dbs()}.}
 
 \item{batch_size}{integer; the number of search terms to query at once. If
 the number of search terms is larger than \code{batch_size}, the search terms
-are split into batches and queried separately.}
+are split into batches and queried separately. Not used when using web
+history.}
 
 \item{use_history}{logical; should the function use web history for faster
 API queries?}
@@ -28,19 +29,19 @@ API queries?}
 \item{verbose}{logical; should verbose messages be printed to the console?}
 }
 \value{
-The function returns a list with two elements:
+An object of class \code{"ncbi_uid"} which is a list with three
+elements:
 \itemize{
- \item \code{uids}: a tibble with the search terms and their corresponding
- UIDs.
- \item \code{history}: if \code{web_history = TRUE}, a character vector with
- the web history IDs of the individual batches, otherwise \code{NULL}.
+ \item \code{uid}: a vector of UIDs.
+ \item \code{db}: the database used for the query.
+ \item \code{web_history}: a tibble of web histories.
  }
 }
 \description{
 This function replicates the NCBI website's search utility. It searches one
 or more search terms in the chosen database and returns internal NCBI UID-s 
-for individual hits. These can be used e.g. to link NCBI entries with entries
-in other NCBI databases or to retrieve the data itself.
+for the hits. These can be used e.g. to link NCBI entries with entries in 
+other NCBI databases or to retrieve the data itself.
 }
 \details{
 The default value for \code{batch_size} should work in most cases.
