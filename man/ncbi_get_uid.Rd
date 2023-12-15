@@ -16,7 +16,7 @@ ncbi_get_uid(
 \item{term}{character; one or more search terms.}
 
 \item{db}{character; the database to search in. For options see
-\code{ncbi_dbs()}}
+\code{ncbi_dbs()}.}
 
 \item{batch_size}{integer; the number of search terms to query at once. If
 the number of search terms is larger than \code{batch_size}, the search terms
@@ -32,10 +32,9 @@ API queries?}
 An object of class \code{"ncbi_uid"} which is a list with three
 elements:
 \itemize{
- \item \code{uids}: a vector of UIDs.
+ \item \code{uid}: a vector of UIDs.
  \item \code{db}: the database used for the query.
- \item \code{web_history}: if \code{web_history = TRUE}, a tibble which
- contains information about the web history, otherwise \code{NULL}.
+ \item \code{web_history}: a tibble of web histories.
  }
 }
 \description{

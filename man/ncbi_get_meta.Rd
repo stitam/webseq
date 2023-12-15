@@ -37,8 +37,7 @@ The function returns a list with two elements:
 \item \code{meta}: if \code{parse = TRUE} then either a tibble with the 
 metadata or if parsing is unsuccessful, the unparsed metadata. If
 \code{parse = FALSE} the unparsed metadata.
-\item \code{history}: if \code{web_history = TRUE}, a character vector with
-the web history IDs of the individual batches, otherwise \code{NULL}.
+\item \code{history}: a tibble of web histories.
 }
 }
 \description{

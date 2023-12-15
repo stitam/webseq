@@ -3,9 +3,13 @@
 #' This data set contains a list of IDs which can be used to access data from
 #' various data sources. These IDs are used across the package in function
 #' documentations, tests, vignettes.
-#' @format A list with 2 elements:
+#' @format A list with 6 elements:
 #' \describe{
-#'   \item{assembly}{NCBI Assembly}
-#'   \item{biosample}{NCBI BioSample}
+#'   \item{assembly}{NCBI Assembly IDs}
+#'   \item{bioproject}{NCBI BioProject IDs}
+#'   \item{biosample}{NCBI BioSample IDs}
+#'   \item{gene} {NCBI Gene IDs}
+#'   \item{protein} {NCBI Protein IDs}
+#'   \item{sra}{NCBI SRA IDs}
 #' }
 "examples"

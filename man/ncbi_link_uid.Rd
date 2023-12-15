@@ -14,10 +14,10 @@ ncbi_link_uid(
 )
 }
 \arguments{
-\item{query}{either an object of class \code{ncnbi_uid} or a character vector.
-See Details for more information.}
+\item{query}{either an object of class \code{ncnbi_uid} or an integer vector 
+of UIDs. See Details for more information.}
 
-\item{from}{character; the database the queried uids come from.
+\item{from}{character; the database the queried UIDs come from.
 \code{ncbi_dbs()} lists all available options.}
 
 \item{to}{character; the database in which the function should look for links.
@@ -32,17 +32,16 @@ history.}
 \item{use_history}{logical; should the function use web history for faster
 API queries?}
 
-\item{verbose}{logical; should verbos messages be printed to the console?
+\item{verbose}{logical; should verbose messages be printed to the console?
 \code{ncbi_dbs()} lists all available options.}
 }
 \value{
 An object of class \code{"ncbi_uid"} which is a list with three
 elements:
 \itemize{
- \item \code{uids}: a vector of UIDs.
+ \item \code{uid}: a vector of UIDs.
  \item \code{db}: the database used for the query.
- \item \code{web_history}: if \code{web_history = TRUE}, a tibble which
- contains information about the web history, otherwise \code{NULL}.
+ \item \code{web_history}: a tibble of web histories.
  }
 }
 \description{
@@ -55,7 +54,7 @@ function attempts to link uids from one database to another.
 Some functions in webseq, e.g. \code{ncbi_get_uid()} or
 \code{ncbi_link_uid()} return objects of class \code{"ncbi_uid"}. These
 objects may be used directly as query input for \code{ncbi_link_uid()}. This
-approach is recommended because the internal structure of the objects make
+approach is recommended because the internal structure of these objects make
 \code{ncbi_link_uid()} queries more robust. Alternatively, you can also
 use a character vector of UIDs as query input.
 

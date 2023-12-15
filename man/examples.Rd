@@ -5,10 +5,14 @@
 \alias{examples}
 \title{Examples}
 \format{
-A list with 2 elements:
+A list with 6 elements:
 \describe{
-  \item{assembly}{NCBI Assembly}
-  \item{biosample}{NCBI BioSample}
+  \item{assembly}{NCBI Assembly IDs}
+  \item{bioproject}{NCBI BioProject IDs}
+  \item{biosample}{NCBI BioSample IDs}
+  \item{gene} {NCBI Gene IDs}
+  \item{protein} {NCBI Protein IDs}
+  \item{sra}{NCBI SRA IDs}
 }
 }
 \usage{
