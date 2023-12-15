@@ -4,12 +4,12 @@
 #' different databases may be linked. For example, entries in the NCBI Assembly
 #' database may be linked with entries in the NCBI BioSample database. This
 #' function attempts to link uids from one database to another.
-#' @param query either an object of class \code{ncnbi_uid} or a character vector.
-#' See Details for more information.
+#' @param query either an object of class \code{ncnbi_uid} or an integer vector 
+#' of UIDs. See Details for more information.
 #' @param to character; the database in which the function should look for links.
 #' \code{ncbi_dbs()} lists all available options. See Details for more
 #' information.
-#' @param from character; the database the queried uids come from.
+#' @param from character; the database the queried UIDs come from.
 #' \code{ncbi_dbs()} lists all available options.
 #' @param batch_size integer; the number of search terms to query at once. If
 #' the number of search terms is larger than \code{batch_size}, the search terms
@@ -17,20 +17,19 @@
 #' history.
 #' @param use_history logical; should the function use web history for faster
 #' API queries?
-#' @param verbose logical; should verbos messages be printed to the console?
+#' @param verbose logical; should verbose messages be printed to the console?
 #' \code{ncbi_dbs()} lists all available options.
 #' @return An object of class \code{"ncbi_uid"} which is a list with three
 #' elements:
 #' \itemize{
-#'  \item \code{uids}: a vector of UIDs.
+#'  \item \code{uid}: a vector of UIDs.
 #'  \item \code{db}: the database used for the query.
-#'  \item \code{web_history}: if \code{web_history = TRUE}, a tibble which
-#'  contains information about the web history, otherwise \code{NULL}.
+#'  \item \code{web_history}: a tibble of web histories.
 #'  }
 #' @details Some functions in webseq, e.g. \code{ncbi_get_uid()} or
 #' \code{ncbi_link_uid()} return objects of class \code{"ncbi_uid"}. These
 #' objects may be used directly as query input for \code{ncbi_link_uid()}. This
-#' approach is recommended because the internal structure of the objects make
+#' approach is recommended because the internal structure of these objects make
 #' \code{ncbi_link_uid()} queries more robust. Alternatively, you can also
 #' use a character vector of UIDs as query input.
 #' @details If query is a \code{"ncbi_uid} object, the \code{from} argument is
@@ -106,13 +105,13 @@ ncbi_link_uid <- function(
       (length(wh_hit) == 1 && is.na(wh_hit))
       ) {
       return(list(
-        uids = NA_integer_,
+        uid = NA_integer,
         db = to,
-        web_history = NULL
+        web_history = tibble::tibble()
       ))
     } else {
       return(list(
-        uids = id_hit$links[[paste(from, to, sep = "_")]],
+        uid = as.integer(id_hit$links[[paste(from, to, sep = "_")]]),
         db = to,
         web_history = wh_hit$web_histories[[paste(from, to, sep = "_")]]
       ))
@@ -146,18 +145,18 @@ ncbi_link_uid <- function(
       (length(wh_hit) == 1 && is.na(wh_hit))
       ) {
       return(list(
-        uids = NA_integer_,
+        uid = NA_integer,
         db = to,
-        web_history = NULL
+        web_history = tibble::tibble()
       ))
     } else {
       if (is.null(wh_hit)) {
-        web_history <- NULL
+        web_history <- tibble::tibble()
       } else {
         web_history <- wh_hit$web_histories[[paste(from, to, sep = "_")]]
       }
       return(list(
-        uids = id_hit$links[[paste(from, to, sep = "_")]],
+        uid = as.integer(id_hit$links[[paste(from, to, sep = "_")]]),
         db = to,
         web_history = web_history
       ))
@@ -165,7 +164,7 @@ ncbi_link_uid <- function(
   }
 
   if ("ncbi_uid" %in% class(query) & use_history) {
-    if (!is.null(query$web_history)) {
+    if (nrow(query$web_history) > 0) {
       if (verbose) message("Using web history.")
       res <- lapply(1:nrow(query$web_history), function(x) {
         foo_from_histories(
@@ -189,7 +188,7 @@ ncbi_link_uid <- function(
   } else {
     if (verbose) message("Not using web history.")
     if ("ncbi_uid" %in% class(query)) {
-      query <- query$uids
+      query <- query$uid
     }
     if (all(is.na(query))) {
       stop("No valid search terms.")
@@ -207,24 +206,15 @@ ncbi_link_uid <- function(
       )
     })
   }
-  uids <- lapply(res, function(x) x$uids)
-  web_histories <- lapply(res, function(x) {
-    if ("web_history" %in% names(x)) {
-      return(x$web_history)
-    } else {
-      return(NULL)
-    }
-  })
-  if (is.null(unlist(web_histories))) {
-    web_histories <- NULL
-  } else {
-    web_histories <- dplyr::bind_rows(web_histories)
-  }
+  uid <- lapply(res, function(x) x$uid)
+  web_histories <- lapply(res, function(x) x$web_history)
+  web_histories <- dplyr::bind_rows(web_histories)
   out <- list(
-    uids = unlist(uids),
+    uid = unlist(uid),
     db = to,
     web_history = web_histories
   )
   class(out) <- c("ncbi_uid", class(out))
+  validate_webseq_class(out)
   return(out)
 }

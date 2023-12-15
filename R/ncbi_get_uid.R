@@ -6,7 +6,7 @@
 #' other NCBI databases or to retrieve the data itself.
 #' @param term character; one or more search terms.
 #' @param db character; the database to search in. For options see
-#' \code{ncbi_dbs()}
+#' \code{ncbi_dbs()}.
 #' @param batch_size integer; the number of search terms to query at once. If
 #' the number of search terms is larger than \code{batch_size}, the search terms
 #' are split into batches and queried separately. Not used when using web
@@ -17,10 +17,9 @@
 #' @return An object of class \code{"ncbi_uid"} which is a list with three
 #' elements:
 #' \itemize{
-#'  \item \code{uids}: a vector of UIDs.
+#'  \item \code{uid}: a vector of UIDs.
 #'  \item \code{db}: the database used for the query.
-#'  \item \code{web_history}: if \code{web_history = TRUE}, a tibble which
-#'  contains information about the web history, otherwise \code{NULL}.
+#'  \item \code{web_history}: a tibble of web histories.
 #'  }
 #' @details The default value for \code{batch_size} should work in most cases.
 #' However, if the search terms are very long, the function may fail with an
@@ -82,51 +81,42 @@ ncbi_get_uid <- function(
     }
     if (length(hit) == 1 && is.na(hit)) {
       return(list(
-        uids = NA_integer_,
+        uid = NA_integer_,
         db = db,
-        web_history = NULL
+        web_history = tibble::tibble()
       ))
     } else if (length(hit$ids) == 0) {
       if (verbose) message("Term not found. Returning NA.")
       return(list(
-        uids = NA_integer_,
+        uid = NA_integer_,
         db = db,
-        web_history = NULL
+        web_history = tibble::tibble()
       ))
     } else if (length(hit$ids) > 0) {
       return(list(
-        uids = as.integer(hit$ids),
+        uid = as.integer(hit$ids),
         db = db,
         web_history = hit$web_history
       ))
     } else {
       if (verbose) message("Unknown exception.")
       return(list(
-        uids = NA_integer_,
+        uid = NA_integer_,
         db = db,
-        web_history = NULL
+        web_history = tibble::tibble()
       ))
     }
   }
   res <- lapply(seq_along(termlist), foo)
-  uids <- lapply(res, function(x) x$uids)
-  web_histories <- lapply(res, function(x) {
-    if ("web_history" %in% names(x)) {
-      return(x$web_history)
-    } else {
-      return(NULL)
-    }
-  })
-  if (is.null(unlist(web_histories))) {
-    web_histories <- NULL
-  } else {
-    web_histories <- dplyr::bind_rows(web_histories)
-  }
+  uid <- lapply(res, function(x) x$uid)
+  web_histories <- lapply(res, function(x) x$web_history)
+  web_histories <- dplyr::bind_rows(web_histories)
   out <- list(
-    uids = unlist(uids),
+    uid = unlist(uid),
     db = db,
     web_history = web_histories
   )
   class(out) <- c("ncbi_uid", class(out))
+  validate_webseq_class(out)
   return(out)
 }
