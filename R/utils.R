@@ -89,7 +89,7 @@ wrap <- function(
     return(NA)
   } else {
     if (verbose) {
-      message(package, "::", function_name, " query successful.")
+      message(package, "::", function_name, "() query successful.")
     }
     return(hit)
   }
@@ -115,4 +115,31 @@ get_idlist <- function(ids, batch_size, verbose = getOption("verbose")) {
     idlist[[1]] <- ids
   }
   return(idlist)
+}
+
+#' Validate the structure of a webseq object
+#' 
+#' @param x a webseq object
+#' @noRd
+validate_webseq_class <- function(x) {
+  if ("ncbi_uid" %in% class(x)) {
+    testthat::expect_equal(length(names(x)), 3)
+    testthat::expect_true(names(x)[1] == "uid")
+    testthat::expect_true(names(x)[2] == "db")
+    testthat::expect_true(names(x)[3] == "web_history")
+    testthat::expect_true(class(x$uid) == "integer")
+    testthat::expect_true(class(x$db) == "character")
+    expect_s3_class(x$web_history, c("tbl_df", "tbl", "data.frame"))
+  }
+  if ("ncbi_meta" %in% class(x)) {
+    testthat::expect_equal(length(names(x)), 3)
+    testthat::expect_true(names(x)[1] == "meta")
+    testthat::expect_true(names(x)[2] == "db")
+    testthat::expect_true(names(x)[3] == "web_history")
+    testthat::expect_true(
+      any(c("character", "tbl_df") %in% class(x$web_history))
+    )
+    testthat::expect_true(class(x$db) == "character")
+    expect_s3_class(x$web_history, c("tbl_df", "tbl", "data.frame"))
+  }
 }
