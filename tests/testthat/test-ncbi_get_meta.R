@@ -1,8 +1,59 @@
-test_that("ncbi_get_meta() works with Microthrix parvicella", {
-  meta <- suppressWarnings(
-    ncbi_get_meta("Microthrix parvicella", db = "biosample")
+test_that("ncbi_get_meta() works with history", {
+  # with history, use history, one batch
+  uids <- ncbi_get_uid("Microthrix parvicella", db = "biosample")
+  meta <- suppressWarnings(ncbi_get_meta(uids))
+  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  
+  # with history, use history, multiple batches
+  assembly_uids <- ncbi_get_uid("Microthrix parvicella", db = "assembly")
+  biosample_uids <- ncbi_link_uid(
+    assembly_uids$uid,
+    from = "assembly",
+    to = "biosample",
+    batch_size = 5
   )
-  expect_s3_class(meta$meta, c("tbl_df", "tbl", "data.frame"))
+  meta <- suppressWarnings(ncbi_get_meta(biosample_uids))
+  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+})
+
+test_that("ncbi_get_meta() works without history", {
+  # with history, do not use history, one batch
+  uids <- ncbi_get_uid(
+    "Microthrix parvicella",
+    db = "biosample",
+    use_history = TRUE
+  )
+  meta <- suppressWarnings(ncbi_get_meta(uids, use_history = FALSE))
+  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  # with history, do not use history, multiple batches
+  meta <- suppressWarnings(ncbi_get_meta(
+    uids,
+    use_history = FALSE,
+    batch_size = 5
+  ))
+  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  # without history, attempt to use history but fall back, one batch
+  uids <- ncbi_get_uid(
+    "Microthrix parvicella",
+    db = "biosample",
+    use_history = FALSE
+  )
+  meta <- suppressWarnings(ncbi_get_meta(uids))
+  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  # only ids, one batch
+  meta <- suppressWarnings(ncbi_get_meta(
+    uids$uid,
+    db = "biosample"
+  ))
+  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  
+  # only ids, multiple batches
+  meta <- suppressWarnings(ncbi_get_meta(
+    uids$uid,
+    db = "biosample",
+    batch_size = 5
+  ))
+  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
 })
 
 test_that("ncbi_get_meta() works with all supported dbs", {
@@ -11,11 +62,14 @@ test_that("ncbi_get_meta() works with all supported dbs", {
   expect_true(all(names(examples) %in% ncbi_dbs()))
   
   for (i in names(examples)) {
-    res <- suppressWarnings(ncbi_get_meta(examples[[i]], db = i, parse = FALSE))
-    
-    expect_true(all(class(res) == c("ncbi_meta", "list")))
-    expect_true("meta" %in% names(res))
-    expect_true(class(res$meta) == "list")
-    expect_true(class(res$meta[[1]]) == "character")
+    uids <- ncbi_get_uid(examples[[i]], db = i)
+    meta <- suppressWarnings(ncbi_get_meta(uids, parse = FALSE))
+    expect_s3_class(meta, c("ncbi_meta", "list"))
   }
+})
+
+test_that("ncbi_get_meta() fails if input is invalid", {
+  expect_error(suppressWarnings(
+    ncbi_get_meta("funky", db = "assembly")
+  ))
 })

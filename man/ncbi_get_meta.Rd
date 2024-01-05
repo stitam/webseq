@@ -5,8 +5,8 @@
 \title{Get sequence metadata from NCBI}
 \usage{
 ncbi_get_meta(
-  term,
-  db,
+  query,
+  db = NULL,
   batch_size = 100,
   use_history = TRUE,
   parse = TRUE,
@@ -14,7 +14,8 @@ ncbi_get_meta(
 )
 }
 \arguments{
-\item{term}{character; one or more search terms.}
+\item{query}{either an object of class \code{ncbi_uid} or an integer vector 
+of UIDs. See Details for more information.}
 
 \item{db}{character; the database to search in. For options see
 \code{ncbi_dbs()}. Not all databases are supported.}
@@ -43,9 +44,25 @@ metadata or if parsing is unsuccessful, the unparsed metadata. If
 \description{
 This function retrieves metadata from a given NCBI sequence database.
 }
+\details{
+Some functions in webseq, e.g. \code{ncbi_get_uid()} or
+\code{ncbi_link_uid()} return objects of class \code{"ncbi_uid"}. These
+objects may be used directly as query input for \code{ncbi_get_meta()}. This
+approach is recommended because the internal structure of these objects make
+\code{ncbi_get_meta()} queries more robust. Alternatively, you can also
+use a character vector of UIDs as query input.
+
+If query is a \code{"ncbi_uid"} object, the \code{db} argument is
+optional. If \code{db} is not specified, the function will use the
+\code{db} attribute of the \code{"ncbi_uid"} object as \code{db} argument.
+However, if it is specified, it must be identical to the \code{db} attribute
+of the \code{"ncbi_uid"} object. If query is a character vector, the
+\code{db} argument is required.
+}
 \examples{
 \dontrun{
 data(examples)
-meta <- ncbi_get_meta(examples$biosample, db = "biosample")
+uids <- ncbi_get_uid(examples$biosample, db = "biosample")
+meta <- ncbi_get_meta(uids)
 }
 }

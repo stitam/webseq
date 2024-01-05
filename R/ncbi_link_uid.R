@@ -4,7 +4,7 @@
 #' different databases may be linked. For example, entries in the NCBI Assembly
 #' database may be linked with entries in the NCBI BioSample database. This
 #' function attempts to link uids from one database to another.
-#' @param query either an object of class \code{ncnbi_uid} or an integer vector 
+#' @param query either an object of class \code{ncbi_uid} or an integer vector 
 #' of UIDs. See Details for more information.
 #' @param to character; the database in which the function should look for links.
 #' \code{ncbi_dbs()} lists all available options. See Details for more
@@ -32,7 +32,7 @@
 #' approach is recommended because the internal structure of these objects make
 #' \code{ncbi_link_uid()} queries more robust. Alternatively, you can also
 #' use a character vector of UIDs as query input.
-#' @details If query is a \code{"ncbi_uid} object, the \code{from} argument is
+#' @details If query is a \code{"ncbi_uid"} object, the \code{from} argument is
 #' optional. If \code{from} is not specified, the function will use the
 #' \code{db} attribute of the \code{"ncbi_uid"} object as \code{from} argument.
 #' However, if it is specified, it must be identical to the \code{db} attribute
@@ -58,8 +58,7 @@ ncbi_link_uid <- function(
     } else {
       if (from != query$db) {
         msg <- paste0(
-          "Database for queried UIDs does not match 'from' argument.",
-          "\n",
+          "Database for queried UIDs does not match 'from' argument.\n",
           "Provide identical values or use from = NULL (default)."
         )
         stop(msg)
@@ -68,7 +67,7 @@ ncbi_link_uid <- function(
   } else {
     if (is.null(from)) {
       msg <- paste0(
-        "Specify a from argument ",
+        "Specify a 'from' argument ",
         "or use an object of class 'ncbi_uid' as query."
       )
       stop(msg)
@@ -105,7 +104,7 @@ ncbi_link_uid <- function(
       (length(wh_hit) == 1 && is.na(wh_hit))
       ) {
       return(list(
-        uid = NA_integer,
+        uid = NA_integer_,
         db = to,
         web_history = tibble::tibble()
       ))
@@ -145,7 +144,7 @@ ncbi_link_uid <- function(
       (length(wh_hit) == 1 && is.na(wh_hit))
       ) {
       return(list(
-        uid = NA_integer,
+        uid = NA_integer_,
         db = to,
         web_history = tibble::tibble()
       ))
@@ -175,7 +174,7 @@ ncbi_link_uid <- function(
       })
     } else {
       if (verbose) message("No web history found.")
-      idlist <- get_idlist(query, batch_size, verbose)
+      idlist <- get_idlist(query$uid, batch_size, verbose)
       res <- lapply(idlist, function(x) {
         foo_from_ids(
           x,
@@ -189,12 +188,6 @@ ncbi_link_uid <- function(
     if (verbose) message("Not using web history.")
     if ("ncbi_uid" %in% class(query)) {
       query <- query$uid
-    }
-    if (all(is.na(query))) {
-      stop("No valid search terms.")
-    } else if (any(is.na(query))){
-      if (verbose) message("Removing NA-s from search terms.")
-      query <- query[which(!is.na(query))]
     }
     idlist <- get_idlist(query, batch_size, verbose)
     res <- lapply(idlist, function(x) {

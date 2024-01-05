@@ -102,13 +102,20 @@ wrap <- function(
 #' @param verbose logical; Should verbose messages be printed to console?
 #' @noRd
 get_idlist <- function(ids, batch_size, verbose = getOption("verbose")) {
+  ids <- as.numeric(ids)
+  if (all(is.na(ids))) {
+    stop("No valid IDs.")
+  } else if (any(is.na(ids))){
+    if (verbose) message("Removing NA-s from IDs.")
+    ids <- ids[which(!is.na(ids))]
+  }
   idlist <- list()
   if (length(ids) > batch_size) {
     nbatch <- ceiling(length(ids)/batch_size)
     if (verbose) message("Splitting ids into ", nbatch, " batches.")
     for (i in 1:nbatch) {
       index_min <- (i-1)*batch_size + 1
-      index_max <- min(i*batch_size, length(query))
+      index_max <- min(i*batch_size, length(ids))
       idlist[[i]] <- ids[index_min:index_max]
     }
   } else {
@@ -129,17 +136,9 @@ validate_webseq_class <- function(x) {
     testthat::expect_true(names(x)[3] == "web_history")
     testthat::expect_true(class(x$uid) == "integer")
     testthat::expect_true(class(x$db) == "character")
-    expect_s3_class(x$web_history, c("tbl_df", "tbl", "data.frame"))
+    testthat::expect_s3_class(x$web_history, c("tbl_df", "tbl", "data.frame"))
   }
   if ("ncbi_meta" %in% class(x)) {
-    testthat::expect_equal(length(names(x)), 3)
-    testthat::expect_true(names(x)[1] == "meta")
-    testthat::expect_true(names(x)[2] == "db")
-    testthat::expect_true(names(x)[3] == "web_history")
-    testthat::expect_true(
-      any(c("character", "tbl_df") %in% class(x$web_history))
-    )
-    testthat::expect_true(class(x$db) == "character")
-    expect_s3_class(x$web_history, c("tbl_df", "tbl", "data.frame"))
+    testthat::expect_true(attr(x, "db") %in% ncbi_dbs())
   }
 }

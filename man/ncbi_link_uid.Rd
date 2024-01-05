@@ -14,7 +14,7 @@ ncbi_link_uid(
 )
 }
 \arguments{
-\item{query}{either an object of class \code{ncnbi_uid} or an integer vector 
+\item{query}{either an object of class \code{ncbi_uid} or an integer vector 
 of UIDs. See Details for more information.}
 
 \item{from}{character; the database the queried UIDs come from.
@@ -58,7 +58,7 @@ approach is recommended because the internal structure of these objects make
 \code{ncbi_link_uid()} queries more robust. Alternatively, you can also
 use a character vector of UIDs as query input.
 
-If query is a \code{"ncbi_uid} object, the \code{from} argument is
+If query is a \code{"ncbi_uid"} object, the \code{from} argument is
 optional. If \code{from} is not specified, the function will use the
 \code{db} attribute of the \code{"ncbi_uid"} object as \code{from} argument.
 However, if it is specified, it must be identical to the \code{db} attribute
