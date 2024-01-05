@@ -72,3 +72,9 @@ test_that("ncbi_link_uid() can use an ncbi_uid object's db element", {
   expect_true(all(c("ncbi_uid", "list") %in% class(biosample_uid)))
   expect_true(all(biosample_uid$uid %in% c("2952905", "1730125")))
 })
+
+test_that("ncbi_link_uid() fails if input is invalid", {
+  expect_error(suppressWarnings(
+    ncbi_link_uid("funky", from = "assembly", to = "biosample")
+  ))
+})

@@ -10,8 +10,8 @@ A list with 6 elements:
   \item{assembly}{NCBI Assembly IDs}
   \item{bioproject}{NCBI BioProject IDs}
   \item{biosample}{NCBI BioSample IDs}
-  \item{gene} {NCBI Gene IDs}
-  \item{protein} {NCBI Protein IDs}
+  \item{gene}{NCBI Gene IDs}
+  \item{protein}{NCBI Protein IDs}
   \item{sra}{NCBI SRA IDs}
 }
 }
