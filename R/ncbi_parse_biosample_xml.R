@@ -22,11 +22,8 @@ ncbi_parse_biosample_xml <- function(
     return(NA_character_)
   }
   out <- dplyr::bind_rows(out)
-  out <- out[, c(
-    "biosample_uid",
-    "biosample",
-    names(out)[3:ncol(out)][order(names(out)[3:ncol(out)])]
-  )]
+  out <- dplyr::relocate(out, biosample_uid)
+  out <- dplyr::relocate(out, biosample, .after = biosample_uid)
   out <- tibble::as_tibble(out)
   return(out)
 }
@@ -399,33 +396,47 @@ extract_links <- function(
   foo <- function (x, biosample, verbose) {
     out <- NULL
     res <- x[["Links"]]
-    if (is.null(res)) {
+    if (is.null(res) | length(res) == 0) {
       return(data.frame())
     } else {
       linklist <- lapply(res, function(A) {
-        if (!"target" %in% names(attributes(A))) {
-          # EXAMPLE: SAMN36356470
-          # TODO: Find a solution to take a note of failed parsings
-          return(data.frame())
+        longlinks <- data.frame()
+        if ("target" %in% names(attributes(A))) {
+          longlinks <- dplyr::bind_rows(
+            longlinks,
+            data.frame(
+              target = attributes(A)$target,
+              label = if("label" %in% names(attributes(A))) {
+                attributes(A)$label
+              } else {
+                unlist(A)
+              }
+            )
+          )
         }
-        longlink <- data.frame(
-          target = attributes(A)$target,
-          label = if("label" %in% names(attributes(A))) {
-            attributes(A)$label
-          } else {
-            unlist(A)
-          }
-        )
-        widelink <- tidyr::pivot_wider(
-          data = longlink,
-          names_from = "target",
-          values_from = "label"
-        )
-        return(widelink)
+        if ("type" %in% names(attributes(A)) && attributes(A)$type == "url") {
+          longlinks <- dplyr::bind_rows(
+            longlinks,
+            data.frame(
+              target = attributes(A)$label,
+              label = unlist(A)
+            )
+          )
+        }
+        longlinks$target <- gsub(" +", "_", longlinks$target)
+        return(longlinks)
       })
-      out <- dplyr::bind_cols(linklist)
+      out_long <- dplyr::bind_rows(linklist)
+      if (nrow(out_long) > 0) {
+        out_wide <- tidyr::pivot_wider(
+          data = out_long,
+          names_from = "target",
+          values_from = "label",
+          values_fn = function(x) paste(x, collapse = "|")
+        ) 
+      }
     }
-    return(out)
+    return(out_wide)
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
