@@ -12,12 +12,15 @@ examples <- list(
     "SAMN38450475",
     "SAMD00041425",
     "SAMN37751259",
-    "SAMN36356470",
+    "SAMN36356470", # links
     "SAMN36698370",
     "SAMN00678218",
     "SAMN00778252",
     "SAMEA3317914",
-    "SAMEA14036741"
+    "SAMEA14036741",
+    "SAMN03863711",
+    "SAMN39003160",
+    "SAMN01918814" #links
   ),
   gene = "948356",
   protein = "AAA27507.1",

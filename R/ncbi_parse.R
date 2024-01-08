@@ -54,12 +54,12 @@ ncbi_parse <- function(
   format <- match.arg(format, choices = c("xml"))
   f <- get(paste("ncbi_parse", db, format, sep = "_"))
   if (db == "assembly" && format == "xml") {
-    out <- f(meta, verbose)
+    out <- f(meta, verbose = verbose)
   } else if (db == "biosample" && format == "xml") {
-    out <- f(meta, verbose)
+    out <- f(meta, verbose = verbose)
   } else {
     if (verbose) message("Parsing is not supported.")
-    out <- tibble::tibble()
+    out <- NA_character_
   }
   return(out)
 }

@@ -104,9 +104,10 @@ wrap <- function(
 get_idlist <- function(ids, batch_size, verbose = getOption("verbose")) {
   ids <- as.numeric(ids)
   if (all(is.na(ids))) {
-    stop("No valid IDs.")
+    if (verbose) message("No valid UIDs.")
+    ids <- NA
   } else if (any(is.na(ids))){
-    if (verbose) message("Removing NA-s from IDs.")
+    if (verbose) message("Removing NA-s from UIDs.")
     ids <- ids[which(!is.na(ids))]
   }
   idlist <- list()
@@ -140,5 +141,37 @@ validate_webseq_class <- function(x) {
   }
   if ("ncbi_meta" %in% class(x)) {
     testthat::expect_true(attr(x, "db") %in% ncbi_dbs())
+  }
+}
+
+#' Convert an xml retrieved from NCBI to a list
+#' 
+#' @param xml character, a vector of xmls
+#' @param verbose logical; Should verbose messages be printed to console?
+#' @return If conversion is successful, returns a vector of lists, otherwise NA.
+#' @details
+#' The function takes a vector of xmls and attempts to convert it to a vector of
+#' lists. The function will only return a vector of lists if all xmls can be
+#' converted, otherwise it will return NA.
+#' @noRd
+ncbi_xml_to_list <- function(xml, verbose) {
+  pxml <- try(sapply(seq_along(xml), function(i) {
+    res <- try(
+      xml2::as_list(xml2::read_xml(xml[[i]]))[[1]],
+      silent = TRUE
+    )
+    if (inherits(res, "try-error")) {
+      if (verbose) message("Could not convert xml to list: ", "Index ", i)
+      stop()
+    } else {
+      return(res)
+    }
+  }), silent = TRUE)
+  if (inherits(pxml, "try-error")) {
+    return(NA_character_)
+  } else {
+    # note: guaranteed to work or requires error handling?
+    names(pxml) <- sapply(pxml, function(x) attributes(x)$accession)
+    return(pxml)
   }
 }
