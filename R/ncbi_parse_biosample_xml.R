@@ -9,12 +9,18 @@ ncbi_parse_biosample_xml <- function(
     biosample_xml,
     verbose = getOption("verbose")
     ) {
-  parsed_xml <- lapply(biosample_xml, function(x) {
-    xml2::as_list(xml2::read_xml(x))[[1]]
-  })
-  parsed_xml <- unlist(parsed_xml, recursive = FALSE)
-  names(parsed_xml) <- sapply(parsed_xml, function(x) attributes(x)$accession)
-  out <- lapply(parsed_xml, ncbi_parse_biosample_xml_entry)
+  if (length(biosample_xml) == 1 && is.na(biosample_xml)) {
+    if (verbose) message("No BioSample metadata to parse.")
+    return(NA_character_)
+  }
+  parsed_xml <- ncbi_xml_to_list(xml = biosample_xml, verbose = verbose)
+  if (length(parsed_xml) == 1 && is.na(parsed_xml)) return(NA_character_)
+  out <- try(lapply(parsed_xml, function(x) {
+    ncbi_parse_biosample_xml_entry(x, verbose = verbose)
+  }),silent = TRUE)
+  if (inherits(out, "try-error")) {
+    return(NA_character_)
+  }
   out <- dplyr::bind_rows(out)
   out <- out[, c(
     "biosample_uid",
@@ -34,12 +40,14 @@ ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
     "access", "submission_date", "id", "accession"
   )
   if (any(!expected_names %in% names(main_attrs))) {
-    msg <- paste0(
-      "Could not extract main Attributes for BioSample ",
-      main_attrs$accession,
-      "."
-    )
-    stop(msg)
+    if (verbose) {
+      message(paste0(
+        "Could not extract main Attributes for BioSample ",
+        main_attrs$accession,
+        "."
+      ))
+    } 
+    stop()
   }
   out <- tibble::tibble(biosample_uid = main_attrs$id)
   new_elements <- c(
@@ -58,7 +66,9 @@ ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
     if (ncol(newdf) > 0) {
       out <- dplyr::bind_cols(out, newdf)
     } else {
-      warning(paste0("No ", i, " for BioSample ", main_attrs$accession, "."))
+      if (verbose) {
+        message(paste0("No ", i, " for BioSample ", main_attrs$accession, "."))
+      }
     }
   }
   newdf <- data.frame(
@@ -72,13 +82,16 @@ ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
   if (ncol(newdf) > 0) {
     out <- dplyr::bind_cols(out, newdf)
   } else {
-    warning(paste0("No status for BioSample ", main_attrs$accession, "."))
+    if (verbose) {
+      message(paste0("No status for BioSample ", main_attrs$accession, "."))
+    }
   }
   if (nrow(out) > 1) {
-    msg <- paste0(
-      "Multiple parsed rows for BioSample ", main_attrs$accession, "."
-    )
-    warning(msg)
+    if (verbose) {
+      message(paste0(
+        "Multiple parsed rows for BioSample ", main_attrs$accession, "."
+      ))
+    }
   }
   return(out)
 }
@@ -103,8 +116,10 @@ extract_ids <- function(
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0("Could not extract IDs for BioSample ", biosample, ".")
-    stop(msg)
+    if (verbose) {
+      message(paste0("Could not extract IDs for BioSample ", biosample, "."))
+    }
+    stop()
   }
   return(out)
 }
@@ -152,8 +167,12 @@ extract_attributes <- function(x, biosample, verbose = getOption("verbose")) {
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0("Could not extract Attributes for BioSample ", biosample, ".")
-    stop(msg)
+    if (verbose) {
+      message(paste0(
+        "Could not extract Attributes for BioSample ", biosample, "."
+      ))
+    }
+    stop()
   }
   return(out)
 }
@@ -225,8 +244,12 @@ extract_owner <- function(
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0("Could not extract Owner info for BioSample ", biosample, ".")
-    stop(msg)
+    if (verbose) {
+      message(paste0(
+        "Could not extract Owner info for BioSample ", biosample, "."
+      ))
+    }
+    stop()
   }
   return(out)
 }
@@ -262,10 +285,12 @@ extract_description <- function(
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0(
-      "Could not extract Description for BioSample ", biosample, "."
-    )
-    stop(msg)
+    if (verbose) {
+      message(paste0(
+        "Could not extract Description for BioSample ", biosample, "."
+      ))
+    }
+    stop()
   }
   return(out)
 }
@@ -286,8 +311,12 @@ extract_package <- function(
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0("Could not extract Package for BioSample ", biosample, ".")
-    stop(msg)
+    if (verbose) {
+      message(paste0(
+        "Could not extract Package for BioSample ", biosample, "."
+      ))
+    }
+    stop()
   }
   return(out)
 }
@@ -312,7 +341,10 @@ extract_organism <- function(
         if (length(attributes(x$Description$Organism)) > 0) {
           if ("names" %in% names(attributes(x$Description$Organism))) {
             if (attributes(x$Description$Organism)$names != "OrganismName") {
-              stop("Unexpected Organism attribute name.")
+              if (verbose) {
+                message("Unexpected Organism attribute name.")
+              }
+              stop()
             } else {
               index <- which(
                 names(attributes(x$Description$Organism)) != "names"
@@ -343,8 +375,12 @@ extract_organism <- function(
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0("Could not extract Organism for BioSample ", biosample, ".")
-    stop(msg)
+    if (verbose) {
+      message(paste0(
+        "Could not extract Organism for BioSample ", biosample, "."
+      ))
+    }
+    stop()
   }
   return(out)
 }
@@ -387,8 +423,12 @@ extract_links <- function(
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0("Could not extract BioSample links for BioSample ", biosample, ".")
-    stop(msg)
+    if (verbose) {
+      message(paste0(
+        "Could not extract BioSample links for BioSample ", biosample, "."
+      ))
+    }
+    stop()
   }
   return(out)
 }
@@ -408,8 +448,10 @@ extract_status <- function(
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0("Could not extract status for BioSample ", biosample, ".")
-    stop(msg)
+    if (verbose) {
+      message(paste0("Could not extract status for BioSample ", biosample, "."))
+    }
+    stop()
   }
   return(out)
 }
@@ -429,10 +471,12 @@ extract_status_date <- function(
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0(
-      "Could not extract status_date  for BioSample ", biosample, "."
-    )
-    stop(msg)
+    if (verbose) {
+      message(paste0(
+        "Could not extract status_date  for BioSample ", biosample, "."
+      ))
+    }
+    stop()
   }
   return(out)
 }
@@ -454,8 +498,10 @@ extract_title <- function(
   }
   out <- try(foo(x, biosample, verbose), silent = TRUE)
   if (inherits(out, "try-error") | is.null(out)) {
-    msg <- paste0("Could not extract Title for BioSample ", biosample, ".")
-    stop(msg)
+    if (verbose) {
+      message(paste0("Could not extract Title for BioSample ", biosample, "."))
+    }
+    stop()
   }
   return(out)
 }

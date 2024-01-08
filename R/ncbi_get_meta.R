@@ -98,6 +98,10 @@ ncbi_get_meta <- function(
     return(res)
   }
   foo_from_ids <- function(x, db) {
+    if(length(x) == 1 && is.na(x)){
+      if (verbose) message("No valid UIDs.")
+      return(NA_character_)
+    }
     res <- wrap(
       "entrez_fetch",
       package = "rentrez",
@@ -112,13 +116,13 @@ ncbi_get_meta <- function(
   if ("ncbi_uid" %in% class(query) & use_history) {
     if (nrow(query$web_history) > 0) {
       if (verbose) message("Using web history.")
-      res <- lapply(1:nrow(query$web_history), function(x) {
+      res <- sapply(1:nrow(query$web_history), function(x) {
         foo_from_histories(x, db = db)
       })
     } else {
       if (verbose) message("No web history found.")
       idlist <- get_idlist(query$uid, batch_size, verbose)
-      res <- lapply(idlist, function(x) {
+      res <- sapply(idlist, function(x) {
         foo_from_ids(x, db)
       })
     }
@@ -127,22 +131,20 @@ ncbi_get_meta <- function(
       query <- query$uid
     }
     idlist <- get_idlist(query, batch_size, verbose)
-    res <- lapply(idlist, function(x) {
+    res <- sapply(idlist, function(x) {
       foo_from_ids(x, db = db)
     })
   }
   if (parse) {
     if (verbose) {
-      message("Attempting to parse retrieved metadata.", appendLF = FALSE)
+      message("Attempting to parse retrieved metadata.")
     }
-    res_parsed <- lapply(res, function(x) {
-      ncbi_parse(meta = x, db = db, verbose = verbose)
-    })
-    if ("data.frame" %in% class(res_parsed[[1]])) {
-      if (verbose) message(" Done.")
+    res_parsed <- ncbi_parse(meta = res, db = db, verbose = verbose)
+    if (all("data.frame" %in% class(res_parsed))) {
       out <- dplyr::bind_rows(res_parsed)
+      if (verbose) message("Done.")
     } else {
-      if (verbose) message(" Failed.")
+      if (verbose) message("Returning unparsed metadata.")
       out <- res
     }
   } else {

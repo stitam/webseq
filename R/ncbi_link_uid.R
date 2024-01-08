@@ -117,6 +117,14 @@ ncbi_link_uid <- function(
     }
   }
   foo_from_ids <- function(x, from, to, use_history) {
+    if (length(x) == 1 && is.na(x)) {
+      if (verbose) message("No valid UIDs.")
+      return(list(
+        uid = NA_integer_,
+        db = to,
+        web_history = tibble::tibble()
+      ))
+    }
     id_hit <- wrap(
         "entrez_link",
         package = "rentrez",
