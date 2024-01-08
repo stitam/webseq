@@ -17,7 +17,8 @@ examples <- list(
     "SAMN00678218",
     "SAMN00778252",
     "SAMEA3317914",
-    "SAMEA14036741"
+    "SAMEA14036741",
+    "SAMN03863711"
   ),
   gene = "948356",
   protein = "AAA27507.1",

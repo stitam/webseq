@@ -109,7 +109,13 @@ extract_ids <- function(
       })),
       id = unname(sapply(res, unlist))
     )
+    # SAMN03863711 lists two BioSample IDs but the contents are duplicates
     out <- dplyr::distinct(out)
+    # Remove the redundant BioSample ID
+    index <- which(out$db == "BioSample" & out$id != biosample)
+    if (length(index) > 0) {
+      out <- out[-index,]
+    }
     out <- tidyr::spread(out, "db", "id")
     names(out) <- gsub(" +", "_", tolower(names(out)))
     return(out)
