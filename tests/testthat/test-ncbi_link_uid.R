@@ -4,7 +4,7 @@ test_that("ncbi_link_uid() converts using input history", {
   # input is ncbi_uid object with history
   assembly_uid <- ncbi_get_uid(examples$assembly, db = "assembly")
   biosample_uid <- ncbi_link_uid(
-    assembly_uid, from = "assembly", to = "biosample"
+    assembly_uid, from = "assembly", to = "biosample", use_history = TRUE
   )
   expect_true(all(c("ncbi_uid", "list") %in% class(biosample_uid)))
   expect_true(all(biosample_uid$uid %in% c("2952905", "1730125")))
