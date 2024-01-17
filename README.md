@@ -20,7 +20,7 @@ Currently `webseq` can interact with the following web services:
 
 - NCBI: <https://www.ncbi.nlm.nih.gov/>
 - ENA: <https://www.ebi.ac.uk/ena/browser/home>
-- MGnify: <https://www.ebi.ac.uk/ena/browser/home>
+- MGnify: <https://www.ebi.ac.uk/metagenomics>
 
 The package is under development, some of the functionality may be very
 limited at this point.
