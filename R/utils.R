@@ -89,7 +89,7 @@ wrap <- function(
     return(NA)
   } else {
     if (verbose) {
-      message(package, "::", function_name, "() query successful.")
+      message("Query successful.")
     }
     return(hit)
   }
@@ -155,22 +155,27 @@ validate_webseq_class <- function(x) {
 #' converted, otherwise it will return NA.
 #' @noRd
 ncbi_xml_to_list <- function(xml, verbose) {
-  pxml <- try(sapply(seq_along(xml), function(i) {
+  pxml <- try(lapply(seq_along(xml), function(i) {
+    if (verbose) message(
+      "Attempting to convert xml ", i, " to list. ",
+      appendLF = FALSE
+    )
     res <- try(
       xml2::as_list(xml2::read_xml(xml[[i]]))[[1]],
       silent = TRUE
     )
     if (inherits(res, "try-error")) {
-      if (verbose) message("Could not convert xml to list: ", "Index ", i)
+      if (verbose) message("Failed.")
       stop()
     } else {
+      if (verbose) message("Successful.")
       return(res)
     }
   }), silent = TRUE)
   if (inherits(pxml, "try-error")) {
     return(NA_character_)
   } else {
-    # note: guaranteed to work or requires error handling?
+    pxml <- unlist(pxml, recursive = FALSE)
     names(pxml) <- sapply(pxml, function(x) attributes(x)$accession)
     return(pxml)
   }

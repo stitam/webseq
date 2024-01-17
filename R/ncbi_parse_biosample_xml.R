@@ -113,7 +113,13 @@ extract_ids <- function(
     if (length(index) > 0) {
       out <- out[-index,]
     }
-    out <- tidyr::spread(out, "db", "id")
+    # TODO only keep identifiers that are relevant for NCBI
+    # e.g. SAMN06220566 returns JCVI identifiers as well this should be removed.
+    out <- tidyr::pivot_wider(
+      out,
+      names_from = "db",
+      values_from = "id",
+      values_fn = function(x) paste(x, collapse = "|"))
     names(out) <- gsub(" +", "_", tolower(names(out)))
     return(out)
   }
@@ -203,7 +209,12 @@ extract_owner <- function(
         if ("Contact" %in% names(res$Contacts)) {
           if ("Name" %in% names(res$Contacts$Contact)) {
             if ("First" %in% names(res$Contacts$Contact$Name)) {
-              unlist(res$Contacts$Contact$Name$First)
+              first = unlist(res$Contacts$Contact$Name$First)
+              if (length(first) == 1) {
+                first
+              } else {
+                NA_character_
+              }
             } else {
               NA_character_
             }
@@ -220,7 +231,12 @@ extract_owner <- function(
         if ("Contact" %in% names(res$Contacts)) {
           if ("Name" %in% names(res$Contacts$Contact)) {
             if ("Last" %in% names(res$Contacts$Contact$Name)) {
-              unlist(res$Contacts$Contact$Name$Last)
+              last = unlist(res$Contacts$Contact$Name$Last)
+              if (length(last) == 1) {
+                last
+              } else {
+                NA_character_
+              }
             } else {
               NA_character_
             }
