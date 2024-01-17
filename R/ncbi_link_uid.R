@@ -77,7 +77,7 @@ ncbi_link_uid <- function(
     }
   }
   from <- match.arg(from, ncbi_dbs())
-  to <- match.arg(to, ncbi_dbs())
+  to <- match.arg(to, ncbi_db_links(from))
   foo_from_histories <- function(x, from, to) {
     WH <- list(
       "WebEnv" = query$web_history$WebEnv[x],
