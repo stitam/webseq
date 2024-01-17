@@ -4,7 +4,7 @@
 \alias{ncbi_parse}
 \title{Parse NCBI sequence metadata}
 \usage{
-ncbi_parse(meta, db, format = "xml", verbose = getOption("verbose"))
+ncbi_parse(meta, db = NULL, format = "xml", verbose = getOption("verbose"))
 }
 \arguments{
 \item{meta}{character; either an unparsed metadata object returned by
@@ -32,6 +32,13 @@ called automatically if \code{parse = TRUE} (default). However, it can also
 be used  separately e.g. when you want to examine the unparsed metadata
 object before parsing, or when you already downloaded the metadata manually
 and you just want to parse it into a tabular format.
+
+If \code{meta} is an unparsed \code{ncbi_meta} object returned by 
+\code{ncbi_get_meta()} then the \code{db} argument is optional. If \code{db} 
+is not specified, the function will extract it automatically. However, if it
+is specified, it must be identical to the \code{db} attribute of the metadata
+object. If \code{meta} is not an \code{ncbi_meta} object, the \code{db}
+argument is required.
 }
 \examples{
 \dontrun{
@@ -49,8 +56,8 @@ ncbi_parse(meta = "assembly_summary.xml", db = "assembly", format = "xml")
 
 # Get metadata but do not parse
 meta <- ncbi_get_meta(examples$biosample, db = "biosample", parse = FALSE)
-# Parse metadata separately
-ncbi_parse(meta = meta, db = "biosample", format = "xml")
+# Parse metadata separately, the function will extract 'db' automatically.
+ncbi_parse(meta = meta)
 
 # NCBI BioSample, download XML file from NCBI and parse
 
@@ -58,6 +65,6 @@ ncbi_parse(meta = meta, db = "biosample", format = "xml")
 # https://www.ncbi.nlm.nih.gov/biosample/?term=SAMN02714232
 # upper right corner -> send to -> file -> format = full (xml) -> create file
 # Parse XML
-ncbi_parse(meta = "biosample_result.xml", db = "biosample", format = "xml")#' 
+ncbi_parse(meta = "biosample_result.xml", db = "biosample", format = "xml") 
 }
 }
