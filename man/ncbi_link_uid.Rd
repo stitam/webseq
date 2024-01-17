@@ -9,7 +9,7 @@ ncbi_link_uid(
   from = NULL,
   to,
   batch_size = 100,
-  use_history = TRUE,
+  use_history = FALSE,
   verbose = getOption("verbose")
 )
 }
@@ -64,6 +64,11 @@ optional. If \code{from} is not specified, the function will use the
 However, if it is specified, it must be identical to the \code{db} attribute
 of the \code{"ncbi_uid"} object. If query is a character vector, the
 \code{from} argument is required.
+}
+\note{
+\code{ncbi_link_uid()} can work with or without web histories, but the
+behaviour of the function with web histories is unreliable. The option is
+there but it is recommended NOT to use web histories with this function.
 }
 \examples{
 \dontrun{
