@@ -41,7 +41,7 @@ test_that("ncbi_get_uid() handles NA", {
   
   expect_true(res_messages[1] == "Removing NA-s from search terms.\n")
   expect_true(res_messages[2] == "Querying UIDs for batch 1. ")
-  expect_true(res_messages[3] == "rentrez::entrez_search() query successful.\n")
+  expect_true(res_messages[3] == "Query successful.\n")
 })
 
 test_that("ncbi_get_uid() handles invalid terms", {

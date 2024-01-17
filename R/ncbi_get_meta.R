@@ -80,21 +80,38 @@ ncbi_get_meta <- function(
     sra = "full"
   )
   retmode <- "xml"
-  foo_from_histories <- function(x, db) {
+  foo_from_histories <- function(query, x, db, verbose) {
     WH <- list(
       "WebEnv" = query$web_history$WebEnv[x],
       "QueryKey" = query$web_history$QueryKey[x]
     )
     class(WH) <- c("web_history", "list")
-    res <- wrap(
-      "entrez_fetch",
-      package = "rentrez",
-      db = db,
-      web_history = WH,
-      rettype = rettype,
-      retmode = retmode,
-      verbose = verbose
+    id_count <- length(query$uid)
+    retstart <- c(0, cumsum(rep(9999, times = floor(id_count/9999))))
+    if (verbose) message(
+      "Attempting to retrieve metadata for ", id_count, " sample(s). ",
+      "Will use ", length(retstart), " batch(es)."
     )
+    res <- list()
+    for (i in seq_along(retstart)) {
+      index_from = retstart[i] + 1
+      index_to = min(c(retstart[i] + 9999, id_count))
+      if (verbose) message(
+        "Batch ", i, ". Retrieving sample(s) ", index_from, ":", index_to, ". ",
+        appendLF = FALSE
+      )
+      res[[i]] <- wrap(
+        "entrez_fetch",
+        package = "rentrez",
+        db = db,
+        web_history = WH,
+        rettype = rettype,
+        retmode = retmode,
+        verbose = verbose,
+        retstart = retstart[i]
+      )
+    }
+    res <- unlist(res)
     return(res)
   }
   foo_from_ids <- function(x, db) {
@@ -116,9 +133,12 @@ ncbi_get_meta <- function(
   if ("ncbi_uid" %in% class(query) & use_history) {
     if (nrow(query$web_history) > 0) {
       if (verbose) message("Using web history.")
-      res <- sapply(1:nrow(query$web_history), function(x) {
-        foo_from_histories(x, db = db)
-      })
+      res <- list()
+      for (i in 1:nrow(query$web_history)) {
+        if (verbose) message(paste0("Querying web history ", i, "."))
+        res[[i]] <- foo_from_histories(query, i, db = db, verbose = verbose)
+      }
+      res <- unlist(res)
     } else {
       if (verbose) message("No web history found.")
       idlist <- get_idlist(query$uid, batch_size, verbose)
