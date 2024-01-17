@@ -24,3 +24,26 @@ knitr::opts_chunk$set(
 [![R build status](https://github.com/stitam/webseq/workflows/R-CMD-check/badge.svg)](https://github.com/stitam/webseq/actions)
 [![Coverage](https://codecov.io/github/stitam/webseq/coverage.svg?branch=master)](https://codecov.io/gh/stitam/webseq/branch/master) 
 
+`webseq` is an R package for for working with biological sequence databases. It interacts with web services to download biological sequences or retrieve aditional information (metadata) about biological sequences. It is tailored towards whole genome sequencing reads, assembled genomes, metagenomes and associated metadata. 
+
+Currently `webseq` can interact with the following web services:
+
+* NCBI: https://www.ncbi.nlm.nih.gov/
+* ENA: https://www.ebi.ac.uk/ena/browser/home
+* MGnify: https://www.ebi.ac.uk/ena/browser/home
+
+The package is under development, some of the functionality may be very limited at this point.
+
+## Install from GitHub
+
+```{r eval= FALSE}
+install.packages("devtools")
+devtools::install_github("stitam/webseq")
+```
+
+## Citation
+
+To cite `webseq` in publications use:
+
+Stirling T (2024). webseq:  Tools for working with biological sequence databases in R. https://zenodo.org/doi/10.5281/zenodo.10521754
+
