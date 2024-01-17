@@ -35,7 +35,6 @@ ncbi_get_uid <- function(
     db,
     batch_size = 100,
     use_history = TRUE,
-    retmax = 9999,
     verbose = getOption("verbose")
     ) {
   db <- match.arg(db, choices = ncbi_dbs())
@@ -61,24 +60,24 @@ ncbi_get_uid <- function(
   })
   foo <- function(x) {
     if (verbose) message("Querying UIDs for batch ", x, ". ", appendLF = FALSE)
-    hit <- list()
-    k <- 1
-    while(k > 0) {
-      hit[[k]] <- wrap(
+    hit <- wrap(
+      "entrez_search",
+      package = "rentrez",
+      verbose = verbose,
+      db = db,
+      term = termlist[[x]],
+      use_history = use_history
+    )
+    if (hit$count > hit$retmax) {
+      hit <- wrap(
         "entrez_search",
         package = "rentrez",
         verbose = verbose,
         db = db,
         term = termlist[[x]],
         use_history = use_history,
-        retstart = (k-1)*retmax,
-        retmax = retmax
+        retmax = hit$count
       )
-      if (hit[[k]]$count > k*retmax) {
-        k = k + 1
-      } else {
-        k = 0
-      }
     }
     if (length(hit) == 1 && is.na(hit)) {
       return(list(
@@ -86,22 +85,25 @@ ncbi_get_uid <- function(
         db = db,
         web_history = tibble::tibble()
       ))
-    } else if (length(hit) == 1 && length(hit$ids) == 0) {
+    } else if (length(hit$ids) == 0) {
       if (verbose) message("Term not found. Returning NA.")
       return(list(
         uid = NA_integer_,
         db = db,
         web_history = tibble::tibble()
       ))
-    } else {
-      uid <- lapply(hit, function(x) x$ids)
-      uid <- as.integer(unlist(uid))
-      web_history <- lapply(hit, function(x) x$web_history)
-      web_history <- dplyr::bind_rows(web_history)
+    } else if (length(hit$ids) > 0) {
       return(list(
-        uid = uid,
+        uid = as.integer(hit$ids),
         db = db,
-        web_history = web_history
+        web_history = hit$web_history
+      ))
+    } else {
+      if (verbose) message("Unknown exception.")
+      return(list(
+        uid = NA_integer_,
+        db = db,
+        web_history = tibble::tibble()
       ))
     }
   }
