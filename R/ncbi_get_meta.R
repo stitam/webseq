@@ -14,7 +14,7 @@
 #' @param parse logical; should the function attempt to parse the output into a
 #' tibble?
 #' @param verbose logical; Should verbose messages be printed to console?
-#' @return If \code(parse = FALSE) the function will return an object of class
+#' @return If \code{parse = FALSE} the function will return an object of class
 #' \code{ncbi_meta}, which is a character vector with some extra information
 #' about the database. This output can be used directly with \code{ncbi_parse}.
 #' If \code{parse = TRUE} the function will attempt to parse the data using 
