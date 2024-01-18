@@ -41,11 +41,14 @@ webseq_message <- function(action = c("na",
 #' @param type character; Will be an API queried or a website scraped?
 #' @noRd
 #'
-webseq_sleep <- function(time = NULL, type = c('API', 'scrape')) {
+webseq_sleep <- function(time = NULL, type = c("API", "FTP", "scrape")) {
   type <- match.arg(type)
   if (is.null(time)) {
     if (type == 'API') {
       time <- 0.2
+    }
+    if (type == "FTP") {
+      time <- 0.1
     }
     if (type == 'scrape') {
       time <- 0.3

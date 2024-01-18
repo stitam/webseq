@@ -52,13 +52,11 @@ ncbi_download_genome <- function(query,
   } else {
     assembly_uid <- query
   }
-  assembly_uid <- as.numeric(assembly_uid)
-  if (all(is.na(assembly_uid))) {
-    stop("No valid UIDs.")
-  } else if (any(is.na(assembly_uid))){
-    if (verbose) message("Removing NA-s from IDs.")
-    assembly_uid <- assembly_uid[which(!is.na(assembly_uid))]
-  }
+  assembly_uid <- unlist(get_idlist(
+    assembly_uid, 
+    batch_size = length(assembly_uid),
+    verbose = verbose
+  ))
   foo <- function(x, type, verbose) {
     if (verbose) message(x, ". ", appendLF = FALSE)
     # TODO update ncbi_parse_assembly_xml and then replace ncbi_meta_assembly()
@@ -109,7 +107,7 @@ ncbi_download_genome <- function(query,
       if (verbose) message("Done. Already downloaded.")
       return(NA)
     }
-    Sys.sleep(stats::runif(1,0.2,0.5))
+    webseq_sleep(type = "FTP")
     out <- try(utils::download.file(urlpath,
                                     destfile = filepath,
                                     quiet = TRUE), silent = TRUE)
