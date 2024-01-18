@@ -10,6 +10,8 @@
 #' \code{"protein.faa"}, \code{"protein.gpff"}, \code{"translated_cds"}.
 #' @param dirpath character; the path to the directory where the file should be
 #' downloaded. If \code{NULL}, download file to the working directory.
+#' @param mirror logical; should the download directory mirror the structure of 
+#' the FTP directory?
 #' @param verbose logical; should verbose messages be printed to console?
 #' @details Some functions in webseq, e.g. \code{ncbi_get_uid()} or
 #' \code{ncbi_link_uid()} return objects of class \code{"ncbi_uid"}. These
@@ -38,6 +40,7 @@
 ncbi_download_genome <- function(query,
                                  type = "genomic.gbff",
                                  dirpath = NULL,
+                                 mirror = TRUE,
                                  verbose = getOption("verbose")) {
   type <- match.arg(type, c(
     "assembly_report", "assembly_stats", "cds", "feature_count",
@@ -101,6 +104,13 @@ ncbi_download_genome <- function(query,
                      translated_cds = ".faa.gz")
     urlpath <- paste0(ftppath, "/", prefix, "_" ,type, suffix)
     if (is.null(dirpath)) dirpath = getwd()
+    if (mirror) {
+      dirpath <- gsub(
+        "ftp://ftp.ncbi.nlm.nih.gov/genomes",
+        dirpath,
+        ftppath
+      )
+    }
     if (!dir.exists(dirpath)) dir.create(dirpath, recursive = TRUE)
     filepath <- paste0(dirpath, "/", basename(urlpath))
     if (file.exists(filepath)) {

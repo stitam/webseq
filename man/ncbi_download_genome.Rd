@@ -8,6 +8,7 @@ ncbi_download_genome(
   query,
   type = "genomic.gbff",
   dirpath = NULL,
+  mirror = TRUE,
   verbose = getOption("verbose")
 )
 }
@@ -23,6 +24,9 @@ of NCBI Assembly UIDs. See Details for more information.}
 
 \item{dirpath}{character; the path to the directory where the file should be
 downloaded. If \code{NULL}, download file to the working directory.}
+
+\item{mirror}{logical; should the download directory mirror the structure of 
+the FTP directory?}
 
 \item{verbose}{logical; should verbose messages be printed to console?}
 }
