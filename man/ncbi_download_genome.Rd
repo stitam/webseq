@@ -2,17 +2,19 @@
 % Please edit documentation in R/ncbi_download_genome.R
 \name{ncbi_download_genome}
 \alias{ncbi_download_genome}
-\title{Download Genomes from NCBI}
+\title{Download Genomes from NCBI Assembly Database}
 \usage{
 ncbi_download_genome(
-  accession,
+  query,
   type = "genomic.gbff",
   dirpath = NULL,
+  mirror = TRUE,
   verbose = getOption("verbose")
 )
 }
 \arguments{
-\item{accession}{character; a character vector of assembly accessions.}
+\item{query}{either an object of class \code{ncbi_uid} or an integer vector 
+of NCBI Assembly UIDs. See Details for more information.}
 
 \item{type}{character; the file extension to download. Valid options are
 \code{"assembly_report"}, \code{"assembly_stats"}, \code{"cds"},
@@ -23,20 +25,37 @@ ncbi_download_genome(
 \item{dirpath}{character; the path to the directory where the file should be
 downloaded. If \code{NULL}, download file to the working directory.}
 
+\item{mirror}{logical; should the download directory mirror the structure of 
+the FTP directory?}
+
 \item{verbose}{logical; should verbose messages be printed to console?}
 }
 \description{
 This function directly downloads genome data through the NCBI FTP server.
+}
+\details{
+Some functions in webseq, e.g. \code{ncbi_get_uid()} or
+\code{ncbi_link_uid()} return objects of class \code{"ncbi_uid"}. These
+objects may be used directly as query input for
+\code{ncbi_download_genome()}. It is recommended to use this approach because
+then the function will check whether the query really contains UIDs from the
+NCBI Assembly database and fail if not. Alternatively, you can also use a
+character vector of UIDs as query input but in this case there will be no
+consistency checks and the function will just attempt to interpret them as
+NCBI Assembly UIDs.
 }
 \examples{
 \dontrun{
 # Download genbank file for GCF_003007635.1.
 # The function will access files within this directory:
 # ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/003/007/635/
-ncbi_download_genome("GCF_003007635.1", type = "genomic.gbff", verbose = TRUE)
+
+uid <- ncbi_get_uid("GCF_003007635.1", db = "assembly")
+ncbi_download_genome(uid, type = "genomic.gbff", verbose = TRUE)
 
 # Download multiple files
-accessions <- c("GCF_000248195.1", "GCF_000695855.3")
-ncbi_download_genome(accessions, type = "genomic.gbff", verbose = TRUE)
+data(examples) 
+uids <- ncbi_get_uid(examples$assembly, db = "assembly")
+ncbi_download_genome(uids, type = "genomic.gff", verbose = TRUE)
 }
 }
