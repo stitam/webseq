@@ -1,7 +1,8 @@
-#' Download Genomes from NCBI
+#' Download Genomes from NCBI Assembly Database
 #'
 #' This function directly downloads genome data through the NCBI FTP server.
-#' @param accession character; a character vector of assembly accessions.
+#' @param query either an object of class \code{ncbi_uid} or an integer vector 
+#' of NCBI Assembly UIDs. See Details for more information.
 #' @param type character; the file extension to download. Valid options are
 #' \code{"assembly_report"}, \code{"assembly_stats"}, \code{"cds"},
 #' \code{"feature_count"}, \code{"feature_table"}, \code{"genomic.fna"},
@@ -10,19 +11,31 @@
 #' @param dirpath character; the path to the directory where the file should be
 #' downloaded. If \code{NULL}, download file to the working directory.
 #' @param verbose logical; should verbose messages be printed to console?
+#' @details Some functions in webseq, e.g. \code{ncbi_get_uid()} or
+#' \code{ncbi_link_uid()} return objects of class \code{"ncbi_uid"}. These
+#' objects may be used directly as query input for
+#' \code{ncbi_download_genome()}. It is recommended to use this approach because
+#' then the function will check whether the query really contains UIDs from the
+#' NCBI Assembly database and fail if not. Alternatively, you can also use a
+#' character vector of UIDs as query input but in this case there will be no
+#' consistency checks and the function will just attempt to interpret them as
+#' NCBI Assembly UIDs.
 #' @examples
 #' \dontrun{
 #' # Download genbank file for GCF_003007635.1.
 #' # The function will access files within this directory:
 #' # ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/003/007/635/
-#' ncbi_download_genome("GCF_003007635.1", type = "genomic.gbff", verbose = TRUE)
+#' 
+#' uid <- ncbi_get_uid("GCF_003007635.1", db = "assembly")
+#' ncbi_download_genome(uid, type = "genomic.gbff", verbose = TRUE)
 #' 
 #' # Download multiple files
-#' accessions <- c("GCF_000248195.1", "GCF_000695855.3")
-#' ncbi_download_genome(accessions, type = "genomic.gbff", verbose = TRUE)
+#' data(examples) 
+#' uids <- ncbi_get_uid(examples$assembly, db = "assembly")
+#' ncbi_download_genome(uids, type = "genomic.gff", verbose = TRUE)
 #' }
 #' @export
-ncbi_download_genome <- function(accession,
+ncbi_download_genome <- function(query,
                                  type = "genomic.gbff",
                                  dirpath = NULL,
                                  verbose = getOption("verbose")) {
@@ -30,33 +43,27 @@ ncbi_download_genome <- function(accession,
     "assembly_report", "assembly_stats", "cds", "feature_count",
     "feature_table", "genomic.fna", "genomic.gbff", "genomic.gff",
     "genomic.gtf", "protein.faa", "protein.gpff", "translated_cds"))
+  if ("ncbi_uid" %in% class(query)) {
+    if (query$db == "assembly") {
+      assembly_uid <- query$uid
+    } else {
+      stop("Query must contain NCBI Assembly UIDs.")
+    }
+  } else {
+    assembly_uid <- query
+  }
+  assembly_uid <- as.numeric(assembly_uid)
+  if (all(is.na(assembly_uid))) {
+    stop("No valid UIDs.")
+  } else if (any(is.na(assembly_uid))){
+    if (verbose) message("Removing NA-s from IDs.")
+    assembly_uid <- assembly_uid[which(!is.na(assembly_uid))]
+  }
   foo <- function(x, type, verbose) {
-    if (grepl("^GC[A|F]_[0-9]+\\.[0-9]+", x) == FALSE) {
-      if (verbose) {
-        message(x, ". Failed. Not an assembly accession.")
-      }
-      return(NA)
-    }
     if (verbose) message(x, ". ", appendLF = FALSE)
-    Sys.sleep(stats::runif(1,0.2,0.5))
-    assembly_uid <- try(ncbi_get_uid(x, db = "assembly"), silent = TRUE)
-    if (inherits(assembly_uid, "try-error")) {
-      if (verbose) message("Failed. Webservice temporarily down.")
-      return(NA)
-    }
-    if (length(assembly_uid) == 1 && is.na(assembly_uid)) {
-      if (verbose) message("Failed. Assembly accession not found.")
-      return(NA)
-    }
-    if (length(assembly_uid$uid) > 1) {
-      if (verbose) {
-        message("Failed. Multiple assembly uid-s found: ",
-                paste(assembly_uid, collapse = ", "), ".") 
-      }
-      return(NA)
-    }
-    Sys.sleep(stats::runif(1,0.2,0.5))
-    assembly_meta <- try(ncbi_meta_assembly(assembly_uid$uid), silent = TRUE)
+    # TODO update ncbi_parse_assembly_xml and then replace ncbi_meta_assembly()
+    # plus response handling with ncbi_get_meta() 
+    assembly_meta <- try(ncbi_meta_assembly(x), silent = TRUE)
     if (inherits(assembly_meta, "try-error")) {
       if (verbose) message("Failed. Webservice temporarily down.")
       return(NA)
@@ -65,10 +72,14 @@ ncbi_download_genome <- function(accession,
       if (verbose) message("Failed. Assembly metadata not appropriate.")
       return(NA)
     }
-    if (assembly_meta$assembly != x) {
+    if (assembly_meta$assembly_uid != x) {
       msg <- paste0(
-        "Warning! Query: ", x, ". Found: ", assembly_meta$assembly, ". ")
-      if (verbose) message(msg, appendLF = FALSE) else warning(msg)
+        "Warning! Query: ", x,
+        ". Found: ", assembly_meta$assembly,
+        ". Skipping."
+      )
+      warning(msg)
+      return()
     }
     ftppath <- assembly_meta$ftppath
     if (is.na(assembly_meta$ftppath)) {
@@ -109,5 +120,5 @@ ncbi_download_genome <- function(accession,
     }
     message("Done.")
   }
-  out <- lapply(accession, function(x) foo(x, typ = type, verbose = verbose))
+  out <- lapply(assembly_uid, function(x) foo(x, type = type, verbose = verbose))
 }
