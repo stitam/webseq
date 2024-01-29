@@ -4,20 +4,32 @@
 #' function parses metadata retrieved in XML format.
 #' @param biosample_xml character; unparsed XML metadata either returned by
 #'  \code{ncbi_get_meta()} or the path to a file that was downloaded from NCBI.
+#' @param mc_cores integer; number of cores to use for parallel processing. If
+#' \code{NULL} use all available cores.
 #' @param verbose logical; Should verbose messages be printed to console?
 ncbi_parse_biosample_xml <- function(
     biosample_xml,
+    mc_cores = NULL,
     verbose = getOption("verbose")
     ) {
   if (length(biosample_xml) == 1 && is.na(biosample_xml)) {
     if (verbose) message("No BioSample metadata to parse.")
     return(NA_character_)
   }
-  parsed_xml <- ncbi_xml_to_list(xml = biosample_xml, verbose = verbose)
+  if (is.null(mc_cores)) {
+    mc_cores <- parallel::detectCores()
+  } else {
+    mc_cores <- as.integer(mc_cores)
+  }
+  parsed_xml <- ncbi_xml_to_list(
+    xml = biosample_xml,
+    mc_cores = mc_cores,
+    verbose = verbose
+  )
   if (length(parsed_xml) == 1 && is.na(parsed_xml)) return(NA_character_)
-  out <- try(lapply(parsed_xml, function(x) {
+  out <- try(parallel::mclapply(parsed_xml, function(x) {
     ncbi_parse_biosample_xml_entry(x, verbose = verbose)
-  }),silent = TRUE)
+  }, mc.cores = mc_cores), silent = TRUE)
   if (inherits(out, "try-error")) {
     return(NA_character_)
   }

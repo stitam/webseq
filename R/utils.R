@@ -150,6 +150,8 @@ validate_webseq_class <- function(x) {
 #' Convert an xml retrieved from NCBI to a list
 #' 
 #' @param xml character, a vector of xmls
+#' @param mc_cores integer, number of cores to use for parallel processing. If
+#' \code{NULL} use all available cores.
 #' @param verbose logical; Should verbose messages be printed to console?
 #' @return If conversion is successful, returns a vector of lists, otherwise NA.
 #' @details
@@ -157,8 +159,13 @@ validate_webseq_class <- function(x) {
 #' lists. The function will only return a vector of lists if all xmls can be
 #' converted, otherwise it will return NA.
 #' @noRd
-ncbi_xml_to_list <- function(xml, verbose) {
-  pxml <- try(lapply(seq_along(xml), function(i) {
+ncbi_xml_to_list <- function(xml, mc_cores = NULL, verbose) {
+  if (is.null(mc_cores)) {
+    mc_cores <- parallel::detectCores()
+  } else {
+    mc_cores <- as.integer(mc_cores)
+  }
+  pxml <- try(parallel::mclapply(seq_along(xml), function(i) {
     if (verbose) message(
       "Attempting to convert xml ", i, " to list. ",
       appendLF = FALSE
@@ -174,7 +181,7 @@ ncbi_xml_to_list <- function(xml, verbose) {
       if (verbose) message("Successful.")
       return(res)
     }
-  }), silent = TRUE)
+  }, mc.cores = mc_cores), silent = TRUE)
   if (inherits(pxml, "try-error")) {
     return(NA_character_)
   } else {
