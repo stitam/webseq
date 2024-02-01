@@ -4,7 +4,13 @@
 \alias{ncbi_parse}
 \title{Parse NCBI sequence metadata}
 \usage{
-ncbi_parse(meta, db = NULL, format = "xml", verbose = getOption("verbose"))
+ncbi_parse(
+  meta,
+  db = NULL,
+  format = "xml",
+  mc_cores = NULL,
+  verbose = getOption("verbose")
+)
 }
 \arguments{
 \item{meta}{character; either an unparsed metadata object returned by
@@ -14,6 +20,8 @@ ncbi_parse(meta, db = NULL, format = "xml", verbose = getOption("verbose"))
 
 \item{format}{character; the format of the data set. Currently only
 \code{"xml"} is supported.}
+
+\item{mc_cores}{integer; number of cores to use for parallel processing.}
 
 \item{verbose}{logical; Should verbose messages be printed to console?}
 }

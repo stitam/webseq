@@ -17,28 +17,66 @@ ncbi_parse_biosample_xml <- function(
     return(NA_character_)
   }
   if (is.null(mc_cores)) {
-    mc_cores <- parallel::detectCores()
+    mc_cores <- max(parallel::detectCores() - 1, 1)
   } else {
     mc_cores <- as.integer(mc_cores)
   }
-  parsed_xml <- ncbi_xml_to_list(
-    xml = biosample_xml,
-    mc_cores = mc_cores,
-    verbose = verbose
-  )
-  if (length(parsed_xml) == 1 && is.na(parsed_xml)) return(NA_character_)
-  out <- try(parallel::mclapply(parsed_xml, function(x) {
-    ncbi_parse_biosample_xml_entry(x, verbose = verbose)
-  }, mc.cores = mc_cores), silent = TRUE)
-  if (inherits(out, "try-error")) {
-    return(NA_character_)
+  biosample_df <- data.frame()
+  if (verbose) message("Attempting to parse BioSample XMLs.")
+  for (i in seq_along(biosample_xml)) {
+    if (verbose) message(
+      "BioSample XML ", i, " of ", length(biosample_xml),
+      " to a list.. ", appendLF = FALSE
+    )
+    parsed_xml <- try(
+      xml2::as_list(xml2::read_xml(biosample_xml[[i]]))[[1]],
+      silent = TRUE
+    )
+    if (inherits(parsed_xml, "try-error")) {
+      if (verbose) message("Failed.")
+      next()
+    }
+    if (verbose) message("Successful. ", appendLF = FALSE)
+    names(parsed_xml) <- sapply(parsed_xml, function(x) {
+      attributes(x)$accession
+    })
+    if (verbose) message(
+      "List to data frame.. ", appendLF = FALSE
+    )
+    out <- parallel::mclapply(seq_along(parsed_xml), function(x) {
+      entry <- try(
+        ncbi_parse_biosample_xml_entry(parsed_xml[[x]], verbose = verbose),
+        silent = TRUE
+      )
+      if (inherits(entry, "try-error")) {
+        entry <- names(parsed_xml)[x]
+      }
+      return(entry)
+    }, mc.cores = mc_cores)
+    index_failed <- which(unlist(parallel::mclapply(out, function(x) {
+      "character" %in% class(x)
+    }, mc.cores = mc_cores)))
+    if (length(index_failed) == length(out)) {
+      if (verbose) message("Failed.")
+      next()
+    }
+    if (length(index_failed > 0)) {
+      if (verbose) {
+        ids_parsed <- paste(unlist(out[index_failed]), collapse = ", ")
+        message("Failed for some NCBI BioSample IDs: ", ids_parsed, ".")
+      }
+      out <- out[-index_failed]
+    }
+    if (verbose) message("Successful.")
+    out <- dplyr::bind_rows(out)
+    out <- dplyr::relocate(out, biosample_uid)
+    out <- dplyr::relocate(out, biosample, .after = biosample_uid)
+    biosample_df <- dplyr::bind_rows(biosample_df, out)
   }
-  out <- dplyr::bind_rows(out)
-  out <- dplyr::relocate(out, biosample_uid)
-  out <- dplyr::relocate(out, biosample, .after = biosample_uid)
-  out <- tibble::as_tibble(out)
-  return(out)
+  biosample_tbl <- tibble::as_tibble(biosample_df)
+  return(biosample_tbl)
 }
+
 
 ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
   # attributes(x)$names contains all fields!
