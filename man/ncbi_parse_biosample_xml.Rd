@@ -4,11 +4,18 @@
 \alias{ncbi_parse_biosample_xml}
 \title{Parse NCBI BioSample metadata}
 \usage{
-ncbi_parse_biosample_xml(biosample_xml, verbose = getOption("verbose"))
+ncbi_parse_biosample_xml(
+  biosample_xml,
+  mc_cores = NULL,
+  verbose = getOption("verbose")
+)
 }
 \arguments{
 \item{biosample_xml}{character; unparsed XML metadata either returned by
 \code{ncbi_get_meta()} or the path to a file that was downloaded from NCBI.}
+
+\item{mc_cores}{integer; number of cores to use for parallel processing. If
+\code{NULL} use all available cores.}
 
 \item{verbose}{logical; Should verbose messages be printed to console?}
 }
