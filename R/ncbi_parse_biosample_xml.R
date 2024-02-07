@@ -495,10 +495,14 @@ extract_links <- function(
         }
         if ("type" %in% names(attributes(A)) && attributes(A)$type == "url") {
           if (attributes(A)$label != "") {
+            target <- attributes(A)$label
+            if (grepl("^GEO Sample", target)) {
+              target <- "geo_link"
+            }
             longlinks <- dplyr::bind_rows(
               longlinks,
               data.frame(
-                target = attributes(A)$label,
+                target = target,
                 label = unlist(A)
               )
             )
