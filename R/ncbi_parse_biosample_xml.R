@@ -136,6 +136,11 @@ ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
       message(paste0("No status for BioSample ", main_attrs$accession, "."))
     }
   }
+  if (all(c("geo", "geo_link") %in% names(out)) & nrow(out) == 1) {
+    if (grepl(out$geo, out$geo_link)) {
+      out <- dplyr::select(out, -geo_link)
+    }
+  }
   if (nrow(out) > 1) {
     if (verbose) {
       message(paste0(
