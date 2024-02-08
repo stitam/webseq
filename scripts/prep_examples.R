@@ -20,9 +20,12 @@ examples <- list(
     "SAMEA14036741",
     "SAMN03863711",
     "SAMN39003160",
-    "SAMN01918814", #links
-    "SAMN02692951", #owner
-    "SAMN06220566" #ids
+    "SAMN01918814", # links
+    "SAMN02692951", # owner
+    "SAMN06220566", # ids
+    "SAMN32317800", # empty description
+    "SAMEA111396836", # unit in attributes
+    "SAMN14387582"
   ),
   gene = "948356",
   protein = "AAA27507.1",

@@ -73,8 +73,11 @@ ncbi_parse_biosample_xml <- function(
     out <- dplyr::relocate(out, biosample, .after = biosample_uid)
     biosample_df <- dplyr::bind_rows(biosample_df, out)
   }
-  biosample_tbl <- tibble::as_tibble(biosample_df)
-  return(biosample_tbl)
+  out <- tibble::as_tibble(biosample_df)
+  out <- out[, order(unname(sapply(out, function(x) sum(is.na(x)))))]
+  out <- dplyr::relocate(out, biosample_uid)
+  out <- dplyr::relocate(out, biosample, .after = biosample_uid)
+  return(out)
 }
 
 
@@ -131,6 +134,11 @@ ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
   } else {
     if (verbose) {
       message(paste0("No status for BioSample ", main_attrs$accession, "."))
+    }
+  }
+  if (all(c("geo", "geo_link") %in% names(out)) & nrow(out) == 1) {
+    if (grepl(out$geo, out$geo_link)) {
+      out <- dplyr::select(out, -geo_link)
     }
   }
   if (nrow(out) > 1) {
@@ -190,25 +198,31 @@ extract_attributes <- function(x, biosample, verbose = getOption("verbose")) {
     out <- data.frame(
       attr = unname(sapply(res, function(A) {
         attr_instance <- attributes(A)
-        if (!is.null(attr_instance$harmonized_name)) {
+        if ("harmonised_name" %in% names(attr_instance)) {
           attr_name <- attr_instance$harmonized_name
-        } else if (
-          length(attr_instance) == 1 && 
-          names(attr_instance) == "attribute_name") {
+        } else if ("display_name" %in% names(attr_instance)) {
+          attr_name <- attr_instance$display_name
+        } else if ("attribute_name" %in% names(attr_instance)) {
           attr_name <- attr_instance$attribute_name
+        } else {
+          stop()
         }
+        attr_name <- tolower(gsub(" +", "_", attr_name))
         paste0("attr_", attr_name)
       })),
       value = unname(sapply(res, function(x) {
         if (length(x) == 0) {
-          return(NA)
+          val <- NA
+        } else {
+          val <- unlist(x)
+          if ("unit" %in% names(attributes(x))) {
+            val <- paste0(val, attributes(x)$unit)
+          }
+          if (length(val) > 1) {
+            val <- paste(val, collapse = "|")
+          }
         }
-        if (length(x) == 1) {
-          return(unlist(x))
-        }
-        if (length(x) > 1) {
-          return(paste(unlist(x), collapse = "|"))
-        }
+        return(val)
       }))
     )
     out <- dplyr::distinct(out)
@@ -333,6 +347,10 @@ extract_description <- function(
     if ("Comment" %in% names(x$Description)) {
       if ("Paragraph" %in% names(x$Description$Comment)) {
         out <- unlist(x$Description$Comment$Paragraph)
+        # SAMN32317800
+        if (is.null(out)) {
+          out <- NA
+        }
       }
       if ("Table" %in% names(x$Description$Comment)) {
         if (is.null(out)) {
@@ -481,13 +499,19 @@ extract_links <- function(
           )
         }
         if ("type" %in% names(attributes(A)) && attributes(A)$type == "url") {
-          longlinks <- dplyr::bind_rows(
-            longlinks,
-            data.frame(
-              target = attributes(A)$label,
-              label = unlist(A)
+          if (attributes(A)$label != "") {
+            target <- attributes(A)$label
+            if (grepl("^GEO Sample", target)) {
+              target <- "geo_link"
+            }
+            longlinks <- dplyr::bind_rows(
+              longlinks,
+              data.frame(
+                target = target,
+                label = unlist(A)
+              )
             )
-          )
+          }
         }
         longlinks$target <- gsub(" +", "_", longlinks$target)
         return(longlinks)
