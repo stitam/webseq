@@ -21,7 +21,7 @@ ncbi_parse(
 \item{format}{character; the format of the data set. Currently only
 \code{"xml"} is supported.}
 
-\item{mc_cores}{integer; number of cores to use for parallel processing.}
+\item{mc_cores}{integer; Number of cores to use for parallel processing.}
 
 \item{verbose}{logical; Should verbose messages be printed to console?}
 }

@@ -146,3 +146,40 @@ validate_webseq_class <- function(x) {
     testthat::expect_true(attr(x, "db") %in% ncbi_dbs())
   }
 }
+
+#' Get number of processor cores
+#' 
+#' @param mc_cores integer; Number of cores to use for parallel processing.
+#' @param verbose logical; Should verbose messages be printed to console?
+#' @noRd
+get_mc_cores <- function(mc_cores, verbose = getOption("verbose")) {
+  if (is.null(mc_cores)) {
+    if (verbose) message(
+      "Number of cores not specified. Looking at 'Ncpu' option."
+    )
+    mc_cores <- getOption("Ncpu")
+    if (!is.null(mc_cores)) {
+      if (verbose) message("Found.")
+    } else {
+      if (verbose) message(
+        "Not found. Attempting to use all but one cores (at least 1)."
+      )
+      mc_cores <- max(parallel::detectCores() - 1, 1)
+    }
+  }
+  mc_cores <- as.integer(mc_cores)
+  if (!is.integer(mc_cores)) {
+    stop("Number of cores must be an integer.")
+  }
+  if (mc_cores < 1) {
+    stop("Number of cores must be at least 1.")
+  }
+  sys <- Sys.info()
+  if (mc_cores > 1 && sys[["sysname"]] == "Windows") {
+    if (verbose) message(
+      "'mc.cores' > 1 is not supported on Windows."
+    )
+    mc_cores <- 1
+  }
+  return(mc_cores)
+}

@@ -13,6 +13,8 @@
 #' API queries?
 #' @param parse logical; should the function attempt to parse the output into a
 #' tibble?
+#' @param mc_cores integer; number of cores to use for parallel processing. Only
+#' used if \code{parse = TRUE}.
 #' @param verbose logical; Should verbose messages be printed to console?
 #' @return If \code{parse = FALSE} the function will return an object of class
 #' \code{ncbi_meta}, which is a character vector with some extra information
@@ -42,6 +44,7 @@ ncbi_get_meta <- function(
     batch_size = 100,
     use_history = TRUE,
     parse = TRUE,
+    mc_cores = NULL,
     verbose = getOption("verbose")
   ) {
   if ("ncbi_uid" %in% class(query)) {
@@ -159,7 +162,7 @@ ncbi_get_meta <- function(
     if (verbose) {
       message("Attempting to parse retrieved metadata.")
     }
-    res_parsed <- ncbi_parse(meta = res, verbose = verbose)
+    res_parsed <- ncbi_parse(meta = res, mc_cores = mc_cores, verbose = verbose)
     if (all("data.frame" %in% class(res_parsed))) {
       out <- dplyr::bind_rows(res_parsed)
       if (verbose) message("Done.")
