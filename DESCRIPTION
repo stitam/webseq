@@ -11,12 +11,13 @@ Maintainer: Tamas Stirling <stirling.tamas@gmail.com>
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Depends:
+    R (>= 3.5.0)
 Imports:
     curl,
     dplyr,
     httr,
     jsonlite,
-    plyr,
     rentrez,
     stringi,
     stringr,
