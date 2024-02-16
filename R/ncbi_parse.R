@@ -9,7 +9,7 @@
 #' @param db character; the NCBI database from which the data was retrieved.
 #' @param format character; the format of the data set. Currently only
 #' \code{"xml"} is supported.
-#' @param mc_cores integer; number of cores to use for parallel processing.
+#' @param mc_cores integer; Number of cores to use for parallel processing.
 #' @param verbose logical; Should verbose messages be printed to console?
 #' @return a tibble.
 #' @details This function is integrated into \code{ncbi_get_meta()} and is 
@@ -73,11 +73,6 @@ ncbi_parse <- function(
   }
   db <- match.arg(db, choices = c("assembly", "biosample"))
   format <- match.arg(format, choices = c("xml"))
-  if (is.null(mc_cores)) {
-    mc_cores <- max(parallel::detectCores() - 1, 1)
-  } else {
-    mc_cores <- as.integer(mc_cores)
-  }
   f <- get(paste("ncbi_parse", db, format, sep = "_"))
   if (db == "assembly" && format == "xml") {
     out <- f(meta, verbose = verbose)

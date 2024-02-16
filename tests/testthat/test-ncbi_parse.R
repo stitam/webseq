@@ -1,3 +1,5 @@
+options("Ncpu" = 2L)
+
 test_that("ncbi_parse() works with a BioSample", {
   data(examples)
   biosample_uid <- ncbi_get_uid(examples$biosample[1], db = "biosample")

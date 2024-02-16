@@ -16,11 +16,7 @@ ncbi_parse_biosample_xml <- function(
     if (verbose) message("No BioSample metadata to parse.")
     return(NA_character_)
   }
-  if (is.null(mc_cores)) {
-    mc_cores <- max(parallel::detectCores() - 1, 1)
-  } else {
-    mc_cores <- as.integer(mc_cores)
-  }
+  mc_cores <- get_mc_cores(mc_cores, verbose = verbose)
   biosample_df <- data.frame()
   if (verbose) message("Attempting to parse BioSample XMLs.")
   for (i in seq_along(biosample_xml)) {
@@ -69,14 +65,14 @@ ncbi_parse_biosample_xml <- function(
     }
     if (verbose) message("Successful.")
     out <- dplyr::bind_rows(out)
-    out <- dplyr::relocate(out, biosample_uid)
-    out <- dplyr::relocate(out, biosample, .after = biosample_uid)
+    out <- dplyr::relocate(out, "biosample_uid")
+    out <- dplyr::relocate(out, "biosample", .after = "biosample_uid")
     biosample_df <- dplyr::bind_rows(biosample_df, out)
   }
   out <- tibble::as_tibble(biosample_df)
   out <- out[, order(unname(sapply(out, function(x) sum(is.na(x)))))]
-  out <- dplyr::relocate(out, biosample_uid)
-  out <- dplyr::relocate(out, biosample, .after = biosample_uid)
+  out <- dplyr::relocate(out, "biosample_uid")
+  out <- dplyr::relocate(out, "biosample", .after = "biosample_uid")
   return(out)
 }
 
@@ -138,7 +134,7 @@ ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
   }
   if (all(c("geo", "geo_link") %in% names(out)) & nrow(out) == 1) {
     if (grepl(out$geo, out$geo_link)) {
-      out <- dplyr::select(out, -geo_link)
+      out <- dplyr::select(out, -"geo_link")
     }
   }
   if (nrow(out) > 1) {

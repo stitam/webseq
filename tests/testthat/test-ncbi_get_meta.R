@@ -1,3 +1,5 @@
+options("Ncpu" = 2L)
+
 test_that("ncbi_get_meta() works with history", {
   # with history, use history, one batch
   uids <- ncbi_get_uid("Microthrix parvicella", db = "biosample")

@@ -10,6 +10,7 @@ ncbi_get_meta(
   batch_size = 100,
   use_history = TRUE,
   parse = TRUE,
+  mc_cores = NULL,
   verbose = getOption("verbose")
 )
 }
@@ -29,6 +30,9 @@ API queries?}
 
 \item{parse}{logical; should the function attempt to parse the output into a
 tibble?}
+
+\item{mc_cores}{integer; number of cores to use for parallel processing. Only
+used if \code{parse = TRUE}.}
 
 \item{verbose}{logical; Should verbose messages be printed to console?}
 }
