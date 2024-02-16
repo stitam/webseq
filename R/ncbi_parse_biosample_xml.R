@@ -65,14 +65,14 @@ ncbi_parse_biosample_xml <- function(
     }
     if (verbose) message("Successful.")
     out <- dplyr::bind_rows(out)
-    out <- dplyr::relocate(out, biosample_uid)
-    out <- dplyr::relocate(out, biosample, .after = biosample_uid)
+    out <- dplyr::relocate(out, "biosample_uid")
+    out <- dplyr::relocate(out, "biosample", .after = "biosample_uid")
     biosample_df <- dplyr::bind_rows(biosample_df, out)
   }
   out <- tibble::as_tibble(biosample_df)
   out <- out[, order(unname(sapply(out, function(x) sum(is.na(x)))))]
-  out <- dplyr::relocate(out, biosample_uid)
-  out <- dplyr::relocate(out, biosample, .after = biosample_uid)
+  out <- dplyr::relocate(out, "biosample_uid")
+  out <- dplyr::relocate(out, "biosample", .after = "biosample_uid")
   return(out)
 }
 
