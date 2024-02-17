@@ -1,4 +1,4 @@
-#' Which NCBI databases can an database be linked to?
+#' Which NCBI databases can a database be linked to?
 #'
 #' This function is a wrapper around \code{rentrez::entrez_db_links()}. Results
 #' are cached and reused to validate input for \code{ncbi_link_uid()}.
@@ -6,9 +6,7 @@
 #' @return a character vector of NCBI database names the original database can
 #' be linked to.
 #' @examples
-#' \dontrun{
 #' ncbi_db_links("assembly")
-#' }
 #' @noRd
 ncbi_db_links <- function(db) {
   if (!dir.exists(tempdir())) dir.create(tempdir())

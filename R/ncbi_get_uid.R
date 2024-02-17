@@ -25,11 +25,10 @@
 #' However, if the search terms are very long, the function may fail with an
 #' error message. In this case, try reducing the \code{batch_size} value.
 #' @examples
-#' \dontrun{
 #' ncbi_get_uid("GCA_003012895.2", db = "assembly")
 #' ncbi_get_uid("Autographiviridae OR Podoviridae", db = "biosample")
 #' ncbi_get_uid(c("WP_093980916.1", "WP_181249115.1"), db = "protein")
-#' }
+#' @export
 ncbi_get_uid <- function(
     term,
     db,

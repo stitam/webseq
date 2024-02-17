@@ -71,8 +71,6 @@ behaviour of the function with web histories is unreliable. The option is
 there but it is recommended NOT to use web histories with this function.
 }
 \examples{
-\dontrun{
 ncbi_link_uid("4253631", "assembly", "biosample")
 ncbi_link_uid(c("1226742659", "1883410844"), "protein", "nuccore")
-}
 }
