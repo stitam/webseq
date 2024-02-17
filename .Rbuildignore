@@ -14,4 +14,5 @@ README.Rmd
 /cache/
 
 # scripts that are not part of the package
-scripts
+^docker$
+^scripts$
