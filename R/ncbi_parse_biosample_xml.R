@@ -39,7 +39,7 @@ ncbi_parse_biosample_xml <- function(
     if (verbose) message(
       "List to data frame.. ", appendLF = FALSE
     )
-    out <- parallel::mclapply(seq_along(parsed_xml), function(x) {
+    pfoo <- function(x) {
       entry <- try(
         ncbi_parse_biosample_xml_entry(parsed_xml[[x]], verbose = verbose),
         silent = TRUE
@@ -48,7 +48,22 @@ ncbi_parse_biosample_xml <- function(
         entry <- names(parsed_xml)[x]
       }
       return(entry)
-    }, mc.cores = mc_cores)
+    }
+    if (mc_cores == 1) {
+      out <- lapply(seq_along(parsed_xml), pfoo)
+    } else {
+      sys <- Sys.info()
+      if (sys[["sysname"]] == "Windows") {
+        cls <- parallel::makeCluster(mc_cores)
+        parallel::clusterExport(
+          cls, list("parsed_xml", "pfoo"), envir=environment())
+        out <- parallel::parLapply(cls, seq_along(parsed_xml), pfoo)
+        parallel::stopCluster(cls)
+      } else {
+        out <- parallel::mclapply(
+          seq_along(parsed_xml), pfoo, mc.cores = mc_cores)
+      }
+    }
     index_failed <- which(unlist(parallel::mclapply(out, function(x) {
       "character" %in% class(x)
     }, mc.cores = mc_cores)))

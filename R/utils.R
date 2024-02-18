@@ -183,10 +183,5 @@ get_mc_cores <- function(mc_cores, verbose = getOption("verbose")) {
     )
     mc_cores <- n_cores
   }
-  sys <- Sys.info()
-  if (mc_cores > 1 && sys[["sysname"]] == "Windows") {
-    if (verbose) message("'mc.cores' > 1 is not supported on Windows.")
-    mc_cores <- 1
-  }
   return(mc_cores)
 }
