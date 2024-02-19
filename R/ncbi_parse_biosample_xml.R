@@ -51,6 +51,9 @@ ncbi_parse_biosample_xml <- function(
     }
     if (mc_cores == 1) {
       out <- lapply(seq_along(parsed_xml), pfoo)
+      index_failed <- which(unlist(lapply(out, function(x) {
+        "character" %in% class(x)
+      })))
     } else {
       sys <- Sys.info()
       if (sys[["sysname"]] == "Windows") {
@@ -58,15 +61,18 @@ ncbi_parse_biosample_xml <- function(
         parallel::clusterExport(
           cls, list("parsed_xml", "pfoo"), envir=environment())
         out <- parallel::parLapply(cls, seq_along(parsed_xml), pfoo)
+        index_failed <- which(unlist(parallel::parLapply(cls, out, function(x) {
+          "character" %in% class(x)
+        })))
         parallel::stopCluster(cls)
       } else {
         out <- parallel::mclapply(
           seq_along(parsed_xml), pfoo, mc.cores = mc_cores)
+        index_failed <- which(unlist(parallel::mclapply(out, function(x) {
+          "character" %in% class(x)
+        }, mc.cores = mc_cores)))
       }
     }
-    index_failed <- which(unlist(parallel::mclapply(out, function(x) {
-      "character" %in% class(x)
-    }, mc.cores = mc_cores)))
     if (length(index_failed) == length(out)) {
       if (verbose) message("Failed.")
       next()
