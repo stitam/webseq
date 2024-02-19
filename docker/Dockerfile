@@ -27,7 +27,7 @@ RUN apt-get install -y \
   r-cran-xml2
 
 # Install webseq
-RUN R -e 'options(warn = 2); devtools::install_github("stitam/webseq", upgrade = "never")'
+RUN R -e 'options(warn = 2); devtools::install_github("stitam/webseq", force = TRUE, upgrade = "never")'
 
 # Set R library path to avoid binding from host system
 ENV R_LIBS_USER /usr/local/lib/R/site-library

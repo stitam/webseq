@@ -153,6 +153,8 @@ validate_webseq_class <- function(x) {
 #' @param verbose logical; Should verbose messages be printed to console?
 #' @noRd
 get_mc_cores <- function(mc_cores, verbose = getOption("verbose")) {
+  n_cores <- parallel::detectCores()
+  if (is.na(n_cores)) stop("Could not detect number of cores.")
   if (is.null(mc_cores)) {
     if (verbose) message(
       "Number of cores not specified. Looking at 'Ncpu' option."
@@ -164,22 +166,22 @@ get_mc_cores <- function(mc_cores, verbose = getOption("verbose")) {
       if (verbose) message(
         "Not found. Attempting to use all but one cores (at least 1)."
       )
-      mc_cores <- max(parallel::detectCores() - 1, 1)
+      mc_cores <- max(n_cores - 1, 1)
     }
   }
-  mc_cores <- as.integer(mc_cores)
-  if (!is.integer(mc_cores)) {
-    stop("Number of cores must be an integer.")
+  mc_cores <- suppressWarnings(as.integer(mc_cores))
+  if (is.na(mc_cores)) {
+    stop("Number of cores must be an integer, or coercible to an integer.")
   }
   if (mc_cores < 1) {
     stop("Number of cores must be at least 1.")
   }
-  sys <- Sys.info()
-  if (mc_cores > 1 && sys[["sysname"]] == "Windows") {
+  if (mc_cores > n_cores) {
     if (verbose) message(
-      "'mc.cores' > 1 is not supported on Windows."
+      "Number of cores specified is greater than the number of available ",
+      "cores. Using all available cores."
     )
-    mc_cores <- 1
+    mc_cores <- n_cores
   }
   return(mc_cores)
 }
