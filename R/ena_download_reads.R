@@ -31,7 +31,7 @@ ena_download_reads <- function(
     mirror = TRUE,
     verbose = getOption("verbose")
     ) {
-    file_type <- match.arg(file_type, choices = c("run", "fastq", "err"))
+    type <- match.arg(type, choices = c("run", "fastq", "err"))
     foo <- function(x, type, verbose) {
       if (verbose) message(x, ". ", appendLF = FALSE)
       accession_prefix <- substr(accession, 1, 6)    
