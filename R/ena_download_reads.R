@@ -32,14 +32,17 @@ ena_download_reads <- function(
     verbose = getOption("verbose")
     ) {
     type <- match.arg(type, choices = c("run", "fastq", "err"))
+    if (is.null(dirpath)) dirpath <- paste0(getwd(), "/")
+    if (!grepl("/$", dirpath)) dirpath <- paste0(dirpath, "/")
+    if (!dir.exists(dirpath)) dir.create(dirpath, recursive = TRUE)
     foo <- function(x, type, verbose) {
       if (verbose) message(x, ". ", appendLF = FALSE)
-      accession_prefix <- substr(accession, 1, 6)    
+      accession_prefix <- substr(x, 1, 6)    
       ftpdir <- paste0(
         "ftp://ftp.sra.ebi.ac.uk/vol1/", 
         type, "/",
         accession_prefix, "/",
-        accession, "/"
+        x, "/"
       )
       h <- curl::new_handle(dirlistonly=TRUE)
       con <- try(curl::curl(ftpdir, "r", h), silent = TRUE)
@@ -47,10 +50,9 @@ ena_download_reads <- function(
         if (verbose) message("Failed. FTP path not found.")
         return(NA)
       }
-      tbl <- read.table(con, stringsAsFactors=FALSE, fill=TRUE)
+      tbl <- read.table(con)
       close(con)
       ftpfiles <- paste0(ftpdir, tbl$V1)
-      if (is.null(dirpath)) dirpath <- paste0(getwd(), "/")
       if (mirror) {
         dirpath <- gsub(
           "ftp://ftp.sra.ebi.ac.uk/vol1/",
@@ -59,21 +61,41 @@ ena_download_reads <- function(
         )
       }
       if (!dir.exists(dirpath)) dir.create(dirpath, recursive = TRUE)
-      for (i in ftpfiles) {
-        localfile <- paste0(dirpath, basename(i))
+      for (i in seq_along(ftpfiles)) {
+        filename <- basename(ftpfiles[i])
+        if (verbose) message(filename, ". ", appendLF = FALSE)
+        localfile <- paste0(dirpath, filename)
         if (file.exists(localfile)) {
-          if (verbose) message("Done. Already downloaded.")
-          return(NA)
+          if (verbose) {
+            if (i < length(ftpfiles)) {
+              message("Done. Already downloaded. ", appendLF = FALSE)
+            } else {
+              message("Done. Already downloaded.")
+            }
+          }
+          next()
         }
         webseq_sleep(type = "FTP")
         out <- try(utils::download.file(
-          i, destfile = localfile, quiet = TRUE), silent = TRUE)
+          ftpfiles[i], destfile = localfile, quiet = TRUE), silent = TRUE)
         if (inherits(out, "try-error")) {
-          if (verbose) message("Failed. Webservice temporarily down.")
-          file.remove(localfile)
-          return(NA)
+          if (verbose) {
+            if (i < length(ftpfiles)) {
+              message("Failed. Webservice temporarily down. ", appendLF = FALSE)
+            } else {
+              message("Failed. Webservice temporarily down.")
+            }
+          }
+          try(file.remove(localfile), silent = TRUE)
+          next()
         }
-        message("Done.")
+        if (verbose) {
+          if (i < length(ftpfiles)) {
+            message("Done. ", appendLF = FALSE)
+          } else {
+            message("Done.")
+          }
+        }
       }
     }
     out <- lapply(accession, function(x) foo(x, type = type, verbose = verbose))
