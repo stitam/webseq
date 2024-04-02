@@ -81,8 +81,14 @@ ena_download_reads <- function(
           next()
         }
         webseq_sleep(type = "FTP")
-        out <- try(utils::download.file(
-          ftpfiles[i], destfile = localfile, quiet = TRUE), silent = TRUE)
+        out <- try(retry(
+          utils::download.file(
+            ftpfiles[i], 
+            destfile = localfile, 
+            quiet = TRUE
+          ),
+          times = 5
+        ), silent = TRUE)
         if (inherits(out, "try-error")) {
           if (verbose) {
             if (i < length(ftpfiles)) {
