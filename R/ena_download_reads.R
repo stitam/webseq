@@ -38,12 +38,17 @@ ena_download_reads <- function(
     foo <- function(x, type, verbose) {
       if (verbose) message(x, ". ", appendLF = FALSE)
       accession_prefix <- substr(x, 1, 6)    
+      accession_characters <- strsplit(x, "")[[1]]
+      last_digit <- accession_characters[length(accession_characters)]
       ftpdir <- paste0(
         "ftp://ftp.sra.ebi.ac.uk/vol1/", 
         type, "/",
-        accession_prefix, "/",
-        x, "/"
+        accession_prefix, "/"
       )
+      if (type == "fastq") {
+        ftpdir <- paste0(ftpdir, "00", last_digit, "/")
+      }
+      ftpdir <- paste0(ftpdir, x, "/")
       h <- curl::new_handle(dirlistonly=TRUE)
       con <- try(curl::curl(ftpdir, "r", h), silent = TRUE)
       if (inherits(con, "try-error")) {
