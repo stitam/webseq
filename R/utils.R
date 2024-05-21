@@ -158,7 +158,7 @@ validate_webseq_class <- function(x) {
     testthat::expect_true(names(x)[1] == "uid")
     testthat::expect_true(names(x)[2] == "db")
     testthat::expect_true(names(x)[3] == "web_history")
-    testthat::expect_true(class(x$uid) == "integer")
+    testthat::expect_true(class(x$uid) == "numeric")
     testthat::expect_true(class(x$db) == "character")
     testthat::expect_s3_class(x$web_history, c("tbl_df", "tbl", "data.frame"))
   }

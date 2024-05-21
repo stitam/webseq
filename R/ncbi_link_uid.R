@@ -105,13 +105,13 @@ ncbi_link_uid <- function(
       (length(wh_hit) == 1 && is.na(wh_hit))
       ) {
       return(list(
-        uid = NA_integer_,
+        uid = NA_real_,
         db = to,
         web_history = tibble::tibble()
       ))
     } else {
       return(list(
-        uid = as.integer(id_hit$links[[paste(from, to, sep = "_")]]),
+        uid = as.numeric(id_hit$links[[paste(from, to, sep = "_")]]),
         db = to,
         web_history = wh_hit$web_histories[[paste(from, to, sep = "_")]]
       ))
@@ -121,7 +121,7 @@ ncbi_link_uid <- function(
     if (length(x) == 1 && is.na(x)) {
       if (verbose) message("No valid UIDs.")
       return(list(
-        uid = NA_integer_,
+        uid = NA_real_,
         db = to,
         web_history = tibble::tibble()
       ))
@@ -153,7 +153,7 @@ ncbi_link_uid <- function(
       (length(wh_hit) == 1 && is.na(wh_hit))
       ) {
       return(list(
-        uid = NA_integer_,
+        uid = NA_real_,
         db = to,
         web_history = tibble::tibble()
       ))
@@ -164,7 +164,7 @@ ncbi_link_uid <- function(
         web_history <- wh_hit$web_histories[[paste(from, to, sep = "_")]]
       }
       return(list(
-        uid = as.integer(id_hit$links[[paste(from, to, sep = "_")]]),
+        uid = as.numeric(id_hit$links[[paste(from, to, sep = "_")]]),
         db = to,
         web_history = web_history
       ))
