@@ -16,7 +16,7 @@ ena_download_reads(
 \item{accession}{character; a character vector of ENA Accession IDs.}
 
 \item{type}{character; A character string specifying the type of file to
-download, either \code{"run"}, \code{"fastq"} or \cpde{"err"}. See Details
+download, either \code{"run"}, \code{"fastq"} or \code{"err"}. See Details
 for more  information.}
 
 \item{dirpath}{character; the path to the directory where the file should be
@@ -40,7 +40,7 @@ files that can be used with NCBI's SRA Toolkit.
 }
 \examples{
 \dontrun{
-ena_download_reads("ERR164407", type = "fastq", verbose = TRUE)
+ena_download_reads("ERR1649607", type = "fastq", verbose = TRUE)
 }
 
 }

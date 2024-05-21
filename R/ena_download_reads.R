@@ -2,7 +2,7 @@
 #' 
 #' @param accession character; a character vector of ENA Accession IDs.
 #' @param type character; A character string specifying the type of file to
-#' download, either \code{"run"}, \code{"fastq"} or \cpde{"err"}. See Details
+#' download, either \code{"run"}, \code{"fastq"} or \code{"err"}. See Details
 #' for more  information.
 #' @param dirpath character; the path to the directory where the file should be
 #' downloaded. If \code{NULL}, download file to the working directory.
@@ -18,7 +18,7 @@
 #' files that can be used with NCBI's SRA Toolkit. 
 #' @examples
 #' \dontrun{
-#' ena_download_reads("ERR164407", type = "fastq", verbose = TRUE)
+#' ena_download_reads("ERR1649607", type = "fastq", verbose = TRUE)
 #' }
 #' 
 #' @references 
@@ -111,3 +111,4 @@ ena_download_reads <- function(
     }
     out <- lapply(accession, function(x) foo(x, type = type, verbose = verbose))
 }
+
