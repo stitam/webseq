@@ -80,27 +80,27 @@ ncbi_get_uid <- function(
     }
     if (length(hit) == 1 && is.na(hit)) {
       return(list(
-        uid = NA_integer_,
+        uid = NA_real_,
         db = db,
         web_history = tibble::tibble()
       ))
     } else if (length(hit$ids) == 0) {
       if (verbose) message("Term not found. Returning NA.")
       return(list(
-        uid = NA_integer_,
+        uid = NA_real_,
         db = db,
         web_history = tibble::tibble()
       ))
     } else if (length(hit$ids) > 0) {
       return(list(
-        uid = as.integer(hit$ids),
+        uid = as.numeric(hit$ids),
         db = db,
         web_history = hit$web_history
       ))
     } else {
       if (verbose) message("Unknown exception.")
       return(list(
-        uid = NA_integer_,
+        uid = NA_real_,
         db = db,
         web_history = tibble::tibble()
       ))

@@ -76,5 +76,12 @@ test_that("ncbi_link_uid() can use an ncbi_uid object's db element", {
 test_that("ncbi_link_uid() returns NA if input is invalid", {
   expect_equal(suppressWarnings(
     ncbi_link_uid("funky", from = "assembly", to = "biosample")$uid
-  ), NA_integer_)
+  ), NA_real_)
+})
+
+# issue 72
+test_that("ncbi_link_uid() converts UIDs to numeric without coercion to NA", {
+  nuccore_uid <- ncbi_link_uid(488139305, from = "protein", to = "nuccore")
+  
+  expect_equal(sum(is.na(nuccore_uid$uid)), 0)
 })
