@@ -1,3 +1,23 @@
+#' Retry a function call
+#' 
+#' @param expr expression; Expression to evaluate.
+#' @param times integer; Number of times to retry.
+#' @noRd
+retry <- function(expr, times = 5) {
+  if (!is.numeric(times) || times < 1) stop("times must be a positive integer.")
+  attempt <- 1
+  while (attempt <= times) {
+    result <- try(expr, silent = TRUE)
+    if (inherits(result, "try-error")) {
+      Sys.sleep(attempt ^ 2)
+      attempt <- attempt + 1
+    } else {
+      return(result)
+    }
+  }
+  stop()
+}
+
 #' Try an URL with default parameters
 #' 
 #' This is a convenience wrapper for trying URLs
