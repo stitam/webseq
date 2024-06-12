@@ -18,6 +18,7 @@ Imports:
     dplyr,
     httr,
     jsonlite,
+    magrittr,
     rentrez,
     stringi,
     stringr,
