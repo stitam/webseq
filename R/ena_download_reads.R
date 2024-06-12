@@ -55,7 +55,7 @@ ena_download_reads <- function(
         if (verbose) message("Failed. FTP path not found.")
         return(NA)
       }
-      tbl <- read.table(con)
+      tbl <- utils::read.table(con)
       close(con)
       ftpfiles <- paste0(ftpdir, tbl$V1)
       if (mirror) {
