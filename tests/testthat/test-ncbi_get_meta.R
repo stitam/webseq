@@ -7,15 +7,14 @@ test_that("ncbi_get_meta() works with history", {
   expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
   
   # with history, use history, multiple batches
-  assembly_uids <- ncbi_get_uid("Microthrix parvicella", db = "assembly")
-  biosample_uids <- ncbi_link_uid(
-    assembly_uids$uid,
-    from = "assembly",
-    to = "biosample",
+  uids <- ncbi_get_uid(
+    "Microthrix parvicella", 
+    db = "biosample",
     batch_size = 5
   )
-  meta <- suppressWarnings(ncbi_get_meta(biosample_uids))
+  meta <- suppressWarnings(ncbi_get_meta(uids))
   expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  expect_equal(nrow(meta), length(uids$uid))
 })
 
 test_that("ncbi_get_meta() works without history", {
