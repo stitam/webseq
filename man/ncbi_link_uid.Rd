@@ -6,8 +6,8 @@
 \usage{
 ncbi_link_uid(
   query,
-  to,
   from = NULL,
+  to,
   batch_size = 100,
   verbose = getOption("verbose")
 )
@@ -16,20 +16,19 @@ ncbi_link_uid(
 \item{query}{either an object of class \code{ncbi_uid} or an integer vector 
 of UIDs. See Details for more information.}
 
+\item{from}{character; the database the queried UIDs come from.
+\code{ncbi_dbs()} lists all available options.}
+
 \item{to}{character; the database in which the function should look for links.
 \code{ncbi_dbs()} lists all available options. See Details for more
 information.}
-
-\item{from}{character; the database the queried UIDs come from.
-\code{ncbi_dbs()} lists all available options.}
 
 \item{batch_size}{integer; the number of search terms to query at once. If
 the number of search terms is larger than \code{batch_size}, the search terms
 are split into batches and queried separately. Not used when using web
 history.}
 
-\item{verbose}{logical; should verbose messages be printed to the console?
-\code{ncbi_dbs()} lists all available options.}
+\item{verbose}{logical; should verbose messages be printed to the console?}
 }
 \value{
 A tibble with two columns. The first column contains UIDs in the 
@@ -49,6 +48,6 @@ specified, the function will retrieve it from the query object. However, if
 it is specified, it must be identical to the `db` attribute of the query.
 }
 \examples{
-ncbi_link_uid("4253631", "assembly", "biosample")
-ncbi_link_uid(c("1226742659", "1883410844"), "protein", "nuccore")
+ncbi_link_uid(5197591, "assembly", "biosample")
+ncbi_link_uid(c(1226742659, 1883410844), "protein", "nuccore")
 }
