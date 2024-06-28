@@ -20,8 +20,7 @@
 #' ncbi_link("GCF_000002435.2", from = "assembly", to = "biosample")
 #' ncbi_link("SAMN02714232", from = "biosample", to = "assembly")
 #' }
-#' 
-#' 
+#' @export
 ncbi_link <- function(
     query, 
     from,
@@ -61,34 +60,30 @@ ncbi_link_assembly_biosample <- function(
     batch_size = batch_size,
     verbose = verbose
   )
-  res <- list()
-  for (i in 1:nrow(from_uid$web_history)) {
-    WH <- list(
-      "WebEnv" = from_uid$web_history$WebEnv[i],
-      "QueryKey" = from_uid$web_history$QueryKey[i]
-    )
-    class(WH) <- c("web_history", "list")
-    hit <- wrap(
-      "entrez_summary",
-      package = "rentrez",
-      verbose = verbose,
-      db = "assembly",
-      web_history = WH
-    )
-    if ("esummary" %in% class(hit)) {
-      hit <- list(hit)
-    }
-    res[[i]] <- hit
-  }
-  res <- unlist(res, recursive = FALSE)
+  res <- ncbi_get_summary(query = from_uid, verbose = verbose)
   ids <- data.frame(
-    assembly = unname(sapply(res, function(x) x$assemblyaccession)),
+    assembly_gbk = unname(sapply(res, function(x) x$synonym$genbank)),
+    assembly_rsq = unname(sapply(res, function(x) x$synonym$refseq)),
     biosample = unname(sapply(res, function(x) x$biosampleaccn))
   )
+  ids$assembly_rsq <- ifelse(ids$assembly_rsq == "", NA, ids$assembly_rsq)
+  index_gbk <- which(ids$assembly_gbk %in% assembly[which(!is.na(assembly))])
+  index_rsq <- which(ids$assembly_rsq %in% assembly[which(!is.na(assembly))])
   out <- data.frame(
     assembly = assembly
   )
-  out <- dplyr::left_join(out, ids, by = "assembly")
+  out_gbk <- dplyr::right_join(
+    out, 
+    ids[index_gbk, c("assembly_gbk", "biosample")], 
+    by = c("assembly" = "assembly_gbk")
+  )
+  out_rsq <- dplyr::right_join(
+    out,
+    ids[index_rsq, c("assembly_rsq", "biosample")],
+    by = c("assembly" = "assembly_rsq")
+  )
+  out_both <- dplyr::bind_rows(out_gbk, out_rsq)
+  out <- dplyr::left_join(out, out_both, by = "assembly")
   out <- tibble::as_tibble(out)
   return(out)
 }

@@ -36,6 +36,4 @@ attempts to link ID-s from one database to another.
 ncbi_link("GCF_000002435.2", from = "assembly", to = "biosample")
 ncbi_link("SAMN02714232", from = "biosample", to = "assembly")
 }
-
-
 }
