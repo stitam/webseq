@@ -125,7 +125,7 @@ wrap <- function(
 #' @param verbose logical; Should verbose messages be printed to console?
 #' @noRd
 get_idlist <- function(ids, batch_size, verbose = getOption("verbose")) {
-  ids <- as.numeric(ids)
+  ids <- suppressWarnings(as.numeric(ids))
   if (all(is.na(ids))) {
     if (verbose) message("No valid UIDs.")
     ids <- NA

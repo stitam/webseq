@@ -20,8 +20,7 @@ ncbi_get_uid(
 
 \item{batch_size}{integer; the number of search terms to query at once. If
 the number of search terms is larger than \code{batch_size}, the search terms
-are split into batches and queried separately. Not used when using web
-history.}
+are split into batches and queried separately.}
 
 \item{use_history}{logical; should the function use web history for faster
 API queries?}

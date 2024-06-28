@@ -1,7 +1,8 @@
 examples <- list(
   assembly = c(
     "GCF_000002435.2",
-    "GCF_000299415.1"
+    "GCF_000299415.1",
+    "GCA_021389195.1"
   ),
   bioproject = "PRJEB54063",
   biosample = c(
