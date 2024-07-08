@@ -1,5 +1,5 @@
 # Workflow copied from 
-https://github.com/r-lib/actions/blob/v2-branch/examples/test-coverage.yaml
+# https://github.com/r-lib/actions/blob/v2-branch/examples/test-coverage.yaml
 
 on:
   push:
