@@ -9,7 +9,6 @@ ncbi_link_uid(
   from = NULL,
   to,
   batch_size = 100,
-  use_history = FALSE,
   verbose = getOption("verbose")
 )
 }
@@ -29,20 +28,11 @@ the number of search terms is larger than \code{batch_size}, the search terms
 are split into batches and queried separately. Not used when using web
 history.}
 
-\item{use_history}{logical; should the function use web history for faster
-API queries?}
-
-\item{verbose}{logical; should verbose messages be printed to the console?
-\code{ncbi_dbs()} lists all available options.}
+\item{verbose}{logical; should verbose messages be printed to the console?}
 }
 \value{
-An object of class \code{"ncbi_uid"} which is a list with three
-elements:
-\itemize{
- \item \code{uid}: a vector of UIDs.
- \item \code{db}: the database used for the query.
- \item \code{web_history}: a tibble of web histories.
- }
+A tibble with two columns. The first column contains UIDs in the 
+`from` database, the second column contains linked UIDs in the `to` database.
 }
 \description{
 Each entry in an NCBI database has its unique internal id. Entries in
@@ -51,26 +41,13 @@ database may be linked with entries in the NCBI BioSample database. This
 function attempts to link uids from one database to another.
 }
 \details{
-Some functions in webseq, e.g. \code{ncbi_get_uid()} or
-\code{ncbi_link_uid()} return objects of class \code{"ncbi_uid"}. These
-objects may be used directly as query input for \code{ncbi_link_uid()}. This
-approach is recommended because the internal structure of these objects make
-\code{ncbi_link_uid()} queries more robust. Alternatively, you can also
-use a character vector of UIDs as query input.
-
-If query is a \code{"ncbi_uid"} object, the \code{from} argument is
-optional. If \code{from} is not specified, the function will use the
-\code{db} attribute of the \code{"ncbi_uid"} object as \code{from} argument.
-However, if it is specified, it must be identical to the \code{db} attribute
-of the \code{"ncbi_uid"} object. If query is a character vector, the
-\code{from} argument is required.
-}
-\note{
-\code{ncbi_link_uid()} can work with or without web histories, but the
-behaviour of the function with web histories is unreliable. The option is
-there but it is recommended NOT to use web histories with this function.
+The function `ncbi_get_uid()` returns an object of class `ncbi_uid`. 
+This object may be used directly as query for `ncbi_link_uid()`. If query is 
+an `ncbi_uid` object, the `from` argument is optional. If `from` is not 
+specified, the function will retrieve it from the query object. However, if 
+it is specified, it must be identical to the `db` attribute of the query.
 }
 \examples{
-ncbi_link_uid("4253631", "assembly", "biosample")
-ncbi_link_uid(c("1226742659", "1883410844"), "protein", "nuccore")
+ncbi_link_uid(5197591, "assembly", "biosample")
+ncbi_link_uid(c(1226742659, 1883410844), "protein", "nuccore")
 }
