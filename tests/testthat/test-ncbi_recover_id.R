@@ -14,3 +14,10 @@ test_that("ncbi_recover_id() works with UIDs", {
   
   expect_equal(examples$assembly, ids)
 })
+
+test_that("ncbi_recover_id() works with duplicates", {
+  uids <- c(2597423, 2597423)
+  ids <- ncbi_recover_id(uids, db = "biosample")
+  
+  expect_equal(ids, c("SAMN02597423", "SAMN02597423"))
+})
