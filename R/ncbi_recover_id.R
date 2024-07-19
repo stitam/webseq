@@ -19,6 +19,7 @@
 #' uid <- ncbi_get_uid("GCF_000002435.2", db = "assembly")
 #' ncbi_recover_id(uid)
 #' }
+#' @importFrom dplyr %>%
 #' @export
 ncbi_recover_id <- function(
     query,
@@ -67,7 +68,7 @@ ncbi_recover_id <- function(
   out <- tibble::tibble(
     uid = as.numeric(unname(sapply(summaries, function(x) x$uid))),
     id = id
-  )
+  ) %>% dplyr::distinct()
   if ("ncbi_uid" %in% class(query)) {
     out <- dplyr::left_join(
       tibble::tibble(query = query$uid), 
