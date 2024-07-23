@@ -25,14 +25,28 @@ ncbi_link <- function(
     query, 
     from,
     to,  
+    multiple = "all",
     batch_size = 100,
     verbose = getOption("verbose")
     ){
-  f <- try(get(paste("ncbi_link", from, to , sep = "_")), silent = TRUE)
-  if (inherits(f, "try-error")) {
+  if (from == "assembly") {
+    if (to == "biosample") {
+      linkfun <- "ncbi_link_assembly_biosample"
+    } else {
     stop("Link not supported.")
+    }
+  } else {
+    linkfun <- "ncbi_link_generic"
   }
-  f(query, batch_size = batch_size, verbose = verbose)
+  f <- get(linkfun)
+  f(
+    query,
+    from = from,
+    to = to,
+    multiple = multiple,
+    batch_size = batch_size,
+    verbose = verbose
+  )
 }
 
 #' Convert NCBI Assembly IDs to NCBI BioSample IDs
@@ -51,9 +65,14 @@ ncbi_link <- function(
 #' @noRd
 ncbi_link_assembly_biosample <- function(
     assembly, 
+    from = "assembly",
+    to = "biosample",
+    multiple = "all",
     batch_size, 
     verbose = getOption("verbose")
   ) {
+  from <- match.arg(from, "assembly")
+  to <- match.arg(to, "biosample")
   from_uid <- ncbi_get_uid(
     assembly,
     db = "assembly",
@@ -88,46 +107,57 @@ ncbi_link_assembly_biosample <- function(
   return(out)
 }
 
-#' Convert NCBI BioSample IDs to NCBI Assembly IDs
+#' Convert NCBI IDs between databases
 #' 
-#' This function converts one or more NCBI BioSample IDs to NCBI Assembly IDs.
-#' @param biosample character; a vector of NCBI BioSample IDs.
-#' @param batch_size integer; the number of search terms to query at once. 
+#' This function converts one or more NCBI IDs between databases. This generic 
+#' function retrieves UIDs from one database, links them to UIDs from another
+#' database and then recovers the IDs from the UIDs. The function should work
+#' with most links
+#' @param query character; a vector of IDs
+#' @param from character; the database the queried ID-s come from.
+#' \code{ncbi_dbs()} lists all available options.
+#' @param to character; the database in which the function should look for links.
+#' \code{ncbi_dbs()} lists all available options.
+#' @param batch_size integer; the number of search terms to query at once. If
+#' the number of search terms is larger than \code{batch_size}, the search terms
+#' are split into batches and queried separately.
 #' @param verbose logical; should verbose messages be printed to the console?
-#' @return A data frame of NCBI Biosample IDs and matching Assembly IDs.
-#' @examples
-#' \dontrun{
-#' ncbi_convert_assembly_biosample("GCF_000002435.2")
-#' }
+#' @return A tibble
 #' @importFrom dplyr left_join
 #' @importFrom tibble tibble
 #' @noRd
-ncbi_link_biosample_assembly <- function(
-    biosample,
+ncbi_link_generic <- function(
+    query,
+    from,
+    to,
+    multiple = "all",
     batch_size, 
     verbose = getOption("verbose")
   ) {
   uid <- ncbi_get_uid(
-    biosample, 
-    db = "biosample",
+    query,
+    db = from,
     batch_size = batch_size,
     use_history = FALSE,
     verbose = verbose
   )
   linked_uid <- ncbi_link_uid(
     uid,
-    to = "assembly",
+    to = to,
     batch_size = batch_size,
     verbose = verbose
   )
   linked_id <- tibble::tibble(
-    biosample = ncbi_recover_id(linked_uid$biosample, db = "biosample"),
-    assembly = ncbi_recover_id(linked_uid$assembly, db = "assembly")
+    from = ncbi_recover_id(linked_uid[[1]], db = from),
+    to = ncbi_recover_id(linked_uid[[2]], db = to)
   )
   out <- dplyr::left_join(
-    tibble::tibble(biosample = biosample),
+    tibble::tibble(from = query),
     linked_id,
-    by = "biosample"
-  )
+    multiple = multiple,
+    relationship = "many-to-many"
+  ) |> suppressMessages()
+  names(out) <- c(from, to)
+  class(out) <- c("ncbi_link", class(out))
   return(out)
 }

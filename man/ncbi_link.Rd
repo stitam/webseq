@@ -4,7 +4,14 @@
 \alias{ncbi_link}
 \title{Link ID-s from one NCBI database to another}
 \usage{
-ncbi_link(query, from, to, batch_size = 100, verbose = getOption("verbose"))
+ncbi_link(
+  query,
+  from,
+  to,
+  multiple = "all",
+  batch_size = 100,
+  verbose = getOption("verbose")
+)
 }
 \arguments{
 \item{query}{character; a vector of IDs}
