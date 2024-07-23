@@ -60,6 +60,8 @@ ncbi_recover_id <- function(
     id <- unname(sapply(summaries, function(x) x$project_acc))
   } else if (db == "gene") {
     id <- unname(sapply(summaries, function(x) x$uid))
+  } else if (db == "nuccore") {
+    id <- unname(sapply(summaries, function(x) x$accessionversion))
   } else if (db == "protein") {
     id <- unname(sapply(summaries, function(x) x$accessionversion))
   } else {
