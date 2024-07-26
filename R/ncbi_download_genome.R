@@ -40,6 +40,7 @@
 ncbi_download_genome <- function(query,
                                  type = "genomic.gbff",
                                  dirpath = NULL,
+                                 filename = NULL,
                                  mirror = TRUE,
                                  verbose = getOption("verbose")) {
   type <- match.arg(type, c(
@@ -104,6 +105,9 @@ ncbi_download_genome <- function(query,
                      translated_cds = ".faa.gz")
     urlpath <- paste0(ftppath, "/", prefix, "_" ,type, suffix)
     if (is.null(dirpath)) dirpath = getwd()
+    if (is.null(filename)) filename = basename(urlpath)
+
+    basename(urlpath)
     if (mirror) {
       dirpath <- gsub(
         "ftp://ftp.ncbi.nlm.nih.gov/genomes",
@@ -112,7 +116,8 @@ ncbi_download_genome <- function(query,
       )
     }
     if (!dir.exists(dirpath)) dir.create(dirpath, recursive = TRUE)
-    filepath <- paste0(dirpath, "/", basename(urlpath))
+    filepath <- paste0(dirpath, "/", filename)
+
     if (file.exists(filepath)) {
       if (verbose) message("Done. Already downloaded.")
       return(NA)
@@ -130,3 +135,4 @@ ncbi_download_genome <- function(query,
   }
   out <- lapply(assembly_uid, function(x) foo(x, type = type, verbose = verbose))
 }
+ncbi_download_genome("GCF_900095325.1",filename="please")
