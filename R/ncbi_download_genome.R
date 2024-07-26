@@ -107,7 +107,6 @@ ncbi_download_genome <- function(query,
     if (is.null(dirpath)) dirpath = getwd()
     if (is.null(filename)) filename = basename(urlpath)
 
-    basename(urlpath)
     if (mirror) {
       dirpath <- gsub(
         "ftp://ftp.ncbi.nlm.nih.gov/genomes",
@@ -135,4 +134,3 @@ ncbi_download_genome <- function(query,
   }
   out <- lapply(assembly_uid, function(x) foo(x, type = type, verbose = verbose))
 }
-ncbi_download_genome("GCF_900095325.1",filename="please")
