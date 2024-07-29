@@ -1,8 +1,8 @@
 #' Download Genomes from NCBI Assembly Database
 #'
 #' This function directly downloads genome data through the NCBI FTP server.
-#' @param query either an object of class \code{ncbi_uid} or an integer vector 
-#' of NCBI Assembly UIDs. See Details for more information.
+#' @param query an object of class `ncbi_uid`, `ncbi_uid_link`, `ncbi_link`, or 
+#' an integer vector of NCBI Assembly UIDs. See Details for more information.
 #' @param type character; the file extension to download. Valid options are
 #' \code{"assembly_report"}, \code{"assembly_stats"}, \code{"cds"},
 #' \code{"feature_count"}, \code{"feature_table"}, \code{"genomic.fna"},
@@ -13,34 +13,41 @@
 #' @param mirror logical; should the download directory mirror the structure of 
 #' the FTP directory?
 #' @param verbose logical; should verbose messages be printed to console?
-#' @details Some functions in webseq, e.g. \code{ncbi_get_uid()} or
-#' \code{ncbi_link_uid()} return objects of class \code{"ncbi_uid"}. These
-#' objects may be used directly as query input for
-#' \code{ncbi_download_genome()}. It is recommended to use this approach because
-#' then the function will check whether the query really contains UIDs from the
-#' NCBI Assembly database and fail if not. Alternatively, you can also use a
-#' character vector of UIDs as query input but in this case there will be no
-#' consistency checks and the function will just attempt to interpret them as
-#' NCBI Assembly UIDs.
+#' @details `ncbi_get_uid()` returns an object of class `ncbi_uid`; 
+#' `ncbi_link_uid` returns an object of class `ncbi_uid_link`; `ncbi_link`
+#' returns and object of class `ncbi_link`. These objects may be used directly 
+#' as query input for `ncbi_download_genome`. It is recommended to use this
+#' approach. Alternatively, you can also use a character vector of UIDs as query
+#' input.  This approach is not recommended because there are no consistency 
+#' checks, the function will just attempt to interpret the query as NCBI 
+#' Assembly UIDs.
 #' @examples
 #' \dontrun{
-#' # Download genbank file for GCF_003007635.1.
-#' # The function will access files within this directory:
-#' # ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/003/007/635/
+#' # Download a single genome
+#' ncbi_get_uid("GCF_003007635.1", db = "assembly") |>
+#'   ncbi_download_genome()
 #' 
-#' uid <- ncbi_get_uid("GCF_003007635.1", db = "assembly")
-#' ncbi_download_genome(uid, type = "genomic.gbff", verbose = TRUE)
+#' "SAMN08619567" |>
+#'   ncbi_get_uid(db = "biosample") |>
+#'   ncbi_link_uid(to = "assembly") |>
+#'   ncbi_download_genome()
+#'   
+#' "SAMN08619567" |>
+#'   ncbi_link(from = "biosample", to = "assembly") |>
+#'   ncbi_download_genome()
 #' 
-#' # Download multiple files
+#' # Download multiple genomes, mirror FTP directory structure
 #' data(examples) 
-#' uids <- ncbi_get_uid(examples$assembly, db = "assembly")
-#' ncbi_download_genome(uids, type = "genomic.gff", verbose = TRUE)
+#' 
+#' examples$assembly |> 
+#'   ncbi_get_uid(db = "assembly") |>
+#'   ncbi_download_genome()
 #' }
 #' @export
 ncbi_download_genome <- function(query,
-                                 type = "genomic.gbff",
+                                 type = "genomic.fna",
                                  dirpath = NULL,
-                                 mirror = TRUE,
+                                 mirror = FALSE,
                                  verbose = getOption("verbose")) {
   type <- match.arg(type, c(
     "assembly_report", "assembly_stats", "cds", "feature_count",
@@ -50,7 +57,19 @@ ncbi_download_genome <- function(query,
     if (query$db == "assembly") {
       assembly_uid <- query$uid
     } else {
-      stop("Query must contain NCBI Assembly UIDs.")
+      stop("'ncbi_uid' object must contain NCBI Assembly UIDs.")
+    }
+  } else if ("ncbi_uid_link" %in% class(query)) {
+    if (names(query)[2] == "assembly") {
+      assembly_uid <- unique(query$assembly)
+    } else {
+      stop("'ncbi_uid_link' object must contain links to NCBI Assembly UIDs.")
+    }
+  } else if ("ncbi_link" %in% class(query)) {
+    if (names(query)[2] == "assembly") {
+      assembly_uid <- ncbi_get_uid(query$assembly, db = "assembly")$uid
+    } else {
+      stop("'ncbi_link' object must contain links to NCBI Assembly IDs.")
     }
   } else {
     assembly_uid <- query
