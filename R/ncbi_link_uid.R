@@ -113,5 +113,6 @@ ncbi_link_uid <- function(
     out <- dplyr::left_join(tibble::tibble(query = query), out, by = "query")
   }
   names(out) <- c(from, to)
+  class(out) <- c("ncbi_uid_link", class(out))
   return(out)
 }
