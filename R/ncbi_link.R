@@ -9,6 +9,8 @@
 #' \code{ncbi_dbs()} lists all available options.
 #' @param to character; the database in which the function should look for links.
 #' \code{ncbi_dbs()} lists all available options.
+#' @param multiple character; handling of rows in x with multiple matches in y.
+#' For more information see `?dplyr::left_join()`.
 #' @param batch_size integer; the number of search terms to query at once. If
 #' the number of search terms is larger than \code{batch_size}, the search terms
 #' are split into batches and queried separately.
