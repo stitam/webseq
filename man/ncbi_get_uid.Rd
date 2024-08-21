@@ -9,6 +9,7 @@ ncbi_get_uid(
   db,
   batch_size = 100,
   use_history = TRUE,
+  na_strings = "NA",
   verbose = getOption("verbose")
 )
 }
@@ -24,6 +25,9 @@ are split into batches and queried separately.}
 
 \item{use_history}{logical; should the function use web history for faster
 API queries?}
+
+\item{na_strings}{character; a vector of strings which should be interpreted
+as `NA`.}
 
 \item{verbose}{logical; should verbose messages be printed to the console?}
 }

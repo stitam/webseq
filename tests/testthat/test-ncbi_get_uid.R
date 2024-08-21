@@ -39,9 +39,10 @@ test_that("ncbi_get_uid() handles NA", {
   expect_true(all(c("ncbi_uid", "list") %in% class(res)))
   expect_equal(length(res$uid), 2)
   
-  expect_true(res_messages[1] == "Removing NA-s from search terms.\n")
-  expect_true(res_messages[2] == "Querying UIDs for batch 1. ")
-  expect_true(res_messages[3] == "Query successful.\n")
+  expect_true(res_messages[1] == "Removing NA-s from search terms. ")
+  expect_true(res_messages[2] == "2 terms remain.\n")
+  expect_true(res_messages[3] == "Querying UIDs for batch 1. ")
+  expect_true(res_messages[4] == "Query successful.\n")
 })
 
 test_that("ncbi_get_uid() handles invalid terms", {
@@ -57,8 +58,13 @@ test_that("ncbi_get_uid() handles invalid terms", {
   expect_equal(nrow(res$web_history), 0)
 })
 
-test_that("ncbi_get_uid works with a complex term", {
+test_that("ncbi_get_uid() works with a complex term", {
   res <- ncbi_get_uid("Autographiviridae OR Podoviridae", db = "assembly")
 
   expect_true(length(res$uid) > 3000)
+})
+
+# issue #80
+test_that("ncbi_get_uid() stops with an error when input is 'NA' (string)", {
+  expect_error(ncbi_get_uid("NA", db = "biosample"))
 })

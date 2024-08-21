@@ -12,6 +12,8 @@
 #' are split into batches and queried separately.
 #' @param use_history logical; should the function use web history for faster
 #' API queries? 
+#' @param na_strings character; a vector of strings which should be interpreted
+#' as `NA`.
 #' @param verbose logical; should verbose messages be printed to the console?
 #' @return An object of class \code{"ncbi_uid"} which is a list with three
 #' elements:
@@ -33,14 +35,30 @@ ncbi_get_uid <- function(
     db,
     batch_size = 100,
     use_history = TRUE,
+    na_strings = "NA",
     verbose = getOption("verbose")
     ) {
   db <- match.arg(db, choices = ncbi_dbs())
-  if (all(is.na(term))) {
-    stop("No valid search terms.")
-  } else if (any(is.na(term))){
-    if (verbose) message("Removing NA-s from search terms.")
+  index <- which(term %in% na_strings)
+  if (length(index) > 0) {
+    if (verbose) {
+      terms_collapsed <- paste(term[index], collapse = ", ")
+      msg <- paste0(
+        "The following terms will be replaced with NAs: ",
+        terms_collapsed,
+        ". "
+      )
+      message(msg)
+    }
+    term[index] <- NA
+  }
+  if (any(is.na(term))){
+    if (verbose) message("Removing NA-s from search terms. ", appendLF = FALSE)
     term <- term[which(!is.na(term))]
+    if (verbose) message(paste0(length(term), " terms remain."))
+  }
+  if (length(term) == 0) {
+    stop("No valid search terms.")
   }
   termlist <- list()
   if (length(term) > batch_size) {
