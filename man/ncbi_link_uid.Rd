@@ -13,26 +13,30 @@ ncbi_link_uid(
 )
 }
 \arguments{
-\item{query}{either an object of class \code{ncbi_uid} or an integer vector 
-of UIDs. See Details for more information.}
+\item{query}{either an object of class `ncbi_uid` or `ncbi_uid_link`, or an
+integer vector of UIDs. See Details for more information.}
 
 \item{from}{character; the database the queried UIDs come from.
-\code{ncbi_dbs()} lists all available options.}
-
-\item{to}{character; the database in which the function should look for links.
 \code{ncbi_dbs()} lists all available options. See Details for more
 information.}
 
+\item{to}{character; the database in which the function should look for links.
+\code{ncbi_dbs()} lists all available options.}
+
 \item{batch_size}{integer; the number of search terms to query at once. If
 the number of search terms is larger than \code{batch_size}, the search terms
-are split into batches and queried separately. Not used when using web
-history.}
+are split into batches and queried separately.}
 
 \item{verbose}{logical; should verbose messages be printed to the console?}
 }
 \value{
-A tibble with two columns. The first column contains UIDs in the 
-`from` database, the second column contains linked UIDs in the `to` database.
+A tibble with two or more columns. When `ncbi_link_uid()` is called
+on a `ncbi_uid` object or a vector of UIDs, the function returns a tibble
+with exactly two columns: the first column contains UIDs in the `from`
+database, and the second column contains linked UIDs in the `to` database.
+However, `ncbi_link_uid()` can be called multiple times in succession. Each
+call after the first call will add a new column to the returned tibble. 
+See Details for more information.
 }
 \description{
 Each entry in an NCBI database has its unique internal id. Entries in
@@ -41,13 +45,28 @@ database may be linked with entries in the NCBI BioSample database. This
 function attempts to link uids from one database to another.
 }
 \details{
-The function `ncbi_get_uid()` returns an object of class `ncbi_uid`. 
-This object may be used directly as query for `ncbi_link_uid()`. If query is 
-an `ncbi_uid` object, the `from` argument is optional. If `from` is not 
-specified, the function will retrieve it from the query object. However, if 
-it is specified, it must be identical to the `db` attribute of the query.
+The function can take three query classes: It can take `ncbi_uid`
+objects, these are returned by `ncbi_get_uid()`. In this case, the `from`
+argument will be retrieved from the query object, by default. It can also
+take `ncbi_uid_link` objects, which means `ncbi_link_uid()` can be called
+several times in a sequence to perform a number of successive conversions.
+When the query is an `ncbi_uid_link` object, the function will always convert
+the UIDs in the last column of the query object, and will retrieve the `from`
+argument from the name of the last column. This means links should always be
+interpreted "left-to-right". Note, when tibbles are joined during subsequent
+`ncbi_link_uid` calls they are joined using "many-to-many" relationships; see
+`?dplyr::left_join()` for more information. Lastly, the function can also
+take a vector of integer UIDs.
 }
 \examples{
+# Simple call with integer UIDs
 ncbi_link_uid(5197591, "assembly", "biosample")
 ncbi_link_uid(c(1226742659, 1883410844), "protein", "nuccore")
+
+# Complex call with ncbi_get_uid() and several ncbi_link_uid() calls
+"GCF_000299415.1" |> 
+  ncbi_get_uid(db = "assembly") |> 
+  ncbi_link_uid(to = "biosample") |>
+  ncbi_link_uid(to = "bioproject") |>
+  ncbi_link_uid(to = "pubmed")
 }

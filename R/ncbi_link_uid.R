@@ -4,28 +4,47 @@
 #' different databases may be linked. For example, entries in the NCBI Assembly
 #' database may be linked with entries in the NCBI BioSample database. This
 #' function attempts to link uids from one database to another.
-#' @param query either an object of class \code{ncbi_uid} or an integer vector 
-#' of UIDs. See Details for more information.
+#' @param query either an object of class `ncbi_uid` or `ncbi_uid_link`, or an
+#' integer vector of UIDs. See Details for more information.
 #' @param from character; the database the queried UIDs come from.
-#' \code{ncbi_dbs()} lists all available options.
-#' @param to character; the database in which the function should look for links.
 #' \code{ncbi_dbs()} lists all available options. See Details for more
 #' information.
+#' @param to character; the database in which the function should look for links.
+#' \code{ncbi_dbs()} lists all available options. 
 #' @param batch_size integer; the number of search terms to query at once. If
 #' the number of search terms is larger than \code{batch_size}, the search terms
-#' are split into batches and queried separately. Not used when using web
-#' history.
+#' are split into batches and queried separately.
 #' @param verbose logical; should verbose messages be printed to the console?
-#' @return A tibble with two columns. The first column contains UIDs in the 
-#' `from` database, the second column contains linked UIDs in the `to` database.
-#' @details The function `ncbi_get_uid()` returns an object of class `ncbi_uid`. 
-#' This object may be used directly as query for `ncbi_link_uid()`. If query is 
-#' an `ncbi_uid` object, the `from` argument is optional. If `from` is not 
-#' specified, the function will retrieve it from the query object. However, if 
-#' it is specified, it must be identical to the `db` attribute of the query.
+#' @return A tibble with two or more columns. When `ncbi_link_uid()` is called
+#' on a `ncbi_uid` object or a vector of UIDs, the function returns a tibble
+#' with exactly two columns: the first column contains UIDs in the `from`
+#' database, and the second column contains linked UIDs in the `to` database.
+#' However, `ncbi_link_uid()` can be called multiple times in succession. Each
+#' call after the first call will add a new column to the returned tibble. 
+#' See Details for more information.
+#' @details The function can take three query classes: It can take `ncbi_uid`
+#' objects, these are returned by `ncbi_get_uid()`. In this case, the `from`
+#' argument will be retrieved from the query object, by default. It can also
+#' take `ncbi_uid_link` objects, which means `ncbi_link_uid()` can be called
+#' several times in a sequence to perform a number of successive conversions.
+#' When the query is an `ncbi_uid_link` object, the function will always convert
+#' the UIDs in the last column of the query object, and will retrieve the `from`
+#' argument from the name of the last column. This means links should always be
+#' interpreted "left-to-right". Note, when tibbles are joined during subsequent
+#' `ncbi_link_uid` calls they are joined using "many-to-many" relationships; see
+#' `?dplyr::left_join()` for more information. Lastly, the function can also
+#' take a vector of integer UIDs.
 #' @examples
+#' # Simple call with integer UIDs
 #' ncbi_link_uid(5197591, "assembly", "biosample")
 #' ncbi_link_uid(c(1226742659, 1883410844), "protein", "nuccore")
+#' 
+#' # Complex call with ncbi_get_uid() and several ncbi_link_uid() calls
+#' "GCF_000299415.1" |> 
+#'   ncbi_get_uid(db = "assembly") |> 
+#'   ncbi_link_uid(to = "biosample") |>
+#'   ncbi_link_uid(to = "bioproject") |>
+#'   ncbi_link_uid(to = "pubmed")
 #' @export
 ncbi_link_uid <- function(
     query,
@@ -42,6 +61,19 @@ ncbi_link_uid <- function(
         msg <- paste0(
           "Database for queried UIDs does not match 'from' argument.\n",
           "Provide identical values or use from = NULL (default)."
+        )
+        stop(msg)
+      }
+    }
+  } else if ("ncbi_uid_link" %in% class(query)) {
+    fromdb <- names(query)[length(names(query))]
+    if (is.null(from)) {
+      from <- fromdb
+    } else {
+      if (from != fromdb) {
+        msg <- paste0(
+          "Database for queried UIDs does not match 'from' argument.\n",
+          "Provide identical values (last column name) or use from = NULL (default)."
         )
         stop(msg)
       }
@@ -93,12 +125,16 @@ ncbi_link_uid <- function(
     return(out)
   }
   if ("ncbi_uid" %in% class(query)) {
-    query <- query$uid
+    query_vector <- query$uid
+  } else if ("ncbi_uid_link" %in% class(query)) {
+    query_vector <- query[[from]] |> unique()
+  } else {
+    query_vector <- query
   }
-  if (!is.numeric(query)) {
+  if (!is.numeric(query_vector)) {
     stop("Query must be an ncbi_uid object or a numeric vector or UIDs.")
   }
-  idlist <- get_idlist(query, batch_size, verbose)
+  idlist <- get_idlist(query_vector, batch_size, verbose)
   res <- lapply(idlist, function(x) {
     foo_from_ids(
       x,
@@ -108,11 +144,30 @@ ncbi_link_uid <- function(
   })
   out <- dplyr::bind_rows(res)
   if ("ncbi_uid" %in% class(query)) {
-    out <- dplyr::left_join(tibble::tibble(from = query$uid), out, by = "query")
+    out <- dplyr::left_join(
+      tibble::tibble(query = query_vector),
+      out,
+      by = "query"
+    )
+    names(out) <- c(from, to)
+  } else if ("ncbi_uid_link" %in% class(query)) {
+    names(out) <- c(from, to)
+    out <- dplyr::left_join(
+      query,
+      out,
+      by = from,
+      relationship = "many-to-many"
+    )
   } else {
-    out <- dplyr::left_join(tibble::tibble(query = query), out, by = "query")
+    out <- dplyr::left_join(
+      tibble::tibble(query = query_vector),
+      out,
+      by = "query"
+    )
+    names(out) <- c(from, to)
   }
-  names(out) <- c(from, to)
-  class(out) <- c("ncbi_uid_link", class(out))
+  if (!"ncbi_uid_link" %in% class(out)) {
+    class(out) <- c("ncbi_uid_link", class(out))
+  }
   return(out)
 }
