@@ -60,13 +60,13 @@ ncbi_download_genome <- function(query,
       stop("'ncbi_uid' object must contain NCBI Assembly UIDs.")
     }
   } else if ("ncbi_uid_link" %in% class(query)) {
-    if (names(query)[2] == "assembly") {
+    if (names(query)[length(names(query))] == "assembly") {
       assembly_uid <- unique(query$assembly)
     } else {
       stop("'ncbi_uid_link' object must contain links to NCBI Assembly UIDs.")
     }
   } else if ("ncbi_link" %in% class(query)) {
-    if (names(query)[2] == "assembly") {
+    if (names(query)[length(names(query))] == "assembly") {
       assembly_uid <- ncbi_get_uid(query$assembly, db = "assembly")$uid
     } else {
       stop("'ncbi_link' object must contain links to NCBI Assembly IDs.")
