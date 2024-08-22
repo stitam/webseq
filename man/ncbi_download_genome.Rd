@@ -6,15 +6,15 @@
 \usage{
 ncbi_download_genome(
   query,
-  type = "genomic.gbff",
+  type = "genomic.fna",
   dirpath = NULL,
-  mirror = TRUE,
+  mirror = FALSE,
   verbose = getOption("verbose")
 )
 }
 \arguments{
-\item{query}{either an object of class \code{ncbi_uid} or an integer vector 
-of NCBI Assembly UIDs. See Details for more information.}
+\item{query}{an object of class `ncbi_uid`, `ncbi_uid_link`, `ncbi_link`, or 
+an integer vector of NCBI Assembly UIDs. See Details for more information.}
 
 \item{type}{character; the file extension to download. Valid options are
 \code{"assembly_report"}, \code{"assembly_stats"}, \code{"cds"},
@@ -34,28 +34,35 @@ the FTP directory?}
 This function directly downloads genome data through the NCBI FTP server.
 }
 \details{
-Some functions in webseq, e.g. \code{ncbi_get_uid()} or
-\code{ncbi_link_uid()} return objects of class \code{"ncbi_uid"}. These
-objects may be used directly as query input for
-\code{ncbi_download_genome()}. It is recommended to use this approach because
-then the function will check whether the query really contains UIDs from the
-NCBI Assembly database and fail if not. Alternatively, you can also use a
-character vector of UIDs as query input but in this case there will be no
-consistency checks and the function will just attempt to interpret them as
-NCBI Assembly UIDs.
+`ncbi_get_uid()` returns an object of class `ncbi_uid`; 
+`ncbi_link_uid` returns an object of class `ncbi_uid_link`; `ncbi_link`
+returns and object of class `ncbi_link`. These objects may be used directly 
+as query input for `ncbi_download_genome`. It is recommended to use this
+approach. Alternatively, you can also use a character vector of UIDs as query
+input.  This approach is not recommended because there are no consistency 
+checks, the function will just attempt to interpret the query as NCBI 
+Assembly UIDs.
 }
 \examples{
 \dontrun{
-# Download genbank file for GCF_003007635.1.
-# The function will access files within this directory:
-# ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/003/007/635/
+# Download a single genome
+ncbi_get_uid("GCF_003007635.1", db = "assembly") |>
+  ncbi_download_genome()
 
-uid <- ncbi_get_uid("GCF_003007635.1", db = "assembly")
-ncbi_download_genome(uid, type = "genomic.gbff", verbose = TRUE)
+"SAMN08619567" |>
+  ncbi_get_uid(db = "biosample") |>
+  ncbi_link_uid(to = "assembly") |>
+  ncbi_download_genome()
+  
+"SAMN08619567" |>
+  ncbi_link(from = "biosample", to = "assembly") |>
+  ncbi_download_genome()
 
-# Download multiple files
+# Download multiple genomes, mirror FTP directory structure
 data(examples) 
-uids <- ncbi_get_uid(examples$assembly, db = "assembly")
-ncbi_download_genome(uids, type = "genomic.gff", verbose = TRUE)
+
+examples$assembly |> 
+  ncbi_get_uid(db = "assembly") |>
+  ncbi_download_genome()
 }
 }

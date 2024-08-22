@@ -4,7 +4,14 @@
 \alias{ncbi_link}
 \title{Link ID-s from one NCBI database to another}
 \usage{
-ncbi_link(query, from, to, batch_size = 100, verbose = getOption("verbose"))
+ncbi_link(
+  query,
+  from,
+  to,
+  multiple = "all",
+  batch_size = 100,
+  verbose = getOption("verbose")
+)
 }
 \arguments{
 \item{query}{character; a vector of IDs}
@@ -14,6 +21,9 @@ ncbi_link(query, from, to, batch_size = 100, verbose = getOption("verbose"))
 
 \item{to}{character; the database in which the function should look for links.
 \code{ncbi_dbs()} lists all available options.}
+
+\item{multiple}{character; handling of rows in x with multiple matches in y.
+For more information see `?dplyr::left_join()`.}
 
 \item{batch_size}{integer; the number of search terms to query at once. If
 the number of search terms is larger than \code{batch_size}, the search terms

@@ -64,9 +64,9 @@ test_that("ncbi_link_uid() returns more rows when there are multiple links", {
   query <- "PRJEB54063"
   puid <- ncbi_get_uid(query, db = "bioproject")
   buid <- ncbi_link_uid(puid, to = "biosample")
-  expect_equal(dim(buid), c(2,2))
-  expect_equal(buid$bioproject, c(883889, 883889))
-  expect_equal(buid$biosample, c(31267349, 31250566))
+  expect_equal(dim(buid), c(148,2))
+  expect_equal(buid$bioproject[1:2], c(883889, 883889))
+  expect_equal(buid$biosample[1:2], c(31267349, 31250566))
 })
 
 test_that("ncbi_link_uid() returns results for all valid queries", {
@@ -83,4 +83,24 @@ test_that("ncbi_link_uid() converts UIDs to numeric without coercion to NA", {
   nuccore_uid <- ncbi_link_uid(488139305, from = "protein", to = "nuccore")
   
   expect_equal(sum(is.na(nuccore_uid$nuccore)), 0)
+})
+
+test_that("ncbi_link_uid() works with ncbi_uid_link objects", {
+  pubmed_uid <- "GCF_000299415.1" |> 
+    ncbi_get_uid(db = "assembly") |> 
+    ncbi_link_uid(to = "biosample") |>
+    ncbi_link_uid(to = "bioproject") |>
+    ncbi_link_uid(to = "pubmed")
+  
+  expect_true(inherits(pubmed_uid, "ncbi_uid_link"))
+  expect_true(inherits(pubmed_uid, "data.frame"))
+  expect_equal(dim(pubmed_uid), c(2,4))
+  expect_equal(
+    names(pubmed_uid), 
+    c("assembly", "biosample", "bioproject", "pubmed")
+  )
+  expect_equal(pubmed_uid$assembly, c(623048, 623048))
+  expect_equal(pubmed_uid$biosample, c(1730125, 1730125))
+  expect_equal(pubmed_uid$bioproject, c(224116, 174686))
+  expect_equal(pubmed_uid$pubmed, c(24316578, 23144412))
 })
