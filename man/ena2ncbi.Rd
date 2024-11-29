@@ -4,13 +4,13 @@
 \alias{ena2ncbi}
 \title{Convert accessions from ENA to NCBI}
 \usage{
-ena2ncbi(accessions, type = "sample")
+ena2ncbi(accessions, type)
 }
 \arguments{
 \item{accessions}{character; a vector or ENA accessions.}
 
-\item{type}{character; type of accessions. Currently only sample accessions
-are supported.}
+\item{type}{character; type of accessions. Supported types: `sample`, 
+`study`.}
 }
 \value{
 A tibble with two columns, `ena` and `ncbi`.
@@ -19,6 +19,7 @@ A tibble with two columns, `ena` and `ncbi`.
 Take a vector of ENA accessions and convert them to NCBI accessions.
 }
 \examples{
-ena2ncbi("ERS3202441")
-ena2ncbi(c("ERS3202441", "ERS3202442"))
+ena2ncbi("ERS3202441", type = "sample")
+ena2ncbi(c("ERS3202441", "ERS3202442"), type = "sample")
+ena2ncbi("ERP161024", type = "study")
 }
