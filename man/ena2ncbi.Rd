@@ -9,7 +9,7 @@ ena2ncbi(accessions, type)
 \arguments{
 \item{accessions}{character; a vector or ENA accessions.}
 
-\item{type}{character; type of accessions. Supported types: `sample`, 
+\item{type}{character; type of ENA accessions. Supported types: `sample`, 
 `study`.}
 }
 \value{
