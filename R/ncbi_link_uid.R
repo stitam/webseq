@@ -92,7 +92,7 @@ ncbi_link_uid <- function(
   foo_from_ids <- function(x, from, to) {
     if (length(x) == 1 && is.na(x)) {
       if (verbose) message("No valid UIDs.")
-      return(tibble::tibble(query = x, uid = NA_real_))
+      return(tibble::tibble(query = x, uid = NA_integer_))
     }
     id_hit <- suppressWarnings(wrap(
         "entrez_link",
