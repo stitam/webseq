@@ -92,7 +92,7 @@ ncbi_link_uid <- function(
   foo_from_ids <- function(x, from, to) {
     if (length(x) == 1 && is.na(x)) {
       if (verbose) message("No valid UIDs.")
-      return(tibble::tibble(query = x, uid = NA_real_))
+      return(tibble::tibble(query = x, uid = NA_integer_))
     }
     id_hit <- suppressWarnings(wrap(
         "entrez_link",
@@ -131,9 +131,7 @@ ncbi_link_uid <- function(
   } else {
     query_vector <- query
   }
-  if (!is.numeric(query_vector)) {
-    stop("Query must be an ncbi_uid object or a numeric vector or UIDs.")
-  }
+  query_vector <- as_numeric(query_vector)
   idlist <- get_idlist(query_vector, batch_size, verbose)
   res <- lapply(idlist, function(x) {
     foo_from_ids(

@@ -34,3 +34,10 @@ test_that("ena2ncbi() removes invalid queries and returns the rest", {
   )
   expect_equal(dim(E), c(2,2))
 })
+
+test_that("ena2ncbi() works with studies", {
+  G <- ena2ncbi("ERP161024", type = "study")
+  expect_equal(dim(G), c(1,2))
+  expect_equal(names(G), c("ena", "ncbi"))
+  expect_equal(G$ncbi, "PRJEB76496")
+})

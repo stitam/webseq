@@ -9,8 +9,8 @@ ncbi2ena(accessions, type)
 \arguments{
 \item{accessions}{character; a vector or ENA accessions.}
 
-\item{type}{character; type of accessions. Supported types: `biosample`, 
-`bioproject`.}
+\item{type}{character; type of NCBI accessions. Supported types:
+`biosample`, `bioproject`.}
 }
 \value{
 A tibble with two columns, `ncbi` and `ena`.

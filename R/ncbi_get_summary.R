@@ -81,9 +81,7 @@ ncbi_get_summary <- function(
       }
       return(res)
     }
-    if (!is.numeric(query)) {
-      stop("Query must be an ncbi_uid object or a numeric vector or UIDs.")
-    }
+    query <- as_numeric(query)
     idlist <- get_idlist(query, batch_size = batch_size, verbose = verbose)
     res <- lapply(idlist, function(x) {
       foo_from_ids(x, db = db, verbose = verbose)

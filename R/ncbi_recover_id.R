@@ -44,8 +44,8 @@ ncbi_recover_id <- function(
       msg <- "Specify a 'db' argument or query an object of class 'ncbi_uid'."
       stop(msg)
     }
+    query <- as_numeric(query)
   }
-  db <- match.arg(db, ncbi_dbs())
   summaries <- ncbi_get_summary(
     query,
     db = db,
@@ -64,6 +64,8 @@ ncbi_recover_id <- function(
     id <- unname(sapply(summaries, function(x) x$accessionversion))
   } else if (db == "protein") {
     id <- unname(sapply(summaries, function(x) x$accessionversion))
+  } else if (db == "pubmed") {
+    id <- unname(sapply(summaries, function(x) x$uid))
   } else {
     stop("Not supported.")
   }

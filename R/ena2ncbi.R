@@ -2,7 +2,7 @@
 #'
 #' Take a vector of ENA accessions and convert them to NCBI accessions.
 #' @param accessions character; a vector or ENA accessions.
-#' @param type character; type of accessions. Supported types: `sample`, 
+#' @param type character; type of ENA accessions. Supported types: `sample`, 
 #' `study`.
 #' @return A tibble with two columns, `ena` and `ncbi`.
 #' @examples

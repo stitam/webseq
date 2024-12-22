@@ -150,9 +150,7 @@ ncbi_get_meta <- function(
     if ("ncbi_uid" %in% class(query)) {
       query <- query$uid
     }
-    if (!is.numeric(query)) {
-      stop("Query must be an ncbi_uid object or a numeric vector or UIDs.")
-    }
+    query <- as_numeric(query)
     idlist <- get_idlist(query, batch_size, verbose)
     res <- sapply(idlist, function(x) {
       foo_from_ids(x, db = db)
