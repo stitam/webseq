@@ -205,3 +205,15 @@ get_mc_cores <- function(mc_cores, verbose = getOption("verbose")) {
   }
   return(mc_cores)
 }
+
+#' Convert a vector to numeric
+#' 
+#' @param x vector; Vector to convert.
+#' @noRd
+as_numeric <- function(x) {
+  numeric_x <- suppressWarnings(as.numeric(x))
+  if (any(is.na(numeric_x) & !is.na(x))) {
+    stop("Query must be either an ncbi_uid object or a vector of UIDs.")
+  }
+  return(numeric_x)
+}
