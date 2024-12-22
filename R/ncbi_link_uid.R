@@ -131,9 +131,7 @@ ncbi_link_uid <- function(
   } else {
     query_vector <- query
   }
-  if (!is.numeric(query_vector)) {
-    stop("Query must be an ncbi_uid object or a numeric vector or UIDs.")
-  }
+  query_vector <- as_numeric(query_vector)
   idlist <- get_idlist(query_vector, batch_size, verbose)
   res <- lapply(idlist, function(x) {
     foo_from_ids(
