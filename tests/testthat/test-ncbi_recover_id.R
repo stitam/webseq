@@ -27,3 +27,11 @@ test_that("ncbi_recover_id() works with nuccore", {
   id <- ncbi_recover_id(uid)
   expect_equal(id,"OP617744.1")
 })
+
+test_that("ncbi_recover_id() works with pubmed", {
+  uid <- ncbi_get_uid(examples$pubmed, db = "pubmed")
+  id1 <- ncbi_recover_id(uid)
+  id2 <- ncbi_recover_id(uid$uid, db = "pubmed")
+  expect_equal(id1, c("39332413", "36759752"))
+  expect_equal(id1, c("39332413", "36759752"))
+})
