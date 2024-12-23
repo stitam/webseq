@@ -165,6 +165,18 @@ ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
       ))
     }
   }
+  # if description contains a table, extract it
+  if (grepl("^WEBSEQ", out$description)) {
+    description_table <- extract_description_table(x, main_attrs$accession, verbose)
+    out <- list(
+      out,
+      description_table
+    )
+    out <- setNames(out, c("meta", attributes(description_table)$caption))
+  } else {
+    out <- list(out)
+    out <- setNames(out, "meta")
+  }
   return(out)
 }
 
