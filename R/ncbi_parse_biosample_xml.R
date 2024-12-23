@@ -399,6 +399,57 @@ extract_description <- function(
   return(out)
 }
 
+extract_description_table <- function(
+    x,
+    biosample,
+    verbose = getOption("verbose")
+  ) {
+  foo <- function (x, biosample, verbose) {
+    out <- data.frame()
+    if ("Comment" %in% names(x$Description)) {
+      if ("Table" %in% names(x$Description$Comment)) {
+        # works if there is a single table
+        # TODO find an example with multiple tables
+        table <- x$Description$Comment$Table
+        if ("Caption" %in% names(table)) {
+          caption <- unname(unlist(table$Caption))
+          if (length(caption) == 1) {
+            headers <- table$Header |> unlist() |> unname()
+            out <- lapply(table$Body, function(x) {
+              df <- x |> t() |> as.data.frame()
+              names(df) <- headers
+              return(df)
+            }) |> dplyr::bind_rows()
+            out <- lapply(out, function(x) unname(unlist(x)))
+            out_lens <- sapply(out, length)
+            index <- which(out_lens == 0)
+            if (length(index) > 0) {
+              for (i in index) {
+                out[[i]] <- rep(NA, times = max(out_lens))
+              }
+            }
+            out <- data.frame(out) |> tibble::as_tibble()
+            attr(out, "caption") <- tolower(caption)
+          } else {
+            stop("Multiple tables.")
+          }
+        }
+      }
+    }
+    return(out)
+  }
+  out <- try(foo(x, biosample, verbose), silent = TRUE)
+  if (inherits(out, "try-error") | is.null(out)) {
+    if (verbose) {
+      message(paste0(
+        "Could not extract Description table for BioSample ", biosample, "."
+      ))
+    }
+    stop()
+  }
+  return(out)
+}
+
 # test <- ncbi_get_uid("pathogen cl 1 0[filter]", "biosample")
 extract_package <- function(
     x,
