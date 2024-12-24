@@ -168,9 +168,16 @@ ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
   # if description contains a table, extract it
   if (grepl("^WEBSEQ", out$description)) {
     description_table <- extract_description_table(x, main_attrs$accession, verbose)
+    out_tbl <- dplyr::bind_cols(
+      tibble::tibble(
+        biosample_uid = main_attrs$id,
+        biosample = main_attrs$accession
+      ),
+      description_table
+    )
     out <- list(
       out,
-      description_table
+      out_tbl
     )
     out <- setNames(out, c("meta", attributes(description_table)$caption))
   } else {
