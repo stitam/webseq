@@ -4,7 +4,11 @@ test_that("ncbi_get_meta() works with history", {
   # with history, use history, one batch
   uids <- ncbi_get_uid("Microthrix parvicella", db = "biosample")
   meta <- suppressWarnings(ncbi_get_meta(uids))
-  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  testthat::expect_true(inherits(meta, "list"))
+  testthat::expect_s3_class(
+    meta$main, 
+    c("ncbi_meta", "tbl_df", "tbl", "data.frame")
+  )
   
   # with history, use history, multiple batches
   uids <- ncbi_get_uid(
@@ -13,8 +17,12 @@ test_that("ncbi_get_meta() works with history", {
     batch_size = 5
   )
   meta <- suppressWarnings(ncbi_get_meta(uids))
-  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
-  expect_equal(nrow(meta), length(uids$uid))
+  testthat::expect_true(inherits(meta, "list"))
+  testthat::expect_s3_class(
+    meta$main, 
+    c("ncbi_meta", "tbl_df", "tbl", "data.frame")
+  )
+  testthat::expect_equal(nrow(meta$main), length(uids$uid))
 })
 
 test_that("ncbi_get_meta() works without history", {
@@ -25,14 +33,24 @@ test_that("ncbi_get_meta() works without history", {
     use_history = TRUE
   )
   meta <- suppressWarnings(ncbi_get_meta(uids, use_history = FALSE))
-  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  testthat::expect_true(inherits(meta, "list"))
+  testthat::expect_s3_class(
+    meta$main, 
+    c("ncbi_meta", "tbl_df", "tbl", "data.frame")
+  )
+  
   # with history, do not use history, multiple batches
   meta <- suppressWarnings(ncbi_get_meta(
     uids,
     use_history = FALSE,
     batch_size = 5
   ))
-  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  testthat::expect_true(inherits(meta, "list"))
+  testthat::expect_s3_class(
+    meta$main, 
+    c("ncbi_meta", "tbl_df", "tbl", "data.frame")
+  )
+  
   # without history, attempt to use history but fall back, one batch
   uids <- ncbi_get_uid(
     "Microthrix parvicella",
@@ -40,13 +58,21 @@ test_that("ncbi_get_meta() works without history", {
     use_history = FALSE
   )
   meta <- suppressWarnings(ncbi_get_meta(uids))
-  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  testthat::expect_true(inherits(meta, "list"))
+  testthat::expect_s3_class(
+    meta$main, 
+    c("ncbi_meta", "tbl_df", "tbl", "data.frame")
+  )
   # only ids, one batch
   meta <- suppressWarnings(ncbi_get_meta(
     uids$uid,
     db = "biosample"
   ))
-  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  testthat::expect_true(inherits(meta, "list"))
+  testthat::expect_s3_class(
+    meta$main, 
+    c("ncbi_meta", "tbl_df", "tbl", "data.frame")
+  )
   
   # only ids, multiple batches
   meta <- suppressWarnings(ncbi_get_meta(
@@ -54,7 +80,11 @@ test_that("ncbi_get_meta() works without history", {
     db = "biosample",
     batch_size = 5
   ))
-  expect_s3_class(meta, c("ncbi_meta", "tbl_df", "tbl", "data.frame"))
+  testthat::expect_true(inherits(meta, "list"))
+  testthat::expect_s3_class(
+    meta$main, 
+    c("ncbi_meta", "tbl_df", "tbl", "data.frame")
+  )
 })
 
 test_that("ncbi_get_meta() works with all supported dbs", {
