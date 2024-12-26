@@ -163,14 +163,7 @@ ncbi_get_meta <- function(
     if (verbose) {
       message("Attempting to parse retrieved metadata.")
     }
-    res_parsed <- ncbi_parse(meta = res, mc_cores = mc_cores, verbose = verbose)
-    if (all("data.frame" %in% class(res_parsed))) {
-      out <- dplyr::bind_rows(res_parsed)
-      if (verbose) message("Done.")
-    } else {
-      if (verbose) message("Returning unparsed metadata.")
-      out <- res
-    }
+    out <- ncbi_parse(meta = res, mc_cores = mc_cores, verbose = verbose)
   } else {
     out <- res
   }

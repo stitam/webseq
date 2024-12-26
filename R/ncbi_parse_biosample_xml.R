@@ -19,6 +19,7 @@ ncbi_parse_biosample_xml <- function(
   mc_cores <- get_mc_cores(mc_cores, verbose = verbose)
   biosample_df <- data.frame()
   if (verbose) message("Attempting to parse BioSample XMLs.")
+  result <- list()
   for (i in seq_along(biosample_xml)) {
     if (verbose) message(
       "BioSample XML ", i, " of ", length(biosample_xml),
@@ -37,7 +38,7 @@ ncbi_parse_biosample_xml <- function(
       attributes(x)$accession
     })
     if (verbose) message(
-      "List to data frame.. ", appendLF = FALSE
+      "List to a list of data frames.. ", appendLF = FALSE
     )
     pfoo <- function(x) {
       entry <- try(
@@ -85,16 +86,14 @@ ncbi_parse_biosample_xml <- function(
       out <- out[-index_failed]
     }
     if (verbose) message("Successful.")
-    out <- dplyr::bind_rows(out)
-    out <- dplyr::relocate(out, "biosample_uid")
-    out <- dplyr::relocate(out, "biosample", .after = "biosample_uid")
-    biosample_df <- dplyr::bind_rows(biosample_df, out)
+    result[[i]] <- webseq:::flatten(out)
   }
-  out <- tibble::as_tibble(biosample_df)
-  out <- out[, order(unname(sapply(out, function(x) sum(is.na(x)))))]
-  out <- dplyr::relocate(out, "biosample_uid")
-  out <- dplyr::relocate(out, "biosample", .after = "biosample_uid")
-  return(out)
+  result <- webseq:::flatten(result)
+  result$main <- result$main[, order(unname(sapply(result$main, function(x) sum(is.na(x)))))]
+  result$main <- result$main |>
+    dplyr::relocate(biosample_uid) |>
+    dplyr::relocate(biosample, .after = biosample_uid)
+  return(result)
 }
 
 
@@ -179,10 +178,10 @@ ncbi_parse_biosample_xml_entry <- function(x, verbose = getOption("verbose")) {
       out,
       out_tbl
     )
-    out <- setNames(out, c("meta", attributes(description_table)$caption))
+    out <- setNames(out, c("main", attributes(description_table)$caption))
   } else {
     out <- list(out)
-    out <- setNames(out, "meta")
+    out <- setNames(out, "main")
   }
   return(out)
 }
