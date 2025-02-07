@@ -217,3 +217,32 @@ as_numeric <- function(x) {
   }
   return(numeric_x)
 }
+
+#' Validate NCBI UIDs
+#' 
+#' NCBI UIDs must be numeric vectors with no NAs.
+#' @param x a vector
+#' @noRd
+validate_ncbi_uid <- function(x) {
+    if (!inherits(x, c("numeric", "integer"))) {
+    stop("'uid' must be a numeric vector of NCBI UIDs.")
+  }
+  uid_integer <- suppressWarnings(as.integer(x))
+  index <- which(is.na(uid_integer) & !is.na(x))
+  if (length(index) > 0) {
+    msg <- paste0(
+      "The following elements are not valid UIDs: ",
+      x[index],
+      collapse = ", "
+    )
+    stop(msg)
+  }
+  index <- which(is.na(x))
+  if (length(index) > 0) {
+    if (verbose) message("Removing NA-s. ", appendLF = FALSE)
+    x <- x[which(!is.na(x))]
+    if (verbose) message(paste0(length(x), " elements remain."))
+  }
+  if (length(x) == 0) stop("No valid UIDs.")
+  return(x)
+}
