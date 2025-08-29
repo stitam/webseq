@@ -80,17 +80,7 @@ ena_query <- function(
     } else {
       destfile <- paste0(x, ".", mode, ifelse(gzip == "true", ".gz", ""))
     }
-    url <- paste0(
-      "https://www.ebi.ac.uk/ena/browser/api/", mode, "?",
-      "accessions=", x,
-      "&expanded=", expanded,
-      "&annotationOnly=", annotation_only,
-      "&download=", download,
-      "&gzip=", gzip,
-      "&set=", set,
-      "&includeLinks=", include_links,
-      "&complement=", complement
-    )
+    url <- paste0("https://www.ebi.ac.uk/ena/browser/api/", mode)
     if (download == "true") {
       # TODO: finalise dev code
       # variations based on number of accessions, batch_size, download_by, gzip
@@ -104,7 +94,28 @@ ena_query <- function(
         mode = mode
       )
     } else {
-      res <- try_url("POST", url)
+      headers <- c(Accept = "text/plain", `Content-Type` = "application/json")
+      body <- list(
+        "accessions" = list(x),
+        "expanded" = expanded,
+        "annotationOnly" = annotation_only,
+        "lineLimit" = 0,
+        "download" = download,
+        "gzip" = gzip,
+        "set" = set,
+        "includeLinks" = include_links,
+        "range" = range,
+        "complement" = complement
+      )
+      res <- try(httr::RETRY(
+        "POST",
+        url,
+        httr::user_agent(package_url()),
+        httr::add_headers(.headers = headers),
+        body = body,
+        encode = "json",
+        terminate_on = 404,
+        quiet = TRUE), silent = TRUE)
       seqs <- ena_parse(res, mode = mode)
       return(seqs)
     }
