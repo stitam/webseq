@@ -1,3 +1,23 @@
+#' Get package URL
+#'
+#' Look up the DESCRIPTION file of the package that called this function and
+#' return the package URL (the first element of the URL field).
+#'
+#' @return Either a URL
+package_url <- function() {
+  # Get package name
+  ns <- parent.frame()
+  pkg <- utils::packageName(ns)
+  if (is.null(pkg)) stop("Could not extract package name.")
+  # Extract URL from DESCRIPTION file
+  desc <- utils::packageDescription(pkg)
+  if (!"URL" %in% names(desc)) stop("Could not extract URL, missing field.")
+  urls <- unlist(strsplit(desc[["URL"]], "[[:space:],]+"))
+  urls <- urls[nzchar(urls)]
+  if (length(urls) == 0) stop("Could not extract URL, empty field.")
+  return(urls[1])
+}
+
 #' Retry a function call
 #' 
 #' @param expr expression; Expression to evaluate.
