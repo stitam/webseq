@@ -4,6 +4,7 @@
 #' return the package URL (the first element of the URL field).
 #'
 #' @return Either a URL
+#' @noRd
 package_url <- function() {
   # Get package name
   ns <- parent.frame()
