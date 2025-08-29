@@ -14,6 +14,7 @@ ena_query(
   destfile_by = "all",
   gzip = FALSE,
   set = FALSE,
+  include_links = FALSE,
   range = NULL,
   complement = FALSE,
   batch_size = 0,
@@ -40,6 +41,8 @@ ena_query(
 \item{gzip}{logical; Download the result as a gzip file.}
 
 \item{set}{logical; ???}
+
+\item{include_links}{logical; ???}
 
 \item{range}{character; ???}
 

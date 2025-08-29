@@ -8,6 +8,8 @@ Version: 0.1
 Date: 2022-01-05
 Author: Tamas Stirling
 Maintainer: Tamas Stirling <stirling.tamas@gmail.com>
+URL: https://github.com/stitam/webseq
+BugReports: https://github.com/stitam/webseq/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

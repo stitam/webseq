@@ -11,6 +11,7 @@
 #'\code{"batch"}: one file for each batch, \code{"all"}: one file altogether.
 #'@param gzip logical; Download the result as a gzip file.
 #'@param set logical; ???
+#'@param include_links logical; ???
 #'@param range character; ???
 #'@param complement logical; ???
 #'@param batch_size integer; Number of accessions to query in a single request.
@@ -34,6 +35,7 @@ ena_query <- function(
     destfile_by = "all",
     gzip = FALSE,
     set = FALSE,
+    include_links = FALSE,
     range = NULL,
     complement = FALSE,
     batch_size = 0,
@@ -45,6 +47,7 @@ ena_query <- function(
   stopifnot(length(download) == 1 && is.logical(download))
   stopifnot(length(gzip) == 1 && is.logical(gzip))
   stopifnot(length(set) == 1 && is.logical(set))
+  stopifnot(length(include_links) == 1 && is.logical(include_links))
   #stopifnot(length(range) == 1 && is.character(range))
   stopifnot(length(complement) == 1 && is.logical(complement))
   stopifnot(length(verbose) == 1 && is.logical(verbose))
@@ -77,16 +80,7 @@ ena_query <- function(
     } else {
       destfile <- paste0(x, ".", mode, ifelse(gzip == "true", ".gz", ""))
     }
-    url <- paste0(
-      "https://www.ebi.ac.uk/ena/browser/api/", mode, "?",
-      "accessions=", x,
-      "&expanded=", expanded,
-      "&annotationOnly=", annotation_only,
-      "&download=", download,
-      "&gzip=", gzip,
-      "&set=", set,
-      "&complement=", complement
-    )
+    url <- paste0("https://www.ebi.ac.uk/ena/browser/api/", mode)
     if (download == "true") {
       # TODO: finalise dev code
       # variations based on number of accessions, batch_size, download_by, gzip
@@ -100,7 +94,28 @@ ena_query <- function(
         mode = mode
       )
     } else {
-      res <- try_url("POST", url)
+      headers <- c(Accept = "text/plain", `Content-Type` = "application/json")
+      body <- list(
+        "accessions" = list(x),
+        "expanded" = expanded,
+        "annotationOnly" = annotation_only,
+        "lineLimit" = 0,
+        "download" = download,
+        "gzip" = gzip,
+        "set" = set,
+        "includeLinks" = include_links,
+        "range" = range,
+        "complement" = complement
+      )
+      res <- try(httr::RETRY(
+        "POST",
+        url,
+        httr::user_agent(package_url()),
+        httr::add_headers(.headers = headers),
+        body = body,
+        encode = "json",
+        terminate_on = 404,
+        quiet = TRUE), silent = TRUE)
       seqs <- ena_parse(res, mode = mode)
       return(seqs)
     }
