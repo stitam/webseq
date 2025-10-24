@@ -32,6 +32,12 @@ test_that("ncbi_recover_id() works with pubmed", {
   uid <- ncbi_get_uid(examples$pubmed, db = "pubmed")
   id1 <- ncbi_recover_id(uid)
   id2 <- ncbi_recover_id(uid$uid, db = "pubmed")
-  expect_equal(id1, c("39332413", "36759752"))
-  expect_equal(id1, c("39332413", "36759752"))
+  expect_equal(id1, c(
+    "https://doi.org/10.1016/j.cell.2024.09.009",
+    "https://doi.org/10.1038/s41564-023-01320-2")
+  )
+  expect_equal(id2, c(
+    "https://doi.org/10.1016/j.cell.2024.09.009",
+    "https://doi.org/10.1038/s41564-023-01320-2")
+  )
 })
