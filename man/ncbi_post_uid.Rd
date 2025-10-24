@@ -30,7 +30,7 @@ elements:
 \description{
 This function posts a vector of NCBI UIDs to the NCBI webservice. The purpose
 of this function is to generate an ncbi_uid object with web history which can
-be used in downstream functions.
+then be used in downstream functions.
 }
 \details{
 The default value for \code{batch_size} should work in most cases.
@@ -38,11 +38,11 @@ However, if the vector of UIDs is very long, the function may fail with an
 error message. In this case, try reducing the \code{batch_size} value.
 }
 \note{
-In webseq NCBI UIDs are retrieved using `ncbi_get_uid()` or 
-`ncbi_link_uid()` and are used for retrieving linked UIDs in other NCBI 
-databases or to retrieving the data itself. In some cases data retrieval is
-faster when using web history. However, you may acquire UIDs without a web
-history or the web hostory may expire. In this case you can use 
+In webseq NCBI UIDs are acquired using `ncbi_get_uid()` or 
+`ncbi_link_uid()` and are used for acquiring linked UIDs in other NCBI 
+databases or for retrieving the data itself. In some cases data retrieval is
+faster when using web history. However, you may have UIDs without a web
+history or your web history may expire. In this case you can use 
 `ncbi_post_uid()` to generate a new ncbi_uid object with web history.
 }
 \examples{
