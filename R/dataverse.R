@@ -82,7 +82,7 @@ dv_download <- function(
     if (verbose) message("Downloaded ", filename)
     return(filepath)
   }
-  out <- lapply(files$label, download_file)
+  out <- unname(sapply(files$label, download_file))
   invisible(out)
 }
 
