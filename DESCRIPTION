@@ -20,6 +20,7 @@ Imports:
     dataverse,
     dplyr,
     httr,
+    httr2,
     jsonlite,
     magrittr,
     rentrez,

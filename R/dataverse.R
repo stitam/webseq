@@ -119,8 +119,10 @@ dv_download <- function(
       dir.create(dirpath, recursive = TRUE)
     }
     filepath <- file.path(dirpath, basename(filename))
+    request <- httr2::request(file_url) |>
+      httr2::req_headers("X-Dataverse-key" = conn$apikey)
     out <- try(
-      utils::download.file(file_url, destfile = filepath, quiet = TRUE),
+      request |> httr2::req_perform(path = filepath),
       silent = TRUE
     )
     if (inherits(out, "try-error")) {
