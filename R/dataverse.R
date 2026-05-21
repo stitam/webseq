@@ -41,7 +41,9 @@ dv_list_files <- function(conn, extension = NULL) {
       "md5"
     )
   if (!is.null(extension)) {
-    files <- files[grepl(extension, files$filename), ]
+    ext <- ifelse(startsWith(extension, "."), extension, paste0(".", extension))
+    index <- tolower(tools::file_ext(files$filename)) == tolower(sub("^\\.", "", ext))
+    files <- files[index, ]
   }
   files_tbl <- tibble::as_tibble(files)
   structure(files_tbl, conn = conn, class = c("dv_files", class(files_tbl)))
