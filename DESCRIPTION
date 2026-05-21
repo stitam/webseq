@@ -17,6 +17,7 @@ Depends:
     R (>= 3.5.0)
 Imports:
     curl,
+    dataverse,
     dplyr,
     httr,
     jsonlite,
@@ -33,6 +34,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat
+Remotes:
+    IQSS/dataverse-client-r
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 Config/testthat/edition: 3
