@@ -73,14 +73,7 @@ dv_list_files <- function(conn, extension = NULL) {
     server  = conn$server,
     key     = conn$apikey
   )
-  files <- dataset$files |>
-    dplyr::select(
-      "label",
-      "description",
-      "filename",
-      "filesize",
-      "md5"
-    )
+  files <- dataset$files
   if (!is.null(extension)) {
     ext <- ifelse(startsWith(extension, "."), extension, paste0(".", extension))
     index <- tolower(tools::file_ext(files$filename)) == tolower(sub("^\\.", "", ext))
