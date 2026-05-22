@@ -17,8 +17,10 @@ Depends:
     R (>= 3.5.0)
 Imports:
     curl,
+    dataverse,
     dplyr,
     httr,
+    httr2,
     jsonlite,
     magrittr,
     rentrez,
@@ -33,6 +35,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat
-RoxygenNote: 7.3.2
+Remotes:
+    IQSS/dataverse-client-r
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
