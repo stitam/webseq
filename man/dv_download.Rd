@@ -9,6 +9,8 @@ dv_download(files, conn, dirpath = NULL, verbose = getOption("verbose"))
 \arguments{
 \item{files}{a tibble of files from a `dv_connection` object, typically 
 obtained from [dv_list_files()] plus optional filtering. Must contain columns
+called `filename`, `id` and `md5`.}
+
 \item{conn}{a `dv_connection` object from [dv_connect()].}
 
 \item{dirpath}{character, path to the directory where files will be saved.

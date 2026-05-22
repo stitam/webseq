@@ -13,7 +13,7 @@
 #' "https://dataverse.no/dataset.xhtml?persistentId=doi:10.18710/NCKZD7", the 
 #' server address is "https://dataverse.no" and the persistentId is 
 #' "doi:10.18710/NCKZD7". 
-#' @detailas If the Dataset is private, you will need to provide your API key to 
+#' @details If the Dataset is private, you will need to provide your API key to 
 #' access it. You can obtain an API key by creating an account on the Dataverse 
 #' server and generating a new API token in your account settings.
 #' @note The function returns an attribute called "conn" which contains the 
@@ -74,7 +74,8 @@ dv_list_files <- function(conn) {
 #'
 #' @param files a tibble of files from a `dv_connection` object, typically 
 #' obtained from [dv_list_files()] plus optional filtering. Must contain columns
-#' called `filename` and `id`.
+#' called `filename`, `id` and `md5`.
+#' @param conn a `dv_connection` object from [dv_connect()].
 #' @param dirpath character, path to the directory where files will be saved.
 #' Defaults to the current working directory.
 #' @param verbose logical, should verbose messages be printed to the console?
@@ -99,14 +100,20 @@ dv_download <- function(
   verbose = getOption("verbose")
 ) {
   # validate input
-  if (any(!c("filename", "id") %in% names(files))) {
-    stop("`files` must contain columns called `filename` and `id`.")
+  if (any(!c("filename", "id", "md5") %in% names(files))) {
+    stop("'files' must contain columns called 'filename', 'id' and 'md5'.")
   }
   if (any(is.na(files$filename))) {
-    stop("`files` contains NA values in the 'filename' column.")
+    stop("'files' contains NA values in the 'filename' column.")
   }
   if (any(is.na(files$id))) {
-    stop("`files` contains NA values in the 'id' column.")
+    stop("'files' contains NA values in the 'id' column.")
+  }
+  if (any(is.na(files$md5))) {
+    warning(
+      "'files' contains NA values in the 'md5' column. ",
+      "MD5 checksum validation will be skipped for these files."
+    )
   }
   conn <- attr(conn, "conn")
   if (is.null(dirpath)) dirpath = getwd()
@@ -120,8 +127,18 @@ dv_download <- function(
       message("Downloading ", files$filename[i], ". ", appendLF = FALSE)
     }
     if (file.exists(filepath)) {
-      if (verbose) {message("Already downloaded.")}
-      return(filepath)
+      if (verbose) message("Already downloaded. ", appendLF = FALSE)
+      valid <- validate_checksum(
+        md5 = tools::md5sum(filepath), 
+        md5ref = files$md5[i], 
+        verbose = verbose
+      )
+      if (valid) {
+        return(filepath)
+      } else {
+        if (verbose) message("Removing and re-downloading. ", appendLF = FALSE)
+        file.remove(filepath)
+      }
     }
     file_url <- dataverse::get_file_by_id(
       file    = files$id[i],
@@ -137,15 +154,24 @@ dv_download <- function(
       silent = TRUE
     )
     if (!inherits(out, "try-error") && out$status_code == 200) {
-      if (verbose) message("Done.")
-      return(filepath)
+      # Validate checksum
+      valid <- validate_checksum(
+        md5 = tools::md5sum(filepath), 
+        md5ref = files$md5[i], 
+        verbose = verbose
+      )
+      if (valid) {
+        return(filepath)
+      } else {
+        if (verbose) message("Removing file.")
+        file.remove(filepath)
+        return(NA_character_)
+      }
     } else if (!inherits(out, "try-error")) {
       if (verbose) message("Failed. ", httr::message_for_status(out))
-      file.remove(filepath)
       return(NA_character_)
     } else {
       if (verbose) message("Failed.")
-      file.remove(filepath)
       return(NA_character_)
     }
   }
@@ -161,5 +187,27 @@ dv_download <- function(
 assert_dv_connection <- function(conn) {
   if (!inherits(conn, "dv_connection")) {
     stop("`conn` must be a `dv_connection` object from `dv_connect()`.", call. = FALSE)
+  }
+}
+
+validate_checksum <- function(
+  md5, 
+  md5ref,
+  verbose = getOption("verbose")
+) {
+  if (is.na(md5ref)) {
+    if (verbose) {
+      message(
+        "MD5 checksum reference not available. Skipping validation."
+      )
+    }
+    return(TRUE)
+  }
+  if (md5 == md5ref) {
+    if (verbose) message("Checksum match. ", appendLF = TRUE)
+    return(TRUE)
+  } else {
+    if (verbose) message("Checksum mismatch. ", appendLF = FALSE)
+    return(FALSE)
   }
 }
