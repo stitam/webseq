@@ -30,6 +30,10 @@ is the value of the "persistentId" query parameter. For example, in the URL
 "https://dataverse.no/dataset.xhtml?persistentId=doi:10.18710/NCKZD7", the 
 server address is "https://dataverse.no" and the persistentId is 
 "doi:10.18710/NCKZD7".
+
+If the Dataset is private, you will need to provide your API key to 
+access it. You can obtain an API key by creating an account on the Dataverse 
+server and generating a new API token in your account settings.
 }
 \note{
 The function returns an attribute called "conn" which contains the 
