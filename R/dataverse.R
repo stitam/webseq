@@ -91,7 +91,7 @@ dv_list_files <- function(conn) {
 #' conn |> 
 #'   dv_list_files() |> 
 #'   dplyr::filter(grepl("\\.fasta$", filename)) |>
-#'   dv_download()
+#'   dv_download(conn = conn)
 #' @export
 dv_download <- function(
   files,
