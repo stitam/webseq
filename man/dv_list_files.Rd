@@ -7,7 +7,7 @@
 dv_list_files(conn, extension = NULL)
 }
 \arguments{
-\item{conn}{a `dv_connection` object from [dv_connect_dataset()].}
+\item{conn}{a `dv_connection` object from [dv_connect()].}
 
 \item{extension}{character, optional file extension to filter by 
 (`"fasta"`, `"fastq"`, etc.).}
@@ -25,12 +25,12 @@ tibble. This allows piping the output of `dv_list_files()` directly into
 `dv_download()`.
 }
 \examples{
-conn <- dv_connect_dataset(
+conn <- dv_connect(
   dataset = "doi:10.18710/NCKZD7",
   server  = "https://dataverse.no"
 )
 conn |> dv_list_files(extension = "fasta")
 }
 \seealso{
-[dv_connect_dataset()], [dv_download()]
+[dv_connect()], [dv_download()]
 }

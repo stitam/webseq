@@ -22,12 +22,12 @@ or `NA` for files that failed to download. Returned invisibly.
 Download files from a Dataset of a Dataverse server
 }
 \examples{
-conn <- dv_connect_dataset(
+conn <- dv_connect(
   dataset = "doi:10.18710/NCKZD7",
   server  = "https://dataverse.no"
 )
 conn |> dv_list_files(extension = "fasta") |> dv_download()
 }
 \seealso{
-[dv_connect_dataset()], [dv_list_files()]
+[dv_connect()], [dv_list_files()]
 }

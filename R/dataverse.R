@@ -18,18 +18,18 @@
 #' settings.
 #' @examples
 #' # connect to a public dataset on dataverse.no
-#' conn <- dv_connect_dataset(
+#' conn <- dv_connect(
 #'   dataset = "doi:10.18710/NCKZD7",
 #'   server = "https://dataverse.no"
 #' )
 #' # connect to a private dataset on dataverse.no
-#' conn <- dv_connect_dataset(
+#' conn <- dv_connect(
 #'  dataset = "private_persistentId_here",
 #'  server = "https://dataverse.no",
 #'  apikey = "your_api_key_here"
 #' )
 #' @export
-dv_connect_dataset <- function(
+dv_connect <- function(
   dataset,
   version = ":latest",
   server,
@@ -49,7 +49,7 @@ dv_connect_dataset <- function(
 
 #' List files in a Dataset of a Dataverse server
 #'
-#' @param conn a `dv_connection` object from [dv_connect_dataset()].
+#' @param conn a `dv_connection` object from [dv_connect()].
 #' @param extension character, optional file extension to filter by 
 #' (`"fasta"`, `"fastq"`, etc.).
 #' @return A tibble with information about the files in the Dataset. 
@@ -57,9 +57,9 @@ dv_connect_dataset <- function(
 #' `dv_files` where the connection object is stored as an attribute of the 
 #' tibble. This allows piping the output of `dv_list_files()` directly into 
 #' `dv_download()`.
-#' @seealso [dv_connect_dataset()], [dv_download()]
+#' @seealso [dv_connect()], [dv_download()]
 #' @examples
-#' conn <- dv_connect_dataset(
+#' conn <- dv_connect(
 #'   dataset = "doi:10.18710/NCKZD7",
 #'   server  = "https://dataverse.no"
 #' )
@@ -92,9 +92,9 @@ dv_list_files <- function(conn, extension = NULL) {
 #' @param verbose logical, should verbose messages be printed to the console?
 #' @return A character vector of file paths for successfully downloaded files,
 #' or `NA` for files that failed to download. Returned invisibly.
-#' @seealso [dv_connect_dataset()], [dv_list_files()]
+#' @seealso [dv_connect()], [dv_list_files()]
 #' @examples
-#' conn <- dv_connect_dataset(
+#' conn <- dv_connect(
 #'   dataset = "doi:10.18710/NCKZD7",
 #'   server  = "https://dataverse.no"
 #' )
@@ -145,7 +145,7 @@ dv_download <- function(
 #' @noRd
 assert_dv_connection <- function(conn) {
   if (!inherits(conn, "dv_connection")) {
-    stop("`conn` must be a `dv_connection` object from `dv_connect_dataset()`.", call. = FALSE)
+    stop("`conn` must be a `dv_connection` object from `dv_connect()`.", call. = FALSE)
   }
 }
 
