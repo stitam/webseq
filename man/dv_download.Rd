@@ -2,12 +2,14 @@
 % Please edit documentation in R/dataverse.R
 \name{dv_download}
 \alias{dv_download}
-\title{Download files from a Dataset of a Dataverse server}
+\title{Download files from a Dataset on a Dataverse server}
 \usage{
-dv_download(files, dirpath = NULL, verbose = getOption("verbose"))
+dv_download(files, conn, dirpath = NULL, verbose = getOption("verbose"))
 }
 \arguments{
-\item{files}{a `dv_files` object from [dv_list_files()].}
+\item{files}{a tibble of files from a `dv_connection` object, typically 
+obtained from [dv_list_files()] plus optional filtering. Must contain columns
+called `filename` and `id`.}
 
 \item{dirpath}{character, path to the directory where files will be saved.
 Defaults to the current working directory.}
@@ -19,14 +21,18 @@ A character vector of file paths for successfully downloaded files,
 or `NA` for files that failed to download. Returned invisibly.
 }
 \description{
-Download files from a Dataset of a Dataverse server
+Download files from a Dataset on a Dataverse server
 }
 \examples{
 conn <- dv_connect(
   dataset = "doi:10.18710/NCKZD7",
   server  = "https://dataverse.no"
 )
-conn |> dv_list_files(extension = "fasta") |> dv_download()
+
+conn |> 
+  dv_list_files() |> 
+  dplyr::filter(grepl("\\\\.fasta$", filename)) |>
+  dv_download()
 }
 \seealso{
 [dv_connect()], [dv_list_files()]

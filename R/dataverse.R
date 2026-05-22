@@ -1,21 +1,24 @@
 #' Connect to a Dataset on a Dataverse server
 #'
-#' @param dataset character, "persistentId" of the Dataset to connect to.
-#' @param version character, version of the Dataset to connect to.
+#' @param dataset character, "persistentId" of the Dataset.
+#' @param version character, version of the Dataset.
 #' @param server character, URL of the Dataverse server.
 #' @param apikey character, your API key for the Dataverse server.
 #' @param ... Additional arguments to pass to `dataverse::get_dataset()`.
-#' @return A dataset object object of class `dataverse_dataset`.
-#' @details
-#' The persistentId and the server address can be obtained from the URL of the 
-#' Dataset. The URL starts with the server address, and the persistentId is the 
-#' value of the "persistentId" query parameter. For example, in the URL
+#' @return A connection object with Dataset metadata.
+#' @seealso [dv_list_files()], [dv_download()]
+#' @details The persistentId and the server address can be obtained from the URL 
+#' of the Dataset. The URL starts with the server address, and the persistentId 
+#' is the value of the "persistentId" query parameter. For example, in the URL
 #' "https://dataverse.no/dataset.xhtml?persistentId=doi:10.18710/NCKZD7", the 
 #' server address is "https://dataverse.no" and the persistentId is 
-#' "doi:10.18710/NCKZD7". If the Dataset is private, you will need to provide 
-#' your API key to access it. You can obtain an API key by creating an account
-#' on the Dataverse server and generating a new API token in your account 
-#' settings.
+#' "doi:10.18710/NCKZD7". 
+#' @detailas If the Dataset is private, you will need to provide your API key to 
+#' access it. You can obtain an API key by creating an account on the Dataverse 
+#' server and generating a new API token in your account settings.
+#' @note The function returns an attribute called "conn" which contains the 
+#' connection information you provided when you called the function. If you are 
+#' accessing a private Dataset, this attribute will contain your API key!
 #' @examples
 #' # connect to a public dataset on dataverse.no
 #' conn <- dv_connect(
@@ -35,58 +38,43 @@ dv_connect <- function(
   server,
   apikey = ""
 ) {
-  structure(
-    list(
-      persistentId = dataset,
-      version      = version,
-      server       = server,
-      apikey       = apikey
-    ),
-    class = "dv_connection"
+  conn <- list(
+    persistentId = dataset,
+    version      = version,
+    server       = server,
+    apikey       = apikey
   )
+  meta <- dataverse::get_dataset(
+    dataset = conn$persistentId,
+    version = conn$version,
+    server  = conn$server,
+    key     = conn$apikey
+  )
+  structure(meta, conn = conn, class = c("dv_connection", class(meta)))
 }
 
-
-#' List files in a Dataset of a Dataverse server
+#' List files in a Dataset on a Dataverse server
 #'
 #' @param conn a `dv_connection` object from [dv_connect()].
-#' @param extension character, optional file extension to filter by 
-#' (`"fasta"`, `"fastq"`, etc.).
 #' @return A tibble with information about the files in the Dataset. 
-#' @note The returned tibbel is not a simple tibble, it is an object of class 
-#' `dv_files` where the connection object is stored as an attribute of the 
-#' tibble. This allows piping the output of `dv_list_files()` directly into 
-#' `dv_download()`.
 #' @seealso [dv_connect()], [dv_download()]
 #' @examples
 #' conn <- dv_connect(
 #'   dataset = "doi:10.18710/NCKZD7",
 #'   server  = "https://dataverse.no"
 #' )
-#' conn |> dv_list_files(extension = "fasta")
+#' conn |> dv_list_files()
 #' @export
-dv_list_files <- function(conn, extension = NULL) {
+dv_list_files <- function(conn) {
   assert_dv_connection(conn)
-  dataset <- dataverse::get_dataset(
-    dataset = conn$persistentId,
-    version = conn$version,
-    server  = conn$server,
-    key     = conn$apikey
-  )
-  files <- dataset$files
-  if (!is.null(extension)) {
-    ext <- ifelse(startsWith(extension, "."), extension, paste0(".", extension))
-    index <- tolower(tools::file_ext(files$filename)) == tolower(sub("^\\.", "", ext))
-    files <- files[index, ]
-  }
-  files_tbl <- tibble::as_tibble(files)
-  structure(files_tbl, conn = conn, class = c("dv_files", class(files_tbl)))
+  conn$files |> tibble::as_tibble()
 }
 
-
-#' Download files from a Dataset of a Dataverse server
+#' Download files from a Dataset on a Dataverse server
 #'
-#' @param files a `dv_files` object from [dv_list_files()].
+#' @param files a tibble of files from a `dv_connection` object, typically 
+#' obtained from [dv_list_files()] plus optional filtering. Must contain columns
+#' called `filename` and `id`.
 #' @param dirpath character, path to the directory where files will be saved.
 #' Defaults to the current working directory.
 #' @param verbose logical, should verbose messages be printed to the console?
@@ -98,45 +86,72 @@ dv_list_files <- function(conn, extension = NULL) {
 #'   dataset = "doi:10.18710/NCKZD7",
 #'   server  = "https://dataverse.no"
 #' )
-#' conn |> dv_list_files(extension = "fasta") |> dv_download()
+#' 
+#' conn |> 
+#'   dv_list_files() |> 
+#'   dplyr::filter(grepl("\\.fasta$", filename)) |>
+#'   dv_download()
 #' @export
 dv_download <- function(
   files,
+  conn,
   dirpath = NULL,
   verbose = getOption("verbose")
 ) {
-  conn <- assert_dv_files(files)
-  download_file <- function(filename) {
-    file_url <- dataverse::get_file(
-      file    = filename,
+  # validate input
+  if (any(!c("filename", "id") %in% names(files))) {
+    stop("`files` must contain columns called `filename` and `id`.")
+  }
+  if (any(is.na(files$filename))) {
+    stop("`files` contains NA values in the 'filename' column.")
+  }
+  if (any(is.na(files$id))) {
+    stop("`files` contains NA values in the 'id' column.")
+  }
+  conn <- attr(conn, "conn")
+  if (is.null(dirpath)) dirpath = getwd()
+  if (!dir.exists(dirpath)) {
+    if (verbose) message("Creating directory: ", dirpath)
+    dir.create(dirpath, recursive = TRUE)
+  }
+  download_file <- function(i) {
+    filepath <- file.path(dirpath, basename(files$filename[i]))
+    if (verbose) {
+      message("Downloading ", files$filename[i], ". ", appendLF = FALSE)
+    }
+    if (file.exists(filepath)) {
+      if (verbose) {message("Already downloaded.")}
+      return(filepath)
+    }
+    file_url <- dataverse::get_file_by_id(
+      file    = files$id[i],
       dataset = conn$persistentId,
       server  = conn$server,
       key     = conn$apikey,
       return_url = TRUE
     )
-    if (is.null(dirpath)) dirpath = getwd()
-    if (!dir.exists(dirpath)) {
-      dir.create(dirpath, recursive = TRUE)
-    }
-    filepath <- file.path(dirpath, basename(filename))
-    request <- httr2::request(file_url) |>
-      httr2::req_headers("X-Dataverse-key" = conn$apikey)
     out <- try(
-      request |> httr2::req_perform(path = filepath),
+      httr2::request(file_url) |>
+      httr2::req_headers("X-Dataverse-key" = conn$apikey) |>
+      httr2::req_perform(path = filepath),
       silent = TRUE
     )
-    if (inherits(out, "try-error")) {
-      if (verbose) message("Failed to download ", filename, ". Webservice temporarily down.")
+    if (!inherits(out, "try-error") && out$status_code == 200) {
+      if (verbose) message("Done.")
+      return(filepath)
+    } else if (!inherits(out, "try-error")) {
+      if (verbose) message("Failed. ", httr::message_for_status(out))
+      file.remove(filepath)
+      return(NA_character_)
+    } else {
+      if (verbose) message("Failed.")
       file.remove(filepath)
       return(NA_character_)
     }
-    if (verbose) message("Downloaded ", filename)
-    return(filepath)
   }
-  out <- unname(sapply(files$label, download_file))
+  out <- unname(sapply(seq_along(1:nrow(files)), download_file))
   invisible(out)
 }
-
 
 #' Assert valid dv_connection object
 #'
@@ -147,19 +162,4 @@ assert_dv_connection <- function(conn) {
   if (!inherits(conn, "dv_connection")) {
     stop("`conn` must be a `dv_connection` object from `dv_connect()`.", call. = FALSE)
   }
-}
-
-#' Assert valid dv_files object and extract connection
-#'
-#' @param x Object to validate.
-#' @return The connection object stored as an attribute of `x`.
-#' @noRd
-assert_dv_files <- function(x) {
-  if (!inherits(x, "dv_files") || is.null(attr(x, "conn"))) {
-    stop(
-      "`files` must be a `dv_files` object from `dv_list_files()`.",
-      call. = FALSE
-    )
-  }
-  attr(x, "conn")
 }

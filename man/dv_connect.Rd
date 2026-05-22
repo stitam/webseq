@@ -7,9 +7,9 @@
 dv_connect(dataset, version = ":latest", server, apikey = "")
 }
 \arguments{
-\item{dataset}{character, "persistentId" of the Dataset to connect to.}
+\item{dataset}{character, "persistentId" of the Dataset.}
 
-\item{version}{character, version of the Dataset to connect to.}
+\item{version}{character, version of the Dataset.}
 
 \item{server}{character, URL of the Dataverse server.}
 
@@ -18,21 +18,23 @@ dv_connect(dataset, version = ":latest", server, apikey = "")
 \item{...}{Additional arguments to pass to `dataverse::get_dataset()`.}
 }
 \value{
-A dataset object object of class `dataverse_dataset`.
+A connection object with Dataset metadata.
 }
 \description{
 Connect to a Dataset on a Dataverse server
 }
 \details{
-The persistentId and the server address can be obtained from the URL of the 
-Dataset. The URL starts with the server address, and the persistentId is the 
-value of the "persistentId" query parameter. For example, in the URL
+The persistentId and the server address can be obtained from the URL 
+of the Dataset. The URL starts with the server address, and the persistentId 
+is the value of the "persistentId" query parameter. For example, in the URL
 "https://dataverse.no/dataset.xhtml?persistentId=doi:10.18710/NCKZD7", the 
 server address is "https://dataverse.no" and the persistentId is 
-"doi:10.18710/NCKZD7". If the Dataset is private, you will need to provide 
-your API key to access it. You can obtain an API key by creating an account
-on the Dataverse server and generating a new API token in your account 
-settings.
+"doi:10.18710/NCKZD7".
+}
+\note{
+The function returns an attribute called "conn" which contains the 
+connection information you provided when you called the function. If you are 
+accessing a private Dataset, this attribute will contain your API key!
 }
 \examples{
 # connect to a public dataset on dataverse.no
@@ -46,4 +48,7 @@ conn <- dv_connect(
  server = "https://dataverse.no",
  apikey = "your_api_key_here"
 )
+}
+\seealso{
+[dv_list_files()], [dv_download()]
 }
